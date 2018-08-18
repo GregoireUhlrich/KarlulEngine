@@ -13,10 +13,9 @@ interactiveWindow::interactiveWindow(sf::RenderWindow* wi, mapi* Mi, int lyi)
 	lx = sizeWindow.x;
 	posMouse = sf::Vector2i(0,0);
 	
-	sf::SoundBuffer fooBuffer;
-	fooBuffer.loadFromFile("Audio/Projet1Arch.ogg");
+	buffer.loadFromFile("Audio/Projet1Arch.ogg");
 	son1.setLoop(1);
-	son1.setBuffer(fooBuffer);
+	son1.setBuffer(buffer);
 	
 	nD = 19;
     nModeMap = 4;
@@ -281,6 +280,7 @@ void interactiveWindow::windowEvent(sf::Event event)
         			D[i]->setPressed(0);
         		}
         		son1.play();
+        		cout<<"Son\n";
         	}
         	else son1.stop();
 		}

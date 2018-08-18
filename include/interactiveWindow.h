@@ -48,6 +48,7 @@ class interactiveWindow
 	sf::RectangleShape backGShape;
 	sf::RectangleShape limitShape;
 	
+	sf::SoundBuffer buffer;
 	sf::Sound son1;
 	
 	public:
