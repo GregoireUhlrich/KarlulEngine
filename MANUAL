@@ -1,0 +1,64 @@
+MANUEL DE L'APPLICATION
+
+##### INSTALLATION DES DEPENDANCES (UBUNTU): #####
+
+sudo apt-get install libpthread-stubs0-dev libgl1-mesa-dev libx11-dev libxrandr-dev libfreetype6-dev libglew-dev libjpeg8-dev libsndfile1-dev libopenal-dev libudev-dev libxcb1-dev libxcb-image0-dev libxcb-randr0-dev libjpeg-dev libflac-dev libvorbis-dev
+
+##### MODES: ######
+(1 mode possible à la fois):
+
+- ADD: mode ajout. Permet de sélectionner un rectangle sur les images PNG à gauche et à droite de la fenêtre pour le placer sur la carte. Un clic place simplement le rectangle et possibilité d'étirer le rectangle de dépos de l'image en laissant la souris enfoncée.
+
+- MOVE: Se déplacer sur la carte (zoom et déplacement à la souris).
+
+- SELECT: Permet de sélectionner un rectangle sur la map pour effectuer plusieurs actions. Voir la section "Actions".
+
+- ERASE: Permet d'effacer les sprites un par un en laissant la souris enfoncée.
+
+
+
+##### BOUTONS BINAIRES: #####
+
+- GRID: affiche une grille sur la carte.
+
+- PASS: affiche les cases bloquées ou non pour le personnage (carré rouge en transparence si une direction au moins est bloquée, les directions autorisées sont alors signalées par des traits bleus).
+
+- PRIO: Permet d'afficher seulement la plan en cours d'utilisation (les autres plans sont affichés en transparence) et d'effectuer les actions permises dans le mode select seulement pour un plan particulier. Par exemple supprimer les sprites dans un rectangle de sélection seulement sur un certain plan. Le plan en cours d'utilisation est déterminé par les boutons 0 1 2 et 3. Les sprites avec une plus grande priorité sont affichés au-dessus, la priorité du héros est entre la priorité 1 et la 2.
+
+
+
+##### ZONES DE TEXTE: #####
+(cliquer, modifier le texte comme dans un terminal PUIS appuyer sur la touche entrée):
+
+- En haut à droite: nom du fichier de la map. Une fois le fichier changé, un chargement ou une sauvegarde de la map en cours sera rattaché à ce fichier.
+
+- Deux zones au milieu: permet de changer la taille de la carte (nombre de gauche pour la largeur, nombre de droite pour la hauteur).
+
+- Zones aux extrémités, au dessus des PNG: permet de changer les PNG chargés. Nécessité d'aller voir les noms des fichiers PNG bien sûr. 
+
+
+
+##### BOUTONS ACTIONS: #####
+
+- SAVE: sauvegarde la carte dans le fichier courant.
+
+- LOAD: Charge la carte à partir du fichier courant.
+
+- NEW: Créé une nouvelle carte.
+
+- DEL IM: Supprime le PNG  (celui de gauche ou de droite) pour libérer de l'espace fenêtre si on n'utilise pas le fichier en question.
+
+
+
+##### ACTIONS: #####
+
+- TOUCHE ECHAP: Lance ou arrete le mode "Héros" qui permet de déplacer le héros sur la carte. Les boutons dans le mode héros sont désactivés.
+
+- CLIQUE DROIT: Place le point de départ du héros sur la case où se trouve la souris.
+
+- TOUCHE SUPPR: supprime les sprites dans le rectangle de séléction, seulement ceux dans le plan en cours si le bouton "Prio" est enfoncé.
+
+- TOUCHE A: change la possibilité de passage dans toutes les directions considérées pour les cases sélectionnées. Notamment pour une case vierge cela interdit complètement l'accès au Héros.
+
+- FLECHES DIRECTIONNELLES: change la possibilité de passage dans la direction considérée pour les cases sélectionnées.
+
