@@ -496,6 +496,18 @@ void mapi::setTakeMidY(bool t)
     imL->setTakeMidY(t);
 }
 
+void mapi::setPosHeros(int xi, int yi)
+{
+    Heros->setX(xi);
+    Heros->setY(yi);
+}
+
+void mapi::setDirHeros(int dir)
+{
+    if (dir > -1 && dir < 4) Heros->setDir(dir);
+    else Heros->setDir(0);
+}
+
 void mapi::setSelect(bool s, bool s2)
 {
     select = s;

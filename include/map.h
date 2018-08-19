@@ -4,6 +4,7 @@
 #include "drawable.h"
 #include "character.h"
 #include "support.h"
+#include "events.h"
 #include "../include/supportWindow.h"
 #include <SFML/Graphics.hpp>
 #include <string>
@@ -140,6 +141,8 @@ class mapi
 	void resetTextureSprite();
 	void setTakeMidX(bool s);
 	void setTakeMidY(bool s);
+	void setPosHeros(int xi, int yi);
+	void setDirHeros(int dir);
 	int loadMap();
 	void saveMap();
 	void initMap();
