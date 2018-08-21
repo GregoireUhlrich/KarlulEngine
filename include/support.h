@@ -8,6 +8,7 @@ using namespace std;
 
 string unsignedIntToString(unsigned int i);
 unsigned int stringToUnsignedInt(string s);
+const unsigned int constStringToUnsignedInt(string s);
 
 #endif 
 

@@ -4,10 +4,11 @@
 #include "drawable.h"
 #include "character.h"
 #include "support.h"
-#include "events.h"
+#include "gameEvent.h"
 #include "../include/supportWindow.h"
 #include <SFML/Graphics.hpp>
 #include <string>
+#include <vector>
 using namespace std;
 
 // Structure permettant de stocker la position d'un sprite sur la map et dans son PNG //
@@ -15,6 +16,12 @@ struct sprite
 {
 	int x, y;
 	int xPNG, yPNG;
+};
+
+struct gate
+{
+    int x, y;
+    string name;
 };
 
 // Etat de l'éditeur (mode ajout, ecrasement, test du héros etc... //
@@ -62,7 +69,8 @@ class mapi
 	
 	string stringFile; // Nom du fichier en cours pour la carte
 	string stringDirPNG;
-	sf::Sprite*** Sprite; // Contient tous les sprites par prio puis numéro de texture
+	
+	vector<vector<vector<sf::Sprite > > > spriteVec;// Contient tous les sprites par prio puis numéro de texture
 	int nTotTexture; // Nombre de textures ouvertes dans le programme
 	sf::Texture** Texture; // Textures ouvertes
 	string* fileTextures; // Nom des fichiers PNG
@@ -106,6 +114,12 @@ class mapi
 	sf::Sprite spriteMap;
 	
 	mapCtrlZ* ctrlZObject;
+	
+	int nGates;
+	gate* gates;
+	
+	int nEvents;
+	gameEvent** events;
 	
 	public:
 	

@@ -16,3 +16,11 @@ unsigned int stringToUnsignedInt(string s)
 	return i;
 }
 
+const unsigned int constStringToUnsignedInt(string s)
+{
+	unsigned int i;
+	istringstream (s) >> i;
+	const int iReturn = i;
+	return iReturn;
+}
+
