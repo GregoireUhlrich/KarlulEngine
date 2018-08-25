@@ -48,7 +48,6 @@ mapi::mapi(sf::RenderWindow* w, character* H, string f, int height)
     lxMap = lyMap = 0;
     xSprites = ySprites = 32;
     nPrio = 4;
-    iTexture = new int*[nPrio];
     nTotTexture = 0;
     indexSprites = new int***[nPrio];
     nTexture = new int[nPrio];
@@ -57,21 +56,20 @@ mapi::mapi(sf::RenderWindow* w, character* H, string f, int height)
     passOrNot = new int**[nPrio];
     spriteCtrlC = new sf::Sprite**[nPrio];
     fileCtrlC = new string**[nPrio];
+    spriteVec = vector<vector<vector<sf::Sprite> > >(4);
+    iTextureVec = vector<vector<int> >(4);
     nExceptions = 0;
     for (int i=0; i<nPrio; i++)
     {
-        spriteVec.push_back(vector<vector<sf::Sprite> >(0));
         nTexture[i] = 0;
         nameTexture[i] = 0;
         nSprite[i] = 0;
         indexSprites[i] = 0;
         passOrNot[i] = 0;
-        iTexture[i] = 0;
         spriteCtrlC[i] = 0;
         fileCtrlC[i] = 0;
     }
-    Texture = 0;
-    fileTextures = 0;
+    textureVec = vector<sf::Texture>(0);
     
     isImLeft = 0;
     isImRight = 0;
@@ -110,20 +108,13 @@ mapi::~mapi()
         {
             delete[] nSprite[i];
             delete[] nameTexture[i];
-            delete[] iTexture[i];
             nSprite[i] = 0;
             nameTexture[i] = 0;
-            iTexture[i] = 0;
         }
         delete[] indexSprites[i];
         delete[] passOrNot[i];
         indexSprites[i] = 0;
         passOrNot[i] = 0;
-    }
-    for (int i=0; i<nTotTexture; i++)
-    {
-        delete Texture[i];
-        Texture[i] = 0;
     }
     if (nSprite != 0)
     {
@@ -131,16 +122,10 @@ mapi::~mapi()
         delete[] nSprite;
         delete[] nameTexture;
         delete[] indexSprites;
-        delete[] iTexture;
-        delete[] Texture;
-        delete[] fileTextures;
         nTexture = 0;
         nSprite = 0;
         nameTexture = 0;
         indexSprites = 0;
-        Texture  = 0;
-        iTexture = 0;
-        fileTextures = 0;
     }
     delete[] passOrNot;
     passOrNot = 0;
@@ -243,7 +228,7 @@ string* mapi::getFileTextures() const
 {
     string *toReturn = new string[nTotTexture];
     for (int i=0; i<nTotTexture; i++)
-        toReturn[i] = fileTextures[i];
+        toReturn[i] = fileTextureVec[i];
     return toReturn;
 }
 
@@ -517,7 +502,7 @@ void mapi::resetTextureSprite()
         {
             for (int k=0; k<nSprite[i][j]; k++)
             {
-                spriteVec[i][j][k].setTexture(*Texture[iTexture[i][j]]);
+                spriteVec[i][j][k].setTexture(textureVec[iTextureVec[i][j]]);
             }
         }
     }
@@ -527,47 +512,15 @@ int mapi::addTexture(string t)
 {
     int fooInt = -1;
     for (int i=0; i<nTotTexture; i++)
-        if (t == fileTextures[i] && fooInt == -1)
+        if (t == fileTextureVec[i] && fooInt == -1)
             fooInt = i;
             
     if (fooInt == -1)
     {
-        sf::Texture** fooTexture = new sf::Texture*[nTotTexture+1];
-        string* fooString = new string[nTotTexture+1];
-        for (int i=0; i<nTotTexture; i++)
-        {
-            fooTexture[i] = new sf::Texture;
-            *fooTexture[i] = *Texture[i];
-            delete Texture[i];
-            Texture[i] = 0;
-            fooString[i] = fileTextures[i];
-        }
-        if (nTotTexture > 0)
-        {
-            delete[] Texture;
-            Texture = 0;
-            delete[] fileTextures;
-            fileTextures = 0;
-        }
-        fooTexture[nTotTexture] = new sf::Texture;
-        fooTexture[nTotTexture]->loadFromFile(t);
-        fooString[nTotTexture] = t;
+        textureVec.push_back(sf::Texture());
+        textureVec[nTotTexture].loadFromFile(t);
+        fileTextureVec.push_back(t);
         nTotTexture += 1;
-        Texture = new sf::Texture*[nTotTexture];
-        fileTextures = new string[nTotTexture];
-        for (int i=0; i<nTotTexture; i++)
-        {
-            Texture[i] = new sf::Texture;
-            *Texture[i] = *fooTexture[i];
-            delete fooTexture[i];
-            fooTexture[i] = 0;
-            fileTextures[i] = fooString[i];
-        }
-            
-        delete[] fooTexture;
-        fooTexture = 0;
-        delete[] fooString;        
-        fooString = 0;
         return (nTotTexture-1);
     }
     return fooInt;
@@ -576,23 +529,7 @@ int mapi::addTexture(string t)
 void mapi::removeTexture(int prio, int iT, string t)
 {
     if (nTexture[prio] > 0)
-    {
-        int* fooInt = new int[nTexture[prio]-1];
-        for (int i=0; i<nTexture[prio]; i++)
-        {
-            if (i < iT)
-                fooInt[i] = iTexture[prio][i];
-            else if (i > iT)
-                fooInt[i-1] = iTexture[prio][i];
-        }
-        delete[] iTexture[prio];
-        iTexture[prio] = 0;
-        iTexture[prio] = new int[nTexture[prio]-1];
-        for (int i=0; i<nTexture[prio]-1; i++)
-            iTexture[prio][i] = fooInt[i];
-        delete[] fooInt;
-        fooInt = 0;
-    }
+        iTextureVec[prio].erase(iTextureVec[prio].begin()+iT);
 }
 
 /*void mapi::removeTexture(int prio, int iT, string t)
@@ -779,7 +716,7 @@ int mapi::loadMap()
                 {
                     nameTexture[i] = new string[nTexture[i]];
                     nSprite[i] = new int[nTexture[i]];
-                    iTexture[i] = new int[nTexture[i]];
+                    iTextureVec[i] = vector<int>(nTexture[i]);
                     spriteVec[i] = vector<vector<sf::Sprite> >(nTexture[i]);
                 
                     for (int j=0; j<nTexture[i]; j++)
@@ -792,7 +729,7 @@ int mapi::loadMap()
                     for (int j=0; j<nTexture[i]; j++)
                     {
                         file>>nameTexture[i][j]>>foo;
-                        iTexture[i][j] = addTexture(nameTexture[i][j]);
+                        iTextureVec[i][j] = addTexture(nameTexture[i][j]);
                         if (foo[0] != '{')
                         {    
                             cout<<"Invalid syntax for texture "<<nameTexture[i][j]<<" at prio "<<i<<endl;
@@ -802,7 +739,7 @@ int mapi::loadMap()
                         for (int k=0; k<nSprite[i][j]; k++)
                         {
                             file>>s.x>>s.y>>s.xPNG>>s.yPNG>>foo;
-                            spriteVec[i][j][k].setTexture(*Texture[iTexture[i][j]]);
+                            spriteVec[i][j][k].setTexture(textureVec[iTextureVec[i][j]]);
                             spriteVec[i][j][k].setTextureRect(sf::IntRect(s.xPNG,s.yPNG,xSprites,ySprites));
                             spriteVec[i][j][k].setPosition(s.x,s.y);        
                             if (s.x>=0 && s.x<lxMap*xSprites && s.y>=0 && s.y<lyMap*ySprites)
@@ -823,7 +760,7 @@ int mapi::loadMap()
                 file>>fooPrio>>fooX>>fooY>>fooDir;
                 passOrNot[fooPrio][fooX][fooY] = fooDir;            
             }
-            if (nTexture > 0) initPNG(fileTextures[0],'L');
+            if (nTexture > 0) initPNG(fileTextureVec[0],'L');
             else initPNG("Tileset/base.PNG",'L');
             file>>foo;
             if (foo != "endFile")
@@ -849,6 +786,8 @@ int mapi::loadMap()
                     file>>foo;
                     //createEvent(foo, *this, );
                 }
+                file.close();
+                initMap();
             }
             else
             {
@@ -948,7 +887,6 @@ void mapi::reinitMap()
             {
                 delete[] nSprite[i];
                 delete[] nameTexture[i];
-                delete[] iTexture[i];
             }
             delete[] passOrNot[i];
         
@@ -957,19 +895,11 @@ void mapi::reinitMap()
             nameTexture[i] = 0;
             nTexture[i] = 0;
             indexSprites[i] = 0;
-            iTexture[i] = 0;
         }
-        if (Texture != 0)
-        {
-            for (int i=0; i<nTotTexture; i++)
-            {
-                delete Texture[i];
-                Texture[i] = 0;
-            }
-            delete[] Texture;
-            nTotTexture = 0;
-            Texture = 0;
-        }
+        nTotTexture = 0;
+        textureVec.clear();
+        iTextureVec.clear();
+        iTextureVec = vector<vector<int> >(4);
         boundary.setFillColor(sf::Color::Transparent);
         boundary.setOutlineColor(sf::Color::Green);
     
@@ -1123,21 +1053,19 @@ void mapi::addSprite(sprite s, int prio, string t)
             string* foo = new string[nTexture[prio]+1];
             int* foo2 = new int[nTexture[prio]+1];
             sf::Sprite** foo3 = new sf::Sprite*[nTexture[prio]+1];
-            int* fooInt = new int[nTexture[prio]+1];
             for (int j=0; j<nTexture[prio]; j++)
             {
                 foo[j] = nameTexture[prio][j];
                 foo2[j] = nSprite[prio][j];
                 foo3[j] = new sf::Sprite[nSprite[prio][j]];
-                fooInt[j] = iTexture[prio][j];
                 for (int k=0; k<nSprite[prio][j]; k++)
                     foo3[j][k] = spriteVec[prio][j][k];
             }
-            fooInt[nTexture[prio]] = addTexture(t);
+            iTextureVec[prio].push_back(addTexture(t));
             foo[nTexture[prio]] = t;
             foo2[nTexture[prio]] = 1;
             foo3[nTexture[prio]] = new sf::Sprite[1];
-            foo3[nTexture[prio]][0].setTexture(*Texture[fooInt[nTexture[prio]]]);
+            foo3[nTexture[prio]][0].setTexture(textureVec[iTextureVec[prio][nTexture[prio]]]);
             foo3[nTexture[prio]][0].setTextureRect(sf::IntRect(s.xPNG,s.yPNG,xSprites,ySprites));
             foo3[nTexture[prio]][0].setPosition(s.x,s.y);
             spriteVec[prio][nTexture[prio]] = vector<sf::Sprite>(1);
@@ -1147,35 +1075,29 @@ void mapi::addSprite(sprite s, int prio, string t)
             {
                 delete[] nameTexture[prio];
                 delete[] nSprite[prio];
-                delete[] iTexture[prio];
             }
             nameTexture[prio] = 0;
             nSprite[prio] = 0;
-            iTexture[prio] = 0;
             
             indexSprites[prio][s.x/xSprites][s.y/ySprites][0] = nTexture[prio];
             indexSprites[prio][s.x/xSprites][s.y/ySprites][1] = 0;
             nTexture[prio] += 1;
             nameTexture[prio] = new string[nTexture[prio]];
             nSprite[prio] = new int[nTexture[prio]];
-            iTexture[prio] = new int[nTexture[prio]];
             
             for (int j=0; j<nTexture[prio]; j++)
             {
                 nameTexture[prio][j] = foo[j];
                 nSprite[prio][j] = foo2[j];
-                iTexture[prio][j] = fooInt[j];
                 delete[] foo3[j];
                 foo3[j] = 0;
             }
             delete[] foo;
             delete[] foo2;
             delete[] foo3;
-            delete[] fooInt;
             foo = 0;
             foo2 = 0;
             foo3 = 0;
-            fooInt = 0;
         }
         else
         {
@@ -1183,7 +1105,7 @@ void mapi::addSprite(sprite s, int prio, string t)
             for (int k=0; k<nSprite[prio][indexTexture]; k++)
                 foo[k] = spriteVec[prio][indexTexture][k];
             
-            foo[nSprite[prio][indexTexture]].setTexture(*Texture[iTexture[prio][indexTexture]]);
+            foo[nSprite[prio][indexTexture]].setTexture(textureVec[iTextureVec[prio][indexTexture]]);
             foo[nSprite[prio][indexTexture]].setTextureRect(sf::IntRect(s.xPNG,s.yPNG,xSprites,ySprites));
             foo[nSprite[prio][indexTexture]].setPosition(s.x,s.y);
             spriteVec[prio][indexTexture].push_back(foo[nSprite[prio][indexTexture]]);
@@ -1220,7 +1142,7 @@ void mapi::addSprite2(sprite s, int prio, string t, int nxS, int nyS, int lxS, i
                     fooRect = spriteVec[prio][indexSprites[prio][ix][iy][0]][indexSprites[prio][ix][iy][1]].getTextureRect();
                     fooSprite.xPNG = fooRect.left;
                     fooSprite.yPNG = fooRect.top;
-                    fooTexture = fileTextures[iTexture[prio][indexSprites[prio][ix][iy][0]]];
+                    fooTexture = fileTextureVec[iTextureVec[prio][indexSprites[prio][ix][iy][0]]];
     
                     ctrlZObject->saveErasing(fooSprite, prio, passOrNot[prio][ix][iy], fooTexture);
                 }
@@ -1239,17 +1161,15 @@ void mapi::addSprite2(sprite s, int prio, string t, int nxS, int nyS, int lxS, i
             string* foo = new string[nTexture[prio]+1];
             int* foo2 = new int[nTexture[prio]+1];
             sf::Sprite** foo3 = new sf::Sprite*[nTexture[prio]+1];
-            int* fooInt = new int[nTexture[prio]+1];
             for (int j=0; j<nTexture[prio]; j++)
             {
                 foo[j] = nameTexture[prio][j];
                 foo2[j] = nSprite[prio][j];
                 foo3[j] = new sf::Sprite[nSprite[prio][j]];
-                fooInt[j] = iTexture[prio][j];
                 for (int k=0; k<nSprite[prio][j]; k++)
                     foo3[j][k] = spriteVec[prio][j][k];
             }
-            fooInt[nTexture[prio]] = addTexture(t);
+            iTextureVec[prio].push_back(addTexture(t));
             foo[nTexture[prio]] = t;
             foo2[nTexture[prio]] = lxS*lyS;
             foo3[nTexture[prio]] = new sf::Sprite[lxS*lyS];
@@ -1274,19 +1194,16 @@ void mapi::addSprite2(sprite s, int prio, string t, int nxS, int nyS, int lxS, i
             {
                 delete[] nameTexture[prio];
                 delete[] nSprite[prio];
-                delete[] iTexture[prio];
             }
             
             nTexture[prio] += 1;
             nameTexture[prio] = new string[nTexture[prio]];
             nSprite[prio] = new int[nTexture[prio]];
-            iTexture[prio] = new int[nTexture[prio]];
             
             for (int j=0; j<nTexture[prio]; j++)
             {
                 nameTexture[prio][j] = foo[j];
                 nSprite[prio][j] = foo2[j];
-                iTexture[prio][j] = fooInt[j];
                     
                 delete[] foo3[j];
                 foo3[j] = 0;
@@ -1294,11 +1211,9 @@ void mapi::addSprite2(sprite s, int prio, string t, int nxS, int nyS, int lxS, i
             delete[] foo;
             delete[] foo2;
             delete[] foo3;
-            delete[] fooInt;
             foo = 0;
             foo2 = 0;
             foo3 = 0;
-            fooInt = 0;
         }
         else
         {
@@ -1310,7 +1225,7 @@ void mapi::addSprite2(sprite s, int prio, string t, int nxS, int nyS, int lxS, i
             {
                 for (int iy=0; iy<lyS; iy++)
                 {
-                    foo[nSprite[prio][indexTexture]+ix*lyS+iy].setTexture(*Texture[iTexture[prio][indexTexture]]);
+                    foo[nSprite[prio][indexTexture]+ix*lyS+iy].setTexture(textureVec[iTextureVec[prio][indexTexture]]);
                     foo[nSprite[prio][indexTexture]+ix*lyS+iy].setTextureRect(sf::IntRect(s.xPNG+ (ix%nxS)*xSprites,s.yPNG + (iy%nyS)*ySprites,xSprites,ySprites));
                     foo[nSprite[prio][indexTexture]+ix*lyS+iy].setPosition(s.x + ix*xSprites,s.y + iy*ySprites);
                     spriteVec[prio][indexTexture].push_back(foo[nSprite[prio][indexTexture]+ix*lyS+iy]);
@@ -1340,14 +1255,13 @@ void mapi::removeSprite(int prio, int ix, int iy)
             int nS = nSprite[prio][iT];
             if (nS == 1)
             {
-                removeTexture(prio, iT, fileTextures[iTexture[prio][iT]]);
+                removeTexture(prio, iT, fileTextureVec[iTextureVec[prio][iT]]);
                 if (nT == 1)
                 {
                     spriteVec[prio].clear();
                     delete[] nameTexture[prio];
                     delete[] nSprite[prio];
-                    delete[] iTexture[prio];
-                    iTexture[prio] = 0;
+                    iTextureVec[prio].clear();
                     nTexture[prio] = 0;
                     nameTexture[prio] = 0;
                     nSprite[prio] = 0;
@@ -1412,13 +1326,13 @@ void mapi::removeSprite(int prio, int ix, int iy)
                 for (int i=0; i<iS; i++)
                     foo[i] = spriteVec[prio][iT][i];
                 sf::Vector2f fooPos;
-                spriteVec[prio][iT].erase(spriteVec[prio][iT].begin()+iS);
                 for (int i=iS+1; i<nS; i++)
                 {
                     foo[i-1] = spriteVec[prio][iT][i];
                     fooPos = foo[i-1].getPosition();
                     indexSprites[prio][(int)fooPos.x/xSprites][(int)fooPos.y/ySprites][1] -= 1;
                 }
+                spriteVec[prio][iT].erase(spriteVec[prio][iT].begin()+iS);
                 
                 
                 nSprite[prio][iT] -= 1;
@@ -1519,10 +1433,10 @@ void mapi::ctrlC()
                         if (iT != -1 && iS != -1)
                         {
                             s = spriteVec[prio][iT][iS];
-                            spriteCtrlC[prio][i][j].setTexture(*Texture[iTexture[prio][iT]]);
+                            spriteCtrlC[prio][i][j].setTexture(textureVec[iTextureVec[prio][iT]]);
                             spriteCtrlC[prio][i][j].setTextureRect(s.getTextureRect());
                             spriteCtrlC[prio][i][j].setColor(sf::Color(255,255,255,128));
-                            fileCtrlC[prio][i][j] = fileTextures[iTexture[prio][iT]];
+                            fileCtrlC[prio][i][j] = fileTextureVec[iTextureVec[prio][iT]];
                         }
                         else fileCtrlC[prio][i][j] = "No File";
                     }
@@ -1547,10 +1461,10 @@ void mapi::ctrlC()
                     if (iT != -1 && iS != -1)
                     {
                         s = spriteVec[currentPrio][iT][iS];
-                        spriteCtrlC[currentPrio][i][j].setTexture(*Texture[iTexture[currentPrio][iT]]);
+                        spriteCtrlC[currentPrio][i][j].setTexture(textureVec[iTextureVec[currentPrio][iT]]);
                         spriteCtrlC[currentPrio][i][j].setTextureRect(s.getTextureRect());
                         spriteCtrlC[currentPrio][i][j].setColor(sf::Color(255,255,255,128));
-                        fileCtrlC[currentPrio][i][j] = fileTextures[iTexture[currentPrio][iT]];
+                        fileCtrlC[currentPrio][i][j] = fileTextureVec[iTextureVec[currentPrio][iT]];
                     }
                     else fileCtrlC[currentPrio][i][j] = "No File";
                 }
@@ -1593,7 +1507,7 @@ void mapi::ctrlV()
                         fooRect = spriteVec[prio][indexSprites[prio][ix][iy][0]][indexSprites[prio][ix][iy][1]].getTextureRect();
                         fooSprite.xPNG = fooRect.left;
                         fooSprite.yPNG = fooRect.top;
-                        fooTexture = fileTextures[iTexture[prio][indexSprites[prio][ix][iy][0]]];
+                        fooTexture = fileTextureVec[iTextureVec[prio][indexSprites[prio][ix][iy][0]]];
         
                         ctrlZObject->saveErasing(fooSprite, prio, passOrNot[prio][ix][iy], fooTexture);
                     }
@@ -1618,7 +1532,7 @@ void mapi::ctrlV()
                     fooRect = spriteVec[currentPrio][indexSprites[currentPrio][ix][iy][0]][indexSprites[currentPrio][ix][iy][1]].getTextureRect();
                     fooSprite.xPNG = fooRect.left;
                     fooSprite.yPNG = fooRect.top;
-                    fooTexture = fileTextures[iTexture[currentPrio][indexSprites[currentPrio][ix][iy][0]]];
+                    fooTexture = fileTextureVec[iTextureVec[currentPrio][indexSprites[currentPrio][ix][iy][0]]];
     
                     ctrlZObject->saveErasing(fooSprite, currentPrio, passOrNot[currentPrio][ix][iy], fooTexture);
                 }
@@ -1718,7 +1632,7 @@ void mapi::suppr()
                             fooRect = spriteVec[prio][indexSprites[prio][ix][iy][0]][indexSprites[prio][ix][iy][1]].getTextureRect();
                             fooSprite.xPNG = fooRect.left;
                             fooSprite.yPNG = fooRect.top;
-                            fooTexture = fileTextures[iTexture[prio][indexSprites[prio][ix][iy][0]]];
+                            fooTexture = fileTextureVec[iTextureVec[prio][indexSprites[prio][ix][iy][0]]];
             
                             ctrlZObject->saveErasing(fooSprite, prio, passOrNot[prio][ix][iy], fooTexture);
                         }
@@ -1742,7 +1656,7 @@ void mapi::suppr()
                         fooRect = spriteVec[currentPrio][indexSprites[currentPrio][ix][iy][0]][indexSprites[currentPrio][ix][iy][1]].getTextureRect();
                         fooSprite.xPNG = fooRect.left;
                         fooSprite.yPNG = fooRect.top;
-                        fooTexture = fileTextures[iTexture[currentPrio][indexSprites[currentPrio][ix][iy][0]]];
+                        fooTexture = fileTextureVec[iTextureVec[currentPrio][indexSprites[currentPrio][ix][iy][0]]];
                 
                         ctrlZObject->saveErasing(fooSprite, currentPrio, passOrNot[currentPrio][ix][iy], fooTexture);
                     }
@@ -2242,7 +2156,7 @@ void mapi::update(double eT)
                         fooRect = spriteVec[prio][indexSprites[prio][ix][iy][0]][indexSprites[prio][ix][iy][1]].getTextureRect();
                         fooSprite.xPNG = fooRect.left;
                         fooSprite.yPNG = fooRect.top;
-                        fooTexture = fileTextures[iTexture[prio][indexSprites[prio][ix][iy][0]]];
+                        fooTexture = fileTextureVec[iTextureVec[prio][indexSprites[prio][ix][iy][0]]];
                     
                         ctrlZObject->saveErasing(fooSprite, prio, passOrNot[prio][ix][iy], fooTexture);
                     }
@@ -2261,7 +2175,7 @@ void mapi::update(double eT)
                     fooRect = spriteVec[currentPrio][indexSprites[currentPrio][ix][iy][0]][indexSprites[currentPrio][ix][iy][1]].getTextureRect();
                     fooSprite.xPNG = fooRect.left;
                     fooSprite.yPNG = fooRect.top;
-                    fooTexture = fileTextures[iTexture[currentPrio][indexSprites[currentPrio][ix][iy][0]]];
+                    fooTexture = fileTextureVec[iTextureVec[currentPrio][indexSprites[currentPrio][ix][iy][0]]];
                 
                     ctrlZObject->saveErasing(fooSprite, currentPrio, passOrNot[currentPrio][ix][iy], fooTexture);
                 }

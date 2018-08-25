@@ -72,9 +72,10 @@ class mapi
 	
 	vector<vector<vector<sf::Sprite > > > spriteVec;// Contient tous les sprites par prio puis numéro de texture
 	int nTotTexture; // Nombre de textures ouvertes dans le programme
-	sf::Texture** Texture; // Textures ouvertes
-	string* fileTextures; // Nom des fichiers PNG
-	int** iTexture; // indice de la Texture dans "Texture" en fonction de la prio et numéro de Texture
+	vector<sf::Texture> textureVec;
+	vector<string> fileTextureVec;
+	vector<vector<int> > iTextureVec;
+	vector<vector<vector<vector<int> > > > indexSpritesVec;// indice de la Texture dans "Texture" en fonction de la prio et numéro de Texture
 	int**** indexSprites; // index des sprites dans "Sprites" en fonction de la prio et de la position x,y
 	
 	int nPrio; // Nombre de priorités au total
