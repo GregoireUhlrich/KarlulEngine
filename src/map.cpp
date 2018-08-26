@@ -924,6 +924,7 @@ void mapi::reinitMap()
         textureVec.clear();
         iTextureVec.clear();
         indexSpriteVec.clear();
+        fileTextureVec.clear();
         iTextureVec = vector<vector<int> >(4);
         boundary.setFillColor(sf::Color::Transparent);
         boundary.setOutlineColor(sf::Color::Green);
