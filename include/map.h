@@ -76,11 +76,11 @@ class mapi
     vector<string> fileTextureVec;
     vector<vector<int> > iTextureVec;
     vector<vector<vector<vector<int> > > > indexSpriteVec;// indice de la Texture dans "Texture" en fonction de la prio et numéro de Texture
-    //int**** indexSpriteVec; // index des sprites dans "Sprites" en fonction de la prio et de la position x,y
+    // index des sprites dans "Sprites" en fonction de la prio et de la position x,y
     int nPrio; // Nombre de priorités au total
-    int *nTexture; // nombre de textures pour chaque priorité
-    string** nameTexture; // nom des textures en focntion de la prio et du numéro de texture
+    vector<int> nTextureVec;
     int** nSprite; // nombre de spritesen focntion de la prio et du numéro de texture
+    vector<vector<int> > nSpriteVec;
     int nExceptions; // nombre d'exceptions de passage
     int*** passOrNot; // passage ou pas (priorité et positions x et y)
     
