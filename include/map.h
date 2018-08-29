@@ -89,8 +89,8 @@ class mapi
     int nxCtrlC;
     int nyCtrlC;
     int prioCtrlC;
-    sf::Sprite*** spriteCtrlC;
-    string*** fileCtrlC;
+    vector<vector<vector<sf::Sprite > > > spriteCtrlCVec;
+    vector<vector<vector<string> > > fileCtrlCVec;
     bool ghostSpriteCtrlC;
     
     sf::RenderWindow* window; // pointeur vers la fenêtre

@@ -31,7 +31,6 @@ mapi::mapi(sf::RenderWindow* w, character* H, string f, int height)
     posMouse = sf::Vector2i(0,0);
     oldPosMouse = sf::Vector2i(0,0);
     posClick = sf::Vector2i(0,0);
-    ghostSpriteCtrlC = 0;
     ghostSprite = 0;
     
     nxCtrlC = nyCtrlC = 0;
@@ -53,16 +52,11 @@ mapi::mapi(sf::RenderWindow* w, character* H, string f, int height)
     nTextureVec = vector<int>(4);
     nSpriteVec = vector<vector<int> >(4);
     passOrNotVec = vector<vector<vector<int> > >(4);
-    spriteCtrlC = new sf::Sprite**[nPrio];
-    fileCtrlC = new string**[nPrio];
+    spriteCtrlCVec = vector<vector<vector<sf::Sprite> > >(4);
+    fileCtrlCVec = vector<vector<vector<string> > >(4);
     spriteVec = vector<vector<vector<sf::Sprite> > >(4);
     iTextureVec = vector<vector<int> >(4);
     nExceptions = 0;
-    for (int i=0; i<nPrio; i++)
-    {
-        spriteCtrlC[i] = 0;
-        fileCtrlC[i] = 0;
-    }
     textureVec = vector<sf::Texture>(0);
     
     isImLeft = 0;
@@ -1221,26 +1215,8 @@ void mapi::removeSprite(int prio, int ix, int iy)
 
 void mapi::freeSpritesCtrlC()
 {
-    if (spriteCtrlC != 0)
-    {
-        for (int prio=0; prio<nPrio; prio++)
-        {
-            if (spriteCtrlC[prio] != 0)
-            {
-                for (int i=0; i<nxCtrlC; i++)
-                {
-                    delete[] spriteCtrlC[prio][i];
-                    spriteCtrlC[prio][i] = 0;
-                    delete[] fileCtrlC[prio][i];
-                    fileCtrlC[prio][i] = 0;
-                }
-                delete[] spriteCtrlC[prio];
-                spriteCtrlC[prio] = 0;
-                delete[] fileCtrlC[prio];
-                fileCtrlC[prio] = 0;
-            }
-        }
-    }
+    spriteCtrlCVec.clear();
+    fileCtrlCVec.clear();
     nxCtrlC = nyCtrlC = 0;
     ghostSpriteCtrlC = 0;
 }
@@ -1249,26 +1225,10 @@ void mapi::ctrlC()
 {
     if (select && select2 && state==selecting)
     {
-        if (spriteCtrlC != 0)
-        {
-            for (int prio=0; prio<nPrio; prio++)
-            {
-                if (spriteCtrlC[prio] != 0)
-                {
-                    for (int i=0; i<nxCtrlC; i++)
-                    {
-                        delete[] spriteCtrlC[prio][i];
-                        spriteCtrlC[prio][i] = 0;
-                        delete[] fileCtrlC[prio][i];
-                        fileCtrlC[prio][i] = 0;
-                    }
-                    delete[] spriteCtrlC[prio];
-                    spriteCtrlC[prio] = 0;
-                    delete[] fileCtrlC[prio];
-                    fileCtrlC[prio] = 0;
-                }
-            }
-        }
+        spriteCtrlCVec.clear();
+        fileCtrlCVec.clear();
+        spriteCtrlCVec = vector<vector<vector<sf::Sprite > > >(4);
+        fileCtrlCVec = vector<vector<vector<string> > >(4);
         
         sf::Vector2f fooPos = selectRect.getPosition();
         sf::Vector2f fooSize = selectRect.getSize();
@@ -1285,14 +1245,14 @@ void mapi::ctrlC()
             prioCtrlC = 4;
             for (int prio=0; prio<nPrio; prio++)
             {
-                spriteCtrlC[prio] = new sf::Sprite*[nxCtrlC];
-                fileCtrlC[prio] = new string*[nxCtrlC];
+                spriteCtrlCVec[prio] = vector<vector<sf::Sprite> >(nxCtrlC);
+                fileCtrlCVec[prio] = vector<vector<string> >(nxCtrlC);
                 sf::Sprite s;
                 int iT, iS;
                 for (int i=0; i<nxCtrlC; i++)
                 {
-                    spriteCtrlC[prio][i] = new sf::Sprite[nyCtrlC];
-                    fileCtrlC[prio][i] = new string[nyCtrlC];
+                    spriteCtrlCVec[prio][i] = vector<sf::Sprite>(nyCtrlC);
+                    fileCtrlCVec[prio][i] = vector<string>(nyCtrlC);
                     for (int j=0; j<nyCtrlC; j++)
                     {
                         iT = indexSpriteVec[prio][(int)xCtrlC/xSprites+i][(int)yCtrlC/ySprites+j][0];
@@ -1300,12 +1260,12 @@ void mapi::ctrlC()
                         if (iT != -1 && iS != -1)
                         {
                             s = spriteVec[prio][iT][iS];
-                            spriteCtrlC[prio][i][j].setTexture(textureVec[iTextureVec[prio][iT]]);
-                            spriteCtrlC[prio][i][j].setTextureRect(s.getTextureRect());
-                            spriteCtrlC[prio][i][j].setColor(sf::Color(255,255,255,128));
-                            fileCtrlC[prio][i][j] = fileTextureVec[iTextureVec[prio][iT]];
+                            spriteCtrlCVec[prio][i][j].setTexture(textureVec[iTextureVec[prio][iT]]);
+                            spriteCtrlCVec[prio][i][j].setTextureRect(s.getTextureRect());
+                            spriteCtrlCVec[prio][i][j].setColor(sf::Color(255,255,255,128));
+                            fileCtrlCVec[prio][i][j] = fileTextureVec[iTextureVec[prio][iT]];
                         }
-                        else fileCtrlC[prio][i][j] = "No File";
+                        else fileCtrlCVec[prio][i][j] = "No File";
                     }
                 }
             }
@@ -1313,14 +1273,14 @@ void mapi::ctrlC()
         else
         {
             prioCtrlC = currentPrio;
-            spriteCtrlC[currentPrio] = new sf::Sprite*[nxCtrlC];
-            fileCtrlC[currentPrio] = new string*[nxCtrlC];
+            spriteCtrlCVec[currentPrio] = vector<vector<sf::Sprite> >(nxCtrlC);
+            fileCtrlCVec[currentPrio] = vector<vector<string> >(nxCtrlC);
             sf::Sprite s;
             int iT, iS;
             for (int i=0; i<nxCtrlC; i++)
             {
-                spriteCtrlC[currentPrio][i] = new sf::Sprite[nyCtrlC];
-                fileCtrlC[currentPrio][i] = new string[nyCtrlC];
+                spriteCtrlCVec[currentPrio][i] = vector<sf::Sprite>(nyCtrlC);
+                fileCtrlCVec[currentPrio][i] = vector<string>(nyCtrlC);
                 for (int j=0; j<nyCtrlC; j++)
                 {
                     iT = indexSpriteVec[currentPrio][(int)xCtrlC/xSprites+i][(int)yCtrlC/ySprites+j][0];
@@ -1328,12 +1288,12 @@ void mapi::ctrlC()
                     if (iT != -1 && iS != -1)
                     {
                         s = spriteVec[currentPrio][iT][iS];
-                        spriteCtrlC[currentPrio][i][j].setTexture(textureVec[iTextureVec[currentPrio][iT]]);
-                        spriteCtrlC[currentPrio][i][j].setTextureRect(s.getTextureRect());
-                        spriteCtrlC[currentPrio][i][j].setColor(sf::Color(255,255,255,128));
-                        fileCtrlC[currentPrio][i][j] = fileTextureVec[iTextureVec[currentPrio][iT]];
+                        spriteCtrlCVec[currentPrio][i][j].setTexture(textureVec[iTextureVec[currentPrio][iT]]);
+                        spriteCtrlCVec[currentPrio][i][j].setTextureRect(s.getTextureRect());
+                        spriteCtrlCVec[currentPrio][i][j].setColor(sf::Color(255,255,255,128));
+                        fileCtrlCVec[currentPrio][i][j] = fileTextureVec[iTextureVec[currentPrio][iT]];
                     }
-                    else fileCtrlC[currentPrio][i][j] = "No File";
+                    else fileCtrlCVec[currentPrio][i][j] = "No File";
                 }
             }
         }
@@ -1419,14 +1379,14 @@ void mapi::ctrlV()
             {
                 for (int j=0; j<nY; j++)
                 {
-                    if (fileCtrlC[prio][i%nxCtrlC][j%nyCtrlC] != "No File")
+                    if (fileCtrlCVec[prio][i%nxCtrlC][j%nyCtrlC] != "No File")
                     {
                         s.x = fooPos.x + i*xSprites;
                         s.y = fooPos.y + j*ySprites;
-                        fooRect = spriteCtrlC[prio][i%nxCtrlC][j%nyCtrlC].getTextureRect();
+                        fooRect = spriteCtrlCVec[prio][i%nxCtrlC][j%nyCtrlC].getTextureRect();
                         s.xPNG = fooRect.left;
                         s.yPNG = fooRect.top;
-                        addSprite(s, prio, fileCtrlC[prio][i%nxCtrlC][j%nyCtrlC]);
+                        addSprite(s, prio, fileCtrlCVec[prio][i%nxCtrlC][j%nyCtrlC]);
                     }
                 }
             }
@@ -1439,14 +1399,14 @@ void mapi::ctrlV()
         {
             for (int j=0; j<nY; j++)
             {
-                if (fileCtrlC[prioCtrlC][i%nxCtrlC][j%nyCtrlC] != "No File")
+                if (fileCtrlCVec[prioCtrlC][i%nxCtrlC][j%nyCtrlC] != "No File")
                 {
                     s.x = fooPos.x + i*xSprites;
                     s.y = fooPos.y + j*ySprites;
-                    fooRect = spriteCtrlC[prioCtrlC][i%nxCtrlC][j%nyCtrlC].getTextureRect();
+                    fooRect = spriteCtrlCVec[prioCtrlC][i%nxCtrlC][j%nyCtrlC].getTextureRect();
                     s.xPNG = fooRect.left;
                     s.yPNG = fooRect.top;
-                    addSprite(s, currentPrio, fileCtrlC[prioCtrlC][i%nxCtrlC][j%nyCtrlC]);
+                    addSprite(s, currentPrio, fileCtrlCVec[prioCtrlC][i%nxCtrlC][j%nyCtrlC]);
                 }
             }
         }
@@ -1975,9 +1935,9 @@ void mapi::update(double eT)
                         ymin = (round(effectivePosMouse.y/ySprites)-nyCtrlC)*ySprites;
                         if (prioCtrlC == 4)
                             for (int k=0; k<nPrio; k++)
-                                spriteCtrlC[k][i][j].setPosition(xmin+i*xSprites, ymin+j*ySprites);
+                                spriteCtrlCVec[k][i][j].setPosition(xmin+i*xSprites, ymin+j*ySprites);
                         else
-                            spriteCtrlC[prioCtrlC][i][j].setPosition(xmin+i*xSprites, ymin+j*ySprites);
+                            spriteCtrlCVec[prioCtrlC][i][j].setPosition(xmin+i*xSprites, ymin+j*ySprites);
                     }
                 }
             }
@@ -2104,7 +2064,7 @@ void mapi::update(double eT)
                     int foo;
                     if (prioCtrlC == 4) foo = 0;
                     else foo = prioCtrlC;
-                    posClick = invConvertPos(spriteCtrlC[foo][0][0].getPosition())+sf::Vector2i(1,1);
+                    posClick = invConvertPos(spriteCtrlCVec[foo][0][0].getPosition())+sf::Vector2i(1,1);
                 }
             }
         }
@@ -2403,10 +2363,10 @@ void mapi::draw()
                 if (prioCtrlC == 4)
                 {
                     for (int prio=0; prio<nPrio; prio++)
-                        mapWindow.draw(spriteCtrlC[prio][i][j]);
+                        mapWindow.draw(spriteCtrlCVec[prio][i][j]);
                 }
                 else
-                    mapWindow.draw(spriteCtrlC[prioCtrlC][i][j]);
+                    mapWindow.draw(spriteCtrlCVec[prioCtrlC][i][j]);
             }
         }
     }
