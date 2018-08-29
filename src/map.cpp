@@ -52,7 +52,7 @@ mapi::mapi(sf::RenderWindow* w, character* H, string f, int height)
     indexSpriteVec = vector<vector<vector<vector<int> > > >(4);
     nTextureVec = vector<int>(4);
     nSpriteVec = vector<vector<int> >(4);
-    passOrNot = new int**[nPrio];
+    passOrNotVec = vector<vector<vector<int> > >(4);
     spriteCtrlC = new sf::Sprite**[nPrio];
     fileCtrlC = new string**[nPrio];
     spriteVec = vector<vector<vector<sf::Sprite> > >(4);
@@ -60,7 +60,6 @@ mapi::mapi(sf::RenderWindow* w, character* H, string f, int height)
     nExceptions = 0;
     for (int i=0; i<nPrio; i++)
     {
-        passOrNot[i] = 0;
         spriteCtrlC[i] = 0;
         fileCtrlC[i] = 0;
     }
@@ -85,18 +84,6 @@ mapi::mapi(sf::RenderWindow* w, character* H, string f, int height)
 
 mapi::~mapi()
 {
-    for (int i=0; i<nPrio; i++)
-    {
-        for (int j=0; j<lxMap; j++)
-        {
-            delete[] passOrNot[i][j];
-            passOrNot[i][j] = 0;
-        }
-        delete[] passOrNot[i];
-        passOrNot[i] = 0;
-    }
-    delete[] passOrNot;
-    passOrNot = 0;
     if (isImLeft)
     {
         delete imL;
@@ -250,18 +237,18 @@ void mapi::setPassOrNot(int pass, int prio, int ix, int iy)
 {
     if (ix >= 0 && ix < lxMap && iy > 0 && iy < lyMap)
     {
-        if (passOrNot[prio][ix][iy] == 0 && pass != 0)
+        if (passOrNotVec[prio][ix][iy] == 0 && pass != 0)
         {
             nExceptions += 1;
-            passOrNot[prio][ix][iy] = pass;
+            passOrNotVec[prio][ix][iy] = pass;
         }
-        else if (passOrNot[prio][ix][iy] != 0 && pass == 0)
+        else if (passOrNotVec[prio][ix][iy] != 0 && pass == 0)
         {
             nExceptions -= 1;
-            passOrNot[prio][ix][iy] = pass;
+            passOrNotVec[prio][ix][iy] = pass;
         }
         else
-            passOrNot[prio][ix][iy] = pass;
+            passOrNotVec[prio][ix][iy] = pass;
     }
 }
 
@@ -274,23 +261,23 @@ void mapi::pastePassOrNot(int dir, int prio, int xmin, int ymin, int lxS, int ly
         {
             for (int iy=ymin; iy<ymin+lyS; iy++)
             {
-                if (passOrNot[prio][ix][iy] == 0) nExceptions += 1;
-                if (passOrNot[prio][ix][iy] == 0 and dir != 4)
-                    passOrNot[prio][ix][iy] = (int)pow(2,dir);
-                else if(passOrNot[prio][ix][iy] == 0 and dir == 4)
-                    passOrNot[prio][ix][iy] = 16-1;
+                if (passOrNotVec[prio][ix][iy] == 0) nExceptions += 1;
+                if (passOrNotVec[prio][ix][iy] == 0 and dir != 4)
+                    passOrNotVec[prio][ix][iy] = (int)pow(2,dir);
+                else if(passOrNotVec[prio][ix][iy] == 0 and dir == 4)
+                    passOrNotVec[prio][ix][iy] = 16-1;
                 else
                 {
                     if (dir == 4)
-                        passOrNot[prio][ix][iy] = 15 - passOrNot[prio][ix][iy];
+                        passOrNotVec[prio][ix][iy] = 15 - passOrNotVec[prio][ix][iy];
                     else
                     {
-                        int foo = passOrNot[prio][ix][iy]%(int)pow(2,dir+1)-passOrNot[prio][ix][iy]%(int)pow(2,dir);
+                        int foo = passOrNotVec[prio][ix][iy]%(int)pow(2,dir+1)-passOrNotVec[prio][ix][iy]%(int)pow(2,dir);
                         foo /= pow(2,dir);
-                        passOrNot[prio][ix][iy] = passOrNot[prio][ix][iy]+(int)pow(2,dir)*pow(-1,foo);
+                        passOrNotVec[prio][ix][iy] = passOrNotVec[prio][ix][iy]+(int)pow(2,dir)*pow(-1,foo);
                     }
                 }
-                if (passOrNot[prio][ix][iy] == 0) nExceptions -= 1;
+                if (passOrNotVec[prio][ix][iy] == 0) nExceptions -= 1;
             }
         }
     }
@@ -395,51 +382,39 @@ void mapi::setSizeMap(sf::Vector2u s)
     }
                     
     
-    int ***fooPassOrNot = new int**[nPrio];
-    for (int i=0; i<nPrio; i++)
+    for (int prio=0; prio<nPrio; prio++)
     {
-        fooPassOrNot[i] = new int*[s.x];
-        for (int j=0; j<s.x; j++)
+        if (s.y > lyMap)
         {
-            fooPassOrNot[i][j] = new int[s.y];
-            for (int k=0; k<s.y; k++)
+            for (int i=0; i<lxMap; i++)
             {
-                if (j < lxMap && k < lyMap)
-                    fooPassOrNot[i][j][k] = passOrNot[i][j][k];
-                else
-                    fooPassOrNot[i][j][k] = 0;
-            }
-            if (j < lxMap)
-            {
-                delete[] passOrNot[i][j];
-                passOrNot[i][j] = 0;
+                for (int j=lyMap; j<s.y; j++)
+                {
+                    passOrNotVec[prio][i].push_back(0);
+                }
             }
         }
-        delete[] passOrNot[i];
-        passOrNot[i] = 0;
+        else
+        {
+            for (int i=0; i<lxMap; i++)
+                passOrNotVec[prio][i].erase(passOrNotVec[prio][i].begin()+s.y, passOrNotVec[prio][i].begin()+lyMap);
+        }
+        if (s.x > lxMap)
+        {
+            for (int i=lxMap; i<s.x; i++)
+            {
+                passOrNotVec[prio].push_back(vector<int>(s.y));
+                for (int j=0; j<s.y; j++)
+                    passOrNotVec[prio][i][j] = 0;
+            }
+        }
+        else
+        {
+            passOrNotVec[prio].erase(passOrNotVec[prio].begin()+s.x, passOrNotVec[prio].begin()+lxMap);
+        }
     }
-    
     lxMap = s.x;
     lyMap = s.y;
-    
-    for (int i=0; i<nPrio; i++)
-    {
-        passOrNot[i] = new int*[lxMap];
-        for (int j=0; j<lxMap; j++)
-        {
-            passOrNot[i][j] = new int[lyMap];
-            for (int k=0; k<lyMap; k++)
-            {
-                passOrNot[i][j][k] = fooPassOrNot[i][j][k];
-            }
-            delete[] fooPassOrNot[i][j];
-            fooPassOrNot[i][j] = 0;
-        }
-        delete[] fooPassOrNot[i];
-        fooPassOrNot[i] = 0;
-    }
-    delete[] fooPassOrNot;
-    fooPassOrNot = 0;
     
     boundary.setFillColor(sf::Color::Transparent);
     boundary.setOutlineColor(sf::Color::Green);
@@ -692,12 +667,12 @@ int mapi::loadMap()
             file>>lxMap>>lyMap>>foo;        
             for (int i=0; i<nPrio; i++)
             {
-                passOrNot[i] = new int*[lxMap];
+                passOrNotVec[i] = vector<vector<int> >(lxMap);
                 for (int j=0; j<lxMap; j++)
                 {
-                    passOrNot[i][j] = new int[lyMap];
+                    passOrNotVec[i][j] = vector<int>(lyMap);
                     for (int k=0; k<lyMap; k++)
-                        passOrNot[i][j][k] = 0;
+                        passOrNotVec[i][j][k] = 0;
                 }
             }
         
@@ -764,7 +739,7 @@ int mapi::loadMap()
             for (int i=0; i<nExceptions; i++)
             {
                 file>>fooPrio>>fooX>>fooY>>fooDir;
-                passOrNot[fooPrio][fooX][fooY] = fooDir;            
+                passOrNotVec[fooPrio][fooX][fooY] = fooDir;            
             }
             if (nTotTexture > 0) initPNG(fileTextureVec[0],'L');
             else initPNG("Tileset/base.PNG",'L');
@@ -845,13 +820,13 @@ void mapi::saveMap()
             }
             file<<"\n\n";
         }
-        file<<"passOrNot\n\n"<<nExceptions<<" #nExceptions\n\t";
+        file<<"passOrNotVec\n\n"<<nExceptions<<" #nExceptions\n\t";
         for (int i=0; i<nPrio; i++)
         {
             for (int j=0; j<lxMap; j++)
                 for (int k=0; k<lyMap; k++)
-                    if (passOrNot[i][j][k] != 0)
-                        file<<i<<" "<<j<<" "<<k<<" "<<passOrNot[i][j][k]<<"  ";
+                    if (passOrNotVec[i][j][k] != 0)
+                        file<<i<<" "<<j<<" "<<k<<" "<<passOrNotVec[i][j][k]<<"  ";
                     
             if (i == nPrio-1)
                 file<<"\n\n";
@@ -875,25 +850,23 @@ void mapi::reinitMap()
         if (conf == 1) saveMap();
         if (saveState != loaded) saveState = edited;
         freeSpritesCtrlC();
-        for (int i=0; i<nPrio; i++)
-        {
-            for (int j=0; j<lxMap; j++)
-            {
-                delete[] passOrNot[i][j];
-                passOrNot[i][j] = 0;
-            }
-            delete[] passOrNot[i];
-        
-            passOrNot[i] = 0;
-        }
         nTotTexture = 0;
         textureVec.clear();
+        nTextureVec.clear();
         iTextureVec.clear();
         indexSpriteVec.clear();
         fileTextureVec.clear();
         nSpriteVec.clear();
+        passOrNotVec.clear();
+        spriteVec.clear();
+        passOrNotVec = vector<vector<vector<int> > >(4);
         nSpriteVec = vector<vector<int> >(4);
+        nTextureVec = vector<int>(4);
+        for (int i=0; i<nPrio; i++)
+            nTextureVec[i] = 0;
         iTextureVec = vector<vector<int> >(4);
+        indexSpriteVec = vector<vector<vector<vector<int> > > >(4);
+        spriteVec = vector<vector<vector<sf::Sprite> > >(4);
         boundary.setFillColor(sf::Color::Transparent);
         boundary.setOutlineColor(sf::Color::Green);
     
@@ -924,16 +897,14 @@ void mapi::reinitMap()
         }
         for (int i=0; i<nPrio; i++)
         {
-            passOrNot[i] = new int*[lxMap];
+            passOrNotVec[i] = vector<vector<int > >(lxMap);
             for (int j=0; j<lxMap; j++)
             {
-                passOrNot[i][j] = new int[lyMap];
+                passOrNotVec[i][j] = vector<int>(lyMap);
                 for (int k=0; k<lyMap; k++)
-                    passOrNot[i][j][k] = 0;
+                    passOrNotVec[i][j][k] = 0;
             }
         }
-    
-        indexSpriteVec = vector<vector<vector<vector<int> > > >(4);
         for (int i=0; i<nPrio; i++)
         {
             indexSpriteVec[i] = vector<vector<vector<int > > >(lxMap);
@@ -1045,34 +1016,18 @@ void mapi::addSprite(sprite s, int prio, string t)
         }
         if (indexTexture == -1)
         {
-            sf::Sprite** foo3 = new sf::Sprite*[nTextureVec[prio]+1];
-            for (int j=0; j<nTextureVec[prio]; j++)
-            {
-                foo3[j] = new sf::Sprite[nSpriteVec[prio][j]];
-                for (int k=0; k<nSpriteVec[prio][j]; k++)
-                    foo3[j][k] = spriteVec[prio][j][k];
-            }
             iTextureVec[prio].push_back(addTexture(t));
             nSpriteVec[prio].push_back(1);
-            foo3[nTextureVec[prio]] = new sf::Sprite[1];
-            foo3[nTextureVec[prio]][0].setTexture(textureVec[iTextureVec[prio][nTextureVec[prio]]]);
-            foo3[nTextureVec[prio]][0].setTextureRect(sf::IntRect(s.xPNG,s.yPNG,xSprites,ySprites));
-            foo3[nTextureVec[prio]][0].setPosition(s.x,s.y);
+            spriteVec[prio].push_back(vector<sf::Sprite>(1));
             spriteVec[prio][nTextureVec[prio]] = vector<sf::Sprite>(1);
-            spriteVec[prio][nTextureVec[prio]][0] = foo3[nTextureVec[prio]][0];
+            spriteVec[prio][nTextureVec[prio]][0].setTexture(textureVec[iTextureVec[prio][nTextureVec[prio]]]);
+            spriteVec[prio][nTextureVec[prio]][0].setTextureRect(sf::IntRect(s.xPNG,s.yPNG,xSprites,ySprites));
+            spriteVec[prio][nTextureVec[prio]][0].setPosition(s.x,s.y);
             
             
             indexSpriteVec[prio][s.x/xSprites][s.y/ySprites][0] = nTextureVec[prio];
             indexSpriteVec[prio][s.x/xSprites][s.y/ySprites][1] = 0;
             nTextureVec[prio] += 1;
-            
-            for (int j=0; j<nTextureVec[prio]; j++)
-            {
-                delete[] foo3[j];
-                foo3[j] = 0;
-            }
-            delete[] foo3;
-            foo3 = 0;
         }
         else
         {
@@ -1100,6 +1055,8 @@ void mapi::addSprite2(sprite s, int prio, string t, int nxS, int nyS, int lxS, i
 {
     if (prio < 0 || prio > 3)
         cout<<"Invalid priority !\n";
+    else if (s.x < 0 or s.x/xSprites >= lxMap or s.y < 0 or s.y/ySprites >= lyMap)
+        cout<<"Outside the map!\n";
     else
     {
         if (saveState != loaded) saveState = edited;
@@ -1118,8 +1075,7 @@ void mapi::addSprite2(sprite s, int prio, string t, int nxS, int nyS, int lxS, i
                     fooSprite.xPNG = fooRect.left;
                     fooSprite.yPNG = fooRect.top;
                     fooTexture = fileTextureVec[iTextureVec[prio][indexSpriteVec[prio][ix][iy][0]]];
-    
-                    ctrlZObject->saveErasing(fooSprite, prio, passOrNot[prio][ix][iy], fooTexture);
+                    ctrlZObject->saveErasing(fooSprite, prio, passOrNotVec[prio][ix][iy], fooTexture);
                 }
                 removeSprite(prio, ix, iy);
             }
@@ -1221,9 +1177,6 @@ void mapi::removeSprite(int prio, int ix, int iy)
                 }
                 else
                 {
-                    spriteVec[prio][iT].clear();
-                    spriteVec[prio].erase(spriteVec[prio].begin()+iT);
-                    nSpriteVec[prio].erase(nSpriteVec[prio].begin()+iT);
                     sf::Vector2f fooPos;
                     for (int i=iT+1; i<nT; i++)
                     {
@@ -1233,7 +1186,9 @@ void mapi::removeSprite(int prio, int ix, int iy)
                             indexSpriteVec[prio][(int)fooPos.x/xSprites][(int)fooPos.y/ySprites][0] -= 1;
                         }
                     }
-            
+                    spriteVec[prio][iT].clear();
+                    spriteVec[prio].erase(spriteVec[prio].begin()+iT);
+                    nSpriteVec[prio].erase(nSpriteVec[prio].begin()+iT);
                     nTextureVec[prio] -= 1;
                     nT = nTextureVec[prio];
                 }
@@ -1255,10 +1210,10 @@ void mapi::removeSprite(int prio, int ix, int iy)
         }
         indexSpriteVec[prio][ix][iy][0] = -1;
         indexSpriteVec[prio][ix][iy][1] = -1;    
-        if (passOrNot[prio][ix][iy] != 0)
+        if (passOrNotVec[prio][ix][iy] != 0)
         {
             nExceptions -= 1;
-            passOrNot[prio][ix][iy] = 0;    
+            passOrNotVec[prio][ix][iy] = 0;    
         }
     }
     resetTextureSprite();
@@ -1421,7 +1376,7 @@ void mapi::ctrlV()
                         fooSprite.yPNG = fooRect.top;
                         fooTexture = fileTextureVec[iTextureVec[prio][indexSpriteVec[prio][ix][iy][0]]];
         
-                        ctrlZObject->saveErasing(fooSprite, prio, passOrNot[prio][ix][iy], fooTexture);
+                        ctrlZObject->saveErasing(fooSprite, prio, passOrNotVec[prio][ix][iy], fooTexture);
                     }
                     removeSprite(prio, ix, iy);
                     removeSprite(prio, xmin+i, ymin+j);
@@ -1446,7 +1401,7 @@ void mapi::ctrlV()
                     fooSprite.yPNG = fooRect.top;
                     fooTexture = fileTextureVec[iTextureVec[currentPrio][indexSpriteVec[currentPrio][ix][iy][0]]];
     
-                    ctrlZObject->saveErasing(fooSprite, currentPrio, passOrNot[currentPrio][ix][iy], fooTexture);
+                    ctrlZObject->saveErasing(fooSprite, currentPrio, passOrNotVec[currentPrio][ix][iy], fooTexture);
                 }
                 removeSprite(currentPrio, ix, iy);
                 removeSprite(currentPrio, xmin+i, ymin+j);
@@ -1546,7 +1501,7 @@ void mapi::suppr()
                             fooSprite.yPNG = fooRect.top;
                             fooTexture = fileTextureVec[iTextureVec[prio][indexSpriteVec[prio][ix][iy][0]]];
             
-                            ctrlZObject->saveErasing(fooSprite, prio, passOrNot[prio][ix][iy], fooTexture);
+                            ctrlZObject->saveErasing(fooSprite, prio, passOrNotVec[prio][ix][iy], fooTexture);
                         }
                         removeSprite(prio, ix, iy);
                     }
@@ -1570,7 +1525,7 @@ void mapi::suppr()
                         fooSprite.yPNG = fooRect.top;
                         fooTexture = fileTextureVec[iTextureVec[currentPrio][indexSpriteVec[currentPrio][ix][iy][0]]];
                 
-                        ctrlZObject->saveErasing(fooSprite, currentPrio, passOrNot[currentPrio][ix][iy], fooTexture);
+                        ctrlZObject->saveErasing(fooSprite, currentPrio, passOrNotVec[currentPrio][ix][iy], fooTexture);
                     }
                     removeSprite(currentPrio, ix, iy);
                 }
@@ -1689,23 +1644,23 @@ void mapi::keyPressed(sf::Keyboard::Key k)
             {
                 for (int iy=ymin; iy<ymax; iy++)
                 {
-                    if (passOrNot[currentPrio][ix][iy] == 0) nExceptions += 1;
-                    if (passOrNot[currentPrio][ix][iy] == 0 and dir != 4)
-                        passOrNot[currentPrio][ix][iy] = (int)pow(2,dir);
-                    else if(passOrNot[currentPrio][ix][iy] == 0 and dir == 4)
-                        passOrNot[currentPrio][ix][iy] = 16-1;
+                    if (passOrNotVec[currentPrio][ix][iy] == 0) nExceptions += 1;
+                    if (passOrNotVec[currentPrio][ix][iy] == 0 and dir != 4)
+                        passOrNotVec[currentPrio][ix][iy] = (int)pow(2,dir);
+                    else if(passOrNotVec[currentPrio][ix][iy] == 0 and dir == 4)
+                        passOrNotVec[currentPrio][ix][iy] = 16-1;
                     else
                     {
                         if (dir == 4)
-                            passOrNot[currentPrio][ix][iy] = 15 - passOrNot[currentPrio][ix][iy];
+                            passOrNotVec[currentPrio][ix][iy] = 15 - passOrNotVec[currentPrio][ix][iy];
                         else
                         {
-                            int foo = passOrNot[currentPrio][ix][iy]%(int)pow(2,dir+1)-passOrNot[currentPrio][ix][iy]%(int)pow(2,dir);
+                            int foo = passOrNotVec[currentPrio][ix][iy]%(int)pow(2,dir+1)-passOrNotVec[currentPrio][ix][iy]%(int)pow(2,dir);
                             foo /= pow(2,dir);
-                            passOrNot[currentPrio][ix][iy] = passOrNot[currentPrio][ix][iy]+(int)pow(2,dir)*pow(-1,foo);
+                            passOrNotVec[currentPrio][ix][iy] = passOrNotVec[currentPrio][ix][iy]+(int)pow(2,dir)*pow(-1,foo);
                         }
                     }
-                    if (passOrNot[currentPrio][ix][iy] == 0) nExceptions -= 1;
+                    if (passOrNotVec[currentPrio][ix][iy] == 0) nExceptions -= 1;
                 }
             }
         }
@@ -1767,8 +1722,8 @@ bool mapi::testDir(int dir)
         if (iy+1 >= lyMap) return 0;
         for (int prio=0; prio<nPrio; prio++)
         {
-            foo = foo && (passOrNot[prio][ix][iy]%2 == 0);
-            foo = foo && (passOrNot[prio][ix][iy+1]-passOrNot[prio][ix][iy+1]%8 == 0);
+            foo = foo && (passOrNotVec[prio][ix][iy]%2 == 0);
+            foo = foo && (passOrNotVec[prio][ix][iy+1]-passOrNotVec[prio][ix][iy+1]%8 == 0);
         }
         break;
         
@@ -1776,8 +1731,8 @@ bool mapi::testDir(int dir)
         if (ix-1 < 0) return 0;
         for (int prio=0; prio<nPrio; prio++)
         {
-            foo = foo && (passOrNot[prio][ix][iy]%4-passOrNot[prio][ix][iy]%2 == 0);
-            foo = foo && (passOrNot[prio][ix-1][iy]%8-passOrNot[prio][ix-1][iy]%4 == 0);
+            foo = foo && (passOrNotVec[prio][ix][iy]%4-passOrNotVec[prio][ix][iy]%2 == 0);
+            foo = foo && (passOrNotVec[prio][ix-1][iy]%8-passOrNotVec[prio][ix-1][iy]%4 == 0);
         }
         break;
         
@@ -1785,8 +1740,8 @@ bool mapi::testDir(int dir)
         if (ix+1 >= lxMap) return 0;
         for (int prio=0; prio<nPrio; prio++)
         {
-            foo = foo && (passOrNot[prio][ix][iy]%8-passOrNot[prio][ix][iy]%4 == 0);
-            foo = foo && (passOrNot[prio][ix+1][iy]%4-passOrNot[prio][ix+1][iy]%2 == 0);
+            foo = foo && (passOrNotVec[prio][ix][iy]%8-passOrNotVec[prio][ix][iy]%4 == 0);
+            foo = foo && (passOrNotVec[prio][ix+1][iy]%4-passOrNotVec[prio][ix+1][iy]%2 == 0);
         }
         break;
         
@@ -1794,8 +1749,8 @@ bool mapi::testDir(int dir)
         if (iy-1 < 0) return 0;
         for (int prio=0; prio<nPrio; prio++)
         {
-            foo = foo && (passOrNot[prio][ix][iy]-passOrNot[prio][ix][iy]%8 == 0);
-            foo = foo && (passOrNot[prio][ix][iy-1]%2 == 0);
+            foo = foo && (passOrNotVec[prio][ix][iy]-passOrNotVec[prio][ix][iy]%8 == 0);
+            foo = foo && (passOrNotVec[prio][ix][iy-1]%2 == 0);
         }
         break;    
     }
@@ -1839,8 +1794,8 @@ bool mapi::downOK()
     bool returnBool = 1;
     for (int prio=0; prio<nPrio; prio++)
     {
-        returnBool = returnBool && (passOrNot[prio][ix][iy+1]%(int)pow(2,dirMiror+1)-passOrNot[prio][ix][iy+1]%(int)pow(2,dirMiror) == 0);
-        returnBool = returnBool && (passOrNot[prio][ix][iy]%(int)pow(2,dirHeros+1)-passOrNot[prio][ix][iy+1]%(int)pow(2,dirHeros) == 0);
+        returnBool = returnBool && (passOrNotVec[prio][ix][iy+1]%(int)pow(2,dirMiror+1)-passOrNotVec[prio][ix][iy+1]%(int)pow(2,dirMiror) == 0);
+        returnBool = returnBool && (passOrNotVec[prio][ix][iy]%(int)pow(2,dirHeros+1)-passOrNotVec[prio][ix][iy+1]%(int)pow(2,dirHeros) == 0);
     }
     
     return returnBool;
@@ -1883,8 +1838,8 @@ bool mapi::upOK()
     bool returnBool = 1;
     for (int prio=0; prio<nPrio; prio++)
     {
-        returnBool = returnBool && (passOrNot[prio][ix][iy-1]%(int)pow(2,dirMiror+1)-passOrNot[prio][ix][iy-1]%(int)pow(2,dirMiror) == 0);
-        returnBool = returnBool && (passOrNot[prio][ix][iy]%(int)pow(2,dirHeros+1)-passOrNot[prio][ix][iy+1]%(int)pow(2,dirHeros) == 0);
+        returnBool = returnBool && (passOrNotVec[prio][ix][iy-1]%(int)pow(2,dirMiror+1)-passOrNotVec[prio][ix][iy-1]%(int)pow(2,dirMiror) == 0);
+        returnBool = returnBool && (passOrNotVec[prio][ix][iy]%(int)pow(2,dirHeros+1)-passOrNotVec[prio][ix][iy+1]%(int)pow(2,dirHeros) == 0);
     }
     
     return returnBool;
@@ -1927,8 +1882,8 @@ bool mapi::leftOK()
     bool returnBool = 1;
     for (int prio=0; prio<nPrio; prio++)
     {
-        returnBool = returnBool && (passOrNot[prio][ix-1][iy]%(int)pow(2,dirMiror+1)-passOrNot[prio][ix-1][iy]%(int)pow(2,dirMiror) == 0);
-        returnBool = returnBool && (passOrNot[prio][ix][iy]%(int)pow(2,dirHeros+1)-passOrNot[prio][ix][iy+1]%(int)pow(2,dirHeros) == 0);
+        returnBool = returnBool && (passOrNotVec[prio][ix-1][iy]%(int)pow(2,dirMiror+1)-passOrNotVec[prio][ix-1][iy]%(int)pow(2,dirMiror) == 0);
+        returnBool = returnBool && (passOrNotVec[prio][ix][iy]%(int)pow(2,dirHeros+1)-passOrNotVec[prio][ix][iy+1]%(int)pow(2,dirHeros) == 0);
     }
     
     return returnBool;
@@ -1971,8 +1926,8 @@ bool mapi::rightOK()
     bool returnBool = 1;
     for (int prio=0; prio<nPrio; prio++)
     {
-        returnBool = returnBool && (passOrNot[prio][ix+1][iy]%(int)pow(2,dirMiror+1)-passOrNot[prio][ix+1][iy]%(int)pow(2,dirMiror) == 0);
-        returnBool = returnBool && (passOrNot[prio][ix][iy]%(int)pow(2,dirHeros+1)-passOrNot[prio][ix][iy+1]%(int)pow(2,dirHeros) == 0);
+        returnBool = returnBool && (passOrNotVec[prio][ix+1][iy]%(int)pow(2,dirMiror+1)-passOrNotVec[prio][ix+1][iy]%(int)pow(2,dirMiror) == 0);
+        returnBool = returnBool && (passOrNotVec[prio][ix][iy]%(int)pow(2,dirHeros+1)-passOrNotVec[prio][ix][iy+1]%(int)pow(2,dirHeros) == 0);
     }
     
     return returnBool;
@@ -2070,7 +2025,7 @@ void mapi::update(double eT)
                         fooSprite.yPNG = fooRect.top;
                         fooTexture = fileTextureVec[iTextureVec[prio][indexSpriteVec[prio][ix][iy][0]]];
                     
-                        ctrlZObject->saveErasing(fooSprite, prio, passOrNot[prio][ix][iy], fooTexture);
+                        ctrlZObject->saveErasing(fooSprite, prio, passOrNotVec[prio][ix][iy], fooTexture);
                     }
                     removeSprite(prio, ix, iy);
                 }
@@ -2089,7 +2044,7 @@ void mapi::update(double eT)
                     fooSprite.yPNG = fooRect.top;
                     fooTexture = fileTextureVec[iTextureVec[currentPrio][indexSpriteVec[currentPrio][ix][iy][0]]];
                 
-                    ctrlZObject->saveErasing(fooSprite, currentPrio, passOrNot[currentPrio][ix][iy], fooTexture);
+                    ctrlZObject->saveErasing(fooSprite, currentPrio, passOrNotVec[currentPrio][ix][iy], fooTexture);
                 }
                 removeSprite(currentPrio, ix, iy);
             }
@@ -2344,9 +2299,9 @@ void mapi::draw()
             {
                 for (int j=0; j<lyMap; j++)
                 {
-                    if (passOrNot[prio][i][j] != 0)
+                    if (passOrNotVec[prio][i][j] != 0)
                     {    
-                        int fooInt = passOrNot[prio][i][j];
+                        int fooInt = passOrNotVec[prio][i][j];
                         foo2.setPosition(i*xSprites,j*ySprites);
                         mapWindow.draw(foo2);
                         if (fooInt/8 == 0)
@@ -2393,9 +2348,9 @@ void mapi::draw()
         {
             for (int j=0; j<lyMap; j++)
             {
-                if (passOrNot[currentPrio][i][j] != 0)
+                if (passOrNotVec[currentPrio][i][j] != 0)
                 {
-                    int fooInt = passOrNot[currentPrio][i][j];
+                    int fooInt = passOrNotVec[currentPrio][i][j];
                     foo2.setPosition(i*xSprites,j*ySprites);
                     mapWindow.draw(foo2);
                     if (fooInt/8 == 0)

@@ -79,10 +79,9 @@ class mapi
     // index des sprites dans "Sprites" en fonction de la prio et de la position x,y
     int nPrio; // Nombre de priorités au total
     vector<int> nTextureVec;
-    int** nSprite; // nombre de spritesen focntion de la prio et du numéro de texture
     vector<vector<int> > nSpriteVec;
     int nExceptions; // nombre d'exceptions de passage
-    int*** passOrNot; // passage ou pas (priorité et positions x et y)
+    vector<vector<vector<int> > > passOrNotVec;
     
     // Variables pour le ctrlC (Rectangle de sélection, priorité, sprites à afficher ...) //
     int xCtrlC;
@@ -103,7 +102,6 @@ class mapi
     
     sf::Vector2u sizeWindow; // Taille de la fenêtre en pixels
     sf::Sprite toDraw; // Sprite final à afficher sur la fenêtre après avoir généré la carte
-    
     bool isImLeft; // si vrai: on affiche l'image PNG à gauche de l'application
     imagePNG* imL; // imagePNG
     bool isImRight; // si vrai: on affiche l'image PNG à gauche de l'application

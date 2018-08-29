@@ -1,2 +1,2 @@
-maptmp.txt
+maptest.txt
 ./Tileset/
