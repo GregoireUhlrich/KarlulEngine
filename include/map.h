@@ -208,7 +208,8 @@ class mapCtrlZ
     int xSprites, ySprites;
     int memoryCtrlZ;
     int nCtrlZ;
-    actionCtrlZ* action;
+    vector<actionCtrlZ> action;
+    
     int nAddCtrlZ;
     vector<vector<int> > nSpriteAdd;
     vector<vector<int> > posAddCtrlZ;
@@ -217,17 +218,17 @@ class mapCtrlZ
     double thresholdTime;
     double elapsedTime;
     int nEraseCtrlZ;
-    int* nSpriteErase;
-    int** prioSpriteEraseCtrlZ;
-    int** passSpriteEraseCtrlZ;
-    sprite** spriteEraseCtrlZ;
-    string** fileEraseCtrlZ;
+    vector<int> nSpriteErase;
+    vector<vector<int> > prioSpriteEraseCtrlZ;
+    vector<vector<int> > passSpriteEraseCtrlZ;
+    vector<vector<sprite> > spriteEraseCtrlZ;
+    vector<vector<string> > fileEraseCtrlZ;
     
     int nPassOrNotCtrlZ;
-    int** nPassCtrlZ;
-    int** initPosPassCtrlZ;
-    int* passCtrlZ;
-    int* prioPassCtrlZ;
+    vector<vector<int> > nPassCtrlZ;
+    vector<vector<int> > initPosPassCtrlZ;
+    vector<int> passCtrlZ;
+    vector<int> prioPassCtrlZ;
     
     public:
     
