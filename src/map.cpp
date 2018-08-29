@@ -42,7 +42,6 @@ mapi::mapi(sf::RenderWindow* w, character* H, string f, int height)
     selectRect.setOutlineThickness(8.);
     
     grid = 0;
-    gridX = gridY = 0;
     
     lxMap = lyMap = 0;
     xSprites = ySprites = 32;
@@ -83,10 +82,6 @@ mapi::~mapi()
         delete imL;
         imL = 0;
     }
-    delete[] gridX;
-    delete[] gridY;
-    gridX = 0;
-    gridY = 0;
     delete ctrlZObject;
     freeSpritesCtrlC();
     
@@ -420,8 +415,8 @@ void mapi::setSizeMap(sf::Vector2u s)
     boundary.setSize(sf::Vector2f(lxMap*xSprites, lyMap*ySprites));
     
     double sizeGrid = 4;
-    gridX = new sf::RectangleShape[lxMap-1];
-    gridY = new sf::RectangleShape[lyMap-1];
+    gridX = vector<sf::RectangleShape>(lxMap-1);
+    gridY = vector<sf::RectangleShape>(lyMap-1);
     
     for (int i=1; i<lxMap; i++)
     {
@@ -874,8 +869,10 @@ void mapi::reinitMap()
         mapWindow.setView(viewMap);
         
         double sizeGrid = 4;
-        gridX = new sf::RectangleShape[lxMap-1];
-        gridY = new sf::RectangleShape[lyMap-1];
+        gridX.clear();
+        gridY.clear();
+        gridX = vector<sf::RectangleShape>(lxMap-1);
+        gridY = vector<sf::RectangleShape>(lyMap-1);
         
         for (int i=1; i<lxMap; i++)
         {
@@ -969,8 +966,10 @@ void mapi::initMap()
     mapWindow.setView(viewMap);
     
     double sizeGrid = 4;
-    gridX = new sf::RectangleShape[lxMap-1];
-    gridY = new sf::RectangleShape[lyMap-1];
+    gridX.clear();
+    gridY.clear();
+    gridX = vector<sf::RectangleShape>(lxMap-1);
+    gridY = vector<sf::RectangleShape>(lyMap-1);
     
     for (int i=1; i<lxMap; i++)
     {

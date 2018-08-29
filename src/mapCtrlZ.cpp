@@ -11,11 +11,6 @@ mapCtrlZ::mapCtrlZ(mapi* Mi)
 	memoryCtrlZ = 50;
 	nCtrlZ = 0;
 	action = 0;
-	nAddCtrlZ = 0;
-	nSpriteAdd = 0;
-	prioAddCtrlZ = 0;
-	posAddCtrlZ = 0;
-	prioAddCtrlZ = 0;
 	
 	thresholdTime = 0.5;
 	elapsedTime = 0;
@@ -73,53 +68,14 @@ void mapCtrlZ::saveAdding(sprite s, int prio, int lxS, int lyS)
 		action[i] = fooAction[i];
 	delete[] fooAction;
 	
-	int** fooNSprite = new int*[nAddCtrlZ+1];
-	int** fooPosAdd = new int*[nAddCtrlZ+1];
-	int* fooPrioAdd = new int[nAddCtrlZ+1];
-	for (int i=0; i<nAddCtrlZ; i++)
-	{
-		fooNSprite[i+1] = new int[2];
-		fooNSprite[i+1][0] = nSpriteAdd[i][0];
-		fooNSprite[i+1][1] = nSpriteAdd[i][1];
-		fooPosAdd[i+1] = new int[2];
-		fooPosAdd[i+1][0] = posAddCtrlZ[i][0];
-		fooPosAdd[i+1][1] = posAddCtrlZ[i][1];
-		fooPrioAdd[i+1] = prioAddCtrlZ[i];			
-		delete[] nSpriteAdd[i];
-		delete[] posAddCtrlZ[i];
-	}
-	if (nSpriteAdd != 0)
-	{
-		delete[] nSpriteAdd;
-		delete[] posAddCtrlZ;
-		delete[] prioAddCtrlZ;
-	}
-	fooNSprite[0] = new int[2];
-	fooNSprite[0][0] = lxS;
-	fooNSprite[0][1] = lyS;
-	fooPosAdd[0] = new int[2];
-	fooPosAdd[0][0] = round(s.x/xSprites);
-	fooPosAdd[0][1] = round(s.y/ySprites);
-	fooPrioAdd[0] = prio;
+	prioAddCtrlZ.insert(prioAddCtrlZ.begin(),prio);
+	posAddCtrlZ.insert(posAddCtrlZ.begin(),vector<int>(2));
+	posAddCtrlZ[0][0] = round(s.x/xSprites);
+	posAddCtrlZ[0][1] = round(s.y/ySprites);
+	nSpriteAdd.insert(nSpriteAdd.begin(), vector<int>(2));
+	nSpriteAdd[0][0] = lxS;
+	nSpriteAdd[0][1] = lyS;
 	nAddCtrlZ += 1;
-	nSpriteAdd = new int*[nAddCtrlZ];
-	posAddCtrlZ = new int*[nAddCtrlZ];
-	prioAddCtrlZ = new int[nAddCtrlZ];
-	for (int i=0; i<nAddCtrlZ; i++)
-	{
-		nSpriteAdd[i] = new int[2];
-		nSpriteAdd[i][0] = fooNSprite[i][0];
-		nSpriteAdd[i][1] = fooNSprite[i][1];
-		posAddCtrlZ[i] = new int[2];
-		posAddCtrlZ[i][0] = fooPosAdd[i][0];
-		posAddCtrlZ[i][1] = fooPosAdd[i][1];
-		prioAddCtrlZ[i] = fooPrioAdd[i];			
-		delete[] fooNSprite[i];
-		delete[] fooPosAdd[i];
-	}
-	delete[] fooNSprite;
-	delete[] fooPosAdd;
-	delete[] fooPrioAdd;
 }
 
 void mapCtrlZ::clearAdding()
@@ -139,60 +95,17 @@ void mapCtrlZ::clearAdding()
 	
 		if (nAddCtrlZ > 1)
 		{
-			int** fooNSprite = new int*[nAddCtrlZ-1];
-			int** fooPosAdd = new int*[nAddCtrlZ-1];
-			int* fooPrioAdd = new int[nAddCtrlZ-1];
-			delete[] posAddCtrlZ[0];
-			delete[] nSpriteAdd[0];
-			for (int i=1; i<nAddCtrlZ; i++)
-			{
-				fooNSprite[i-1] = new int[2];
-				fooNSprite[i-1][0] = nSpriteAdd[i][0];
-				fooNSprite[i-1][1] = nSpriteAdd[i][1];
-				fooPosAdd[i-1] = new int[2];
-				fooPosAdd[i-1][0] = posAddCtrlZ[i][0];
-				fooPosAdd[i-1][1] = posAddCtrlZ[i][1];
-				fooPrioAdd[i-1] = prioAddCtrlZ[i];			
-				delete[] nSpriteAdd[i];
-				delete[] posAddCtrlZ[i];
-			}
-			if (nSpriteAdd != 0)
-			{
-				delete[] nSpriteAdd;
-				delete[] posAddCtrlZ;
-				delete[] prioAddCtrlZ;
-			}
+			nSpriteAdd.erase(nSpriteAdd.begin());
+			posAddCtrlZ.erase(posAddCtrlZ.begin());
+			prioAddCtrlZ.erase(prioAddCtrlZ.begin());
 			nAddCtrlZ -= 1;
-			nSpriteAdd = new int*[nAddCtrlZ];
-			posAddCtrlZ = new int*[nAddCtrlZ];
-			prioAddCtrlZ = new int[nAddCtrlZ];
-			for (int i=0; i<nAddCtrlZ; i++)
-			{
-				nSpriteAdd[i] = new int[2];
-				nSpriteAdd[i][0] = fooNSprite[i][0];
-				nSpriteAdd[i][1] = fooNSprite[i][1];
-				posAddCtrlZ[i] = new int[2];
-				posAddCtrlZ[i][0] = fooPosAdd[i][0];
-				posAddCtrlZ[i][1] = fooPosAdd[i][1];
-				prioAddCtrlZ[i] = fooPrioAdd[i];			
-				delete[] fooNSprite[i];
-				delete[] fooPosAdd[i];
-			}
-			delete[] fooNSprite;
-			delete[] fooPosAdd;
-			delete[] fooPrioAdd;
 		}
 		else
 		{
+			nSpriteAdd.clear();
+			posAddCtrlZ.clear();
+			prioAddCtrlZ.clear();
 			nAddCtrlZ = 0;
-			delete[] posAddCtrlZ[0];
-			delete[] nSpriteAdd[0];
-			delete[] nSpriteAdd;
-			delete[] posAddCtrlZ;
-			delete[] prioAddCtrlZ;
-			nSpriteAdd = 0;
-			posAddCtrlZ = 0;
-			prioAddCtrlZ = 0;
 		}
 	}
 	else
@@ -201,14 +114,9 @@ void mapCtrlZ::clearAdding()
 		delete[] action;
 		action = 0;
 		nAddCtrlZ = 0;
-		delete[] posAddCtrlZ[0];
-		delete[] nSpriteAdd[0];
-		delete[] nSpriteAdd;
-		delete[] posAddCtrlZ;
-		delete[] prioAddCtrlZ;
-		nSpriteAdd = 0;
-		posAddCtrlZ = 0;
-		prioAddCtrlZ = 0;
+		nSpriteAdd.clear();
+		posAddCtrlZ.clear();
+		prioAddCtrlZ.clear();
 	}
 }
 
@@ -497,7 +405,7 @@ void mapCtrlZ::saveChangingPass(int prio, int dir, int ix, int iy, int lxS, int 
 		delete[] nPassCtrlZ[i];
 		delete[] initPosPassCtrlZ[i];
 	}
-	if (nSpriteAdd != 0)
+	if (nSpriteAdd.size() != 0)
 	{
 		delete[] nPassCtrlZ;
 		delete[] initPosPassCtrlZ;

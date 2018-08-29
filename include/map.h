@@ -64,8 +64,8 @@ class mapi
     int currentPrio; // priorité de travail 
     
     bool grid; // si vrai: on affiche la grille sur la carte
-    sf::RectangleShape* gridX; // Rectangles pour afficher la grille
-    sf::RectangleShape* gridY;
+    vector<sf::RectangleShape> gridX;
+    vector<sf::RectangleShape> gridY;
     
     string stringFile; // Nom du fichier en cours pour la carte
     string stringDirPNG;
@@ -210,9 +210,9 @@ class mapCtrlZ
     int nCtrlZ;
     actionCtrlZ* action;
     int nAddCtrlZ;
-    int** nSpriteAdd;
-    int** posAddCtrlZ;
-    int* prioAddCtrlZ;
+    vector<vector<int> > nSpriteAdd;
+    vector<vector<int> > posAddCtrlZ;
+    vector<int> prioAddCtrlZ;
     
     double thresholdTime;
     double elapsedTime;
