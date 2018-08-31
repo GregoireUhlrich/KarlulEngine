@@ -1,2 +1,2 @@
-maptest.txt
+level1.txt
 ./Tileset/

@@ -72,7 +72,6 @@ mapi::mapi(sf::RenderWindow* w, character* H, string f, int height)
     
     ctrlZObject = new mapCtrlZ(this);
     nEvents = 0;
-    events = 0;
 }
 
 mapi::~mapi()
@@ -85,8 +84,10 @@ mapi::~mapi()
     delete ctrlZObject;
     freeSpritesCtrlC();
     
-    if (nEvents > 0)
-        delete[] events;
+    for (int i=0; i<nEvents; i++)
+    {
+        if (events[i] != NULL) delete events[i];
+    }
 }
 
 void mapi::initPNG(string f, char chirality)
@@ -198,6 +199,19 @@ void mapi::setState(StateMap s)
 {
     if (state == adding && s != adding) freeSpritesCtrlC();
     state = s;
+    if (state == heros) 
+    {
+        float xView = Heros->getX()-lx/2.;
+        float yView = Heros->getY()-ly/2.;
+        if (xView < 0) xView = 0;
+        if (xView > lxMap*xSprites-lx) xView = lxMap*xSprites-lx;    
+        if (yView < 0) yView = 0;
+        if (yView > lyMap*ySprites-ly) yView = lyMap*ySprites-ly;        
+        if (lx > lxMap*xSprites) xView = -(lx-lxMap*xSprites)/2;
+        if (ly > lyMap*ySprites) yView = -(ly-lyMap*ySprites)/2;
+        viewMap.reset(sf::FloatRect(xView,yView,lx,ly));
+        mapWindow.setView(viewMap);
+    }
 }
 
 void mapi::setSaveState(SaveStateMap s) { saveState = s;}
@@ -452,13 +466,13 @@ void mapi::setTakeMidY(bool t)
     imL->setTakeMidY(t);
 }
 
-void mapi::setPosHeros(int xi, int yi)
+void mapi::setPosHero(int xi, int yi)
 {
     Heros->setX(xi);
     Heros->setY(yi);
 }
 
-void mapi::setDirHeros(int dir)
+void mapi::setDirHero(int dir)
 {
     if (dir > -1 && dir < 4) Heros->setDir(dir);
     else Heros->setDir(0);
@@ -602,39 +616,30 @@ int mapi::loadMap()
             }
             if (nTotTexture > 0) initPNG(fileTextureVec[0],'L');
             else initPNG("Tileset/base.PNG",'L');
-            file>>foo;
-            if (foo != "endFile")
+            file>>nGates>>foo;
+            if (nGates > 0) gates = vector<gate>(nGates);
+            for (int i=0; i<nGates; i++)
             {
-                file>>nGates;
-                if (nGates > 0) gates = new gate[nGates];
-                for (int i=0; i<nGates; i++)
-                    file>>gates[i].name>>gates[i].x>>gates[i].y;
+                file>>gates[i].x>>gates[i].y>>gates[i].name;
             }
-            else
+            file>>nEvents>>foo;
+            if (nEvents > 0) events = vector<gameEvent*>(nEvents);
+            for (int i=0; i<nEvents; i++)
             {
-                file.close();
-                initMap();
-                return 1;            
-            }
-            file>>foo;
-            if (foo != "endFile")
-            {
-                file>>nEvents;
-                if (nEvents > 0) events = new gameEvent*[nEvents];
-                for (int i=0; i<nEvents; i++)
+                file>>foo;
+                if (foo == "changeMap:")
                 {
-                    file>>foo;
-                    //createEvent(foo, *this, );
+                    int fooXNew, fooYNew, fooDirNew;
+                    file>>fooX>>fooY>>fooDir>>foo>>fooXNew>>fooYNew>>fooDirNew;
+                    events[i] = new changeMap(fooX, fooY, fooDir, this, foo, fooXNew, fooYNew, fooDirNew);
+                    //cout<<events[i]->x<<" "<<events[i]->y<<" "<<events[i]->dir<<" "<<events[i]->nameMap<<" "<<events[i]->xNew<<" "<<events[i]->yNew<<" "<<events[i]->dirNew<<endl;
                 }
-                file.close();
-                initMap();
+                else
+                    events[i] = NULL;
             }
-            else
-            {
-                file.close();
-                initMap();
-                return 1;            
-            }
+            file.close();
+            initMap();
+            return 1;   
         }
         else cout<<"Unable to open file! "<<endl;
         return 0;
@@ -690,7 +695,16 @@ void mapi::saveMap()
             if (i == nPrio-1)
                 file<<"\n\n";
         }
-        file<<"\n";
+        file<<nGates<<" #nGates\n\n";
+        for (int i=0; i<nGates; i++)
+            file<<gates[i].x<<" "<<gates[i].y<<" "<<gates[i].name<<" ";
+        file<<endl<<endl;
+        file<<nEvents<<" #nEvents\n\n";
+        for (int i=0; i<nEvents; i++)
+        {
+            if (events[i]->type == "changeMap") file<<"changeMap: " <<events[i]->x<<" "<<events[i]->y<<" "<<events[i]->dir<<" "<<events[i]->nameMap<<" "<<events[i]->xNew<<" "<<events[i]->yNew<<" "<<events[i]->dirNew<<" ";
+        }
+        file<<endl<<endl;
         file<<"endFile";
         file.close();
         
@@ -832,7 +846,7 @@ void mapi::initMap()
     boundary.setPosition(0,0);
     boundary.setSize(sf::Vector2f(lxMap*xSprites, lyMap*ySprites));
     
-    viewMap.reset(sf::FloatRect(-4*xSprites-thickness,-thickness,lx,ly));
+    viewMap.reset(sf::FloatRect(0,0,lx,ly));
     mapWindow.setView(viewMap);
     
     double sizeGrid = 4;
@@ -1442,6 +1456,7 @@ void mapi::windowResized(sf::Vector2u newSizeWindow)
     foo.y *= ratioY;
     viewMap.setSize(foo);
     mapWindow.create(lx,ly);
+    mapWindow.setView(viewMap);
     toDraw.setTextureRect(sf::IntRect(0,0,lx,ly));
     sizeWindow = newSizeWindow;
 }
@@ -2019,6 +2034,13 @@ void mapi::update(double eT)
                 select = select2 = 0;
             }
         }
+    }    
+    if (state == heros)
+    {
+        for (int i=0; i<nEvents; i++)
+        {
+            events[i]->testHero(Heros);
+        }
     }
 }
 
@@ -2247,6 +2269,17 @@ void mapi::draw()
         fooCircle.setRadius(xSprites/2);
         mapWindow.draw(fooCircle);
     }
+    /*
+    cout<<"map displayed : "<<stringFile<<endl;
+    cout<<"x = "<<x<<", y = "<<y<<endl;
+    cout<<"lx = "<<lx<<", ly = "<<ly<<endl;
+    sf::Vector2f foop = viewMap.getCenter();
+    cout<<"x view = "<<foop.x<<", y view = "<<foop.y<<endl;
+    foop = viewMap.getSize();
+    cout<<"sizeX view = "<<foop.x<<", sizeY view = "<<foop.y<<endl;
+    foop = spriteVec[0][indexSpriteVec[0][0][0][0]][indexSpriteVec[0][0][0][1]].getPosition();
+    cout<<"PosX sprite0 = "<<foop.x<<", posY sprite0 = "<<foop.y<<endl<<endl;
+    */
     mapWindow.display();
     mapWindow.setView(viewMap);
     toDraw.setTexture(mapWindow.getTexture());
@@ -2265,6 +2298,15 @@ void mapi::draw()
             window->draw(limR);
         }
     }
+}
+
+void mapi::drawClearWindow()
+{
+    mapWindow.clear(sf::Color::Black);
+    mapWindow.display();
+    toDraw.setTexture(mapWindow.getTexture());
+    toDraw.setPosition(x,y);
+    window->draw(toDraw);
 }
 
 void mapi::closeWindow()

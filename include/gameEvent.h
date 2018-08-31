@@ -6,34 +6,40 @@ using namespace std;
 
 class mapi;
 
+struct gate
+{
+    int x, y;
+    string name;
+};
+
 class gameEvent{
 
-    protected:
-    
-    int x, y;
-    mapi* M;
-    
     public:
     
-    gameEvent(int xi, int yi, mapi* Mi);
+    int x, y, dir;
+    mapi* M;
+    string type;
+    int xNew, yNew, dirNew;
+    string nameMap;
+    
+    gameEvent();
+    gameEvent(int xi, int yi, int di, mapi* Mi);
+    gameEvent(const gameEvent& g);
     virtual ~gameEvent();
     virtual bool testPos(int xi, int yi);
-    virtual void activate(){};
+    virtual void testHero(character* h){};
+    virtual void activate(character* h){};
 
 };
 
 class changeMap: public gameEvent{
 
-    private:
-    
-    string nameMap;
-    int xNew, yNew, dirNew;
-    
     public:
     
-    changeMap(int xi, int yi, mapi* Mi, string n, int xN, int yN, int dN);
+    changeMap(int xi, int yi, int di, mapi* Mi, string n, int xN, int yN, int dN);
     ~changeMap();
-    void activate();
+    void testHero(character* h);
+    void activate(character* h);
 };
 
 
@@ -52,8 +58,5 @@ struct paramsEvents
 };
 
 void initEvents(varEvents v);
-
-gameEvent* createEvent(string definition, mapi*Mi, paramsEvents);
-
 
 #endif

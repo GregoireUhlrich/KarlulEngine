@@ -153,22 +153,38 @@ int main()
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
                 {
                     if (M->testDir(0)) Heros.setKeyPressed(0);
-                    else Heros.setDir(0);
+                    else
+                    {   
+                        Heros.setDir(0);
+                        Heros.setWantedMove(0);
+                    }
                 }
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
                 {
                     if (M->testDir(1)) Heros.setKeyPressed(1);
-                    else Heros.setDir(1);
+                    else
+                    {   
+                        Heros.setDir(1);
+                        Heros.setWantedMove(1);
+                    }
                 }
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
                 {
                     if (M->testDir(2)) Heros.setKeyPressed(2);
-                    else Heros.setDir(2);
+                    else
+                    {   
+                        Heros.setDir(2);
+                        Heros.setWantedMove(2);
+                    }
                 }
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
                 {
                     if (M->testDir(3)) Heros.setKeyPressed(3);
-                    else Heros.setDir(3);
+                    else
+                    {   
+                        Heros.setDir(3);
+                        Heros.setWantedMove(3);
+                    }
                 }
                 elapsedTime = clock.restart();
                 Heros.update(elapsedTime.asSeconds());

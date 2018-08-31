@@ -18,12 +18,6 @@ struct sprite
     int xPNG, yPNG;
 };
 
-struct gate
-{
-    int x, y;
-    string name;
-};
-
 // Etat de l'éditeur (mode ajout, ecrasement, test du héros etc... //
 enum StateMap{ moving, adding, erasing, selecting, heros, nothing};
 
@@ -114,10 +108,10 @@ class mapi
     mapCtrlZ* ctrlZObject;
     
     int nGates;
-    gate* gates;
+    vector<gate> gates;
     
     int nEvents;
-    gameEvent** events;
+    vector<gameEvent*> events;
     
     public:
     
@@ -153,8 +147,8 @@ class mapi
     void resetTextureSprite();
     void setTakeMidX(bool s);
     void setTakeMidY(bool s);
-    void setPosHeros(int xi, int yi);
-    void setDirHeros(int dir);
+    void setPosHero(int xi, int yi);
+    void setDirHero(int dir);
     int loadMap();
     void saveMap();
     void initMap();
@@ -195,6 +189,7 @@ class mapi
     
     void update(double eT);
     void draw();
+    void drawClearWindow();
     
     void closeWindow();
     

@@ -4,20 +4,20 @@ using namespace std;
 
 interactiveWindow::interactiveWindow(sf::RenderWindow* wi, mapi* Mi, int lyi)
 {
-	x = y = 0;
-	ly = lyi;
-	M = Mi;
-	window = wi;
-	sizeWindow = window->getSize();
-	sizeMap = M->getSizeMap();
-	lx = sizeWindow.x;
-	posMouse = sf::Vector2i(0,0);
-	
-	buffer.loadFromFile("Audio/Projet1Arch.ogg");
-	son1.setLoop(1);
-	son1.setBuffer(buffer);
-	
-	nD = 19;
+    x = y = 0;
+    ly = lyi;
+    M = Mi;
+    window = wi;
+    sizeWindow = window->getSize();
+    sizeMap = M->getSizeMap();
+    lx = sizeWindow.x;
+    posMouse = sf::Vector2i(0,0);
+    
+    buffer.loadFromFile("Audio/Projet1Arch.ogg");
+    son1.setLoop(1);
+    son1.setBuffer(buffer);
+    
+    nD = 19;
     nModeMap = 4;
     nPrio = 4;
     nTextBox = 4;
@@ -90,17 +90,17 @@ interactiveWindow::interactiveWindow(sf::RenderWindow* wi, mapi* Mi, int lyi)
 
 interactiveWindow::~interactiveWindow()
 {
-	for (int i=0; i<nD; i++)
-		delete D[i];
-	delete[] D;
-	delete[] iTextBox;
+    for (int i=0; i<nD; i++)
+        delete D[i];
+    delete[] D;
+    delete[] iTextBox;
 }
 
 bool interactiveWindow::hasFocus()
 {     
     bool foo = 0;
-	for (int i=iWrap; i<iWrap+nWrap; i++)
-	    foo = foo || D[i]->getIsMouseHere();
+    for (int i=iWrap; i<iWrap+nWrap; i++)
+        foo = foo || D[i]->getIsMouseHere();
     return foo;
 }   
 
@@ -112,9 +112,9 @@ void interactiveWindow::lossFocus()
 
 void interactiveWindow::testMouse(sf::Vector2i p)
 {
-	posMouse = p;
-	for (int i=0; i<nD; i++)
-		D[i]->testMouse(posMouse);
+    posMouse = p;
+    for (int i=0; i<nD; i++)
+        D[i]->testMouse(posMouse);
 }
 
 void interactiveWindow::windowEvent(sf::Event event)
@@ -122,301 +122,300 @@ void interactiveWindow::windowEvent(sf::Event event)
     bool textBoxEnabled = 0;
     for (int i=0; i<nTextBox; i++)
         textBoxEnabled = textBoxEnabled || D[iTextBox[i]]->getPressed();
-	if (event.type == sf::Event::MouseButtonPressed && !testJoueur)
+    if (event.type == sf::Event::MouseButtonPressed && !testJoueur)
     {
-    	if (event.mouseButton.button == sf::Mouse::Left && isWrapped)
-    	{
-    		posMouse = sf::Mouse::getPosition(*window);
-    		for (int i=0; i<nModeMap; i++)
-    		{
-    			if (D[i]->buttonPressed(posMouse))
-    				mode = i;
-    		}
-    		for (int i=0; i<nModeMap; i++)
-    		{
-    			if (i != mode)
-    				D[i]->setPressed(0);
-    			else
-    				D[i]->setPressed(1);
-    		}
-    		for (int i=nModeMap; i<nPrio+nModeMap; i++)
-    		{
-    			if (D[i]->buttonPressed(posMouse))
-    				prio = i-nModeMap;
-    		}
-    		for (int i=nModeMap; i<nPrio+nModeMap; i++)
-    		{
-    			if (i-nModeMap != prio)
-    				D[i]->setPressed(0);
-    			else
-    				D[i]->setPressed(1);
-    		}
-    				
-    		for (int i=nModeMap+nPrio; i<nD; i++)
-    		{
-    			D[i]->mousePressed(posMouse);
-    			D[i]->buttonPressed(posMouse);
-    		}
-    		if (isWrapped) M->mousePressed(posMouse);
-    		sf::Vector2u foo = M->getSizeMap();
-    		if (sizeMap != foo)
-    		{
-    		    sizeMap = foo;
-    		    D[iTextBox[nTextBox-2]]->setString(unsignedIntToString(foo.x));
-    		    D[iTextBox[nTextBox-1]]->setString(unsignedIntToString(foo.y));
-    		}
-    		for (int i=0; i<nTexture; i++)
-    		{
-    			if (P[i]->buttonPressed(posMouse))
-    				iTexture = i;
-    		}
-    		for (int i=0; i<nTexture; i++)
-    		{
-    			if (i != iTexture)
-    				P[i]->setPressed(0);
-    			else
-    				P[i]->setPressed(1);
-    		}
-    	}
-    	else if (event.mouseButton.button == sf::Mouse::Left)
-    	{
-    	    for (int i=iWrap; i<iWrap+nWrap; i++)
-    	    {
-    			D[i]->mousePressed(posMouse);
-    			D[i]->buttonPressed(posMouse);
-    		}
+        if (event.mouseButton.button == sf::Mouse::Left && isWrapped)
+        {
+            posMouse = sf::Mouse::getPosition(*window);
+            for (int i=0; i<nModeMap; i++)
+            {
+                if (D[i]->buttonPressed(posMouse))
+                    mode = i;
+            }
+            for (int i=0; i<nModeMap; i++)
+            {
+                if (i != mode)
+                    D[i]->setPressed(0);
+                else
+                    D[i]->setPressed(1);
+            }
+            for (int i=nModeMap; i<nPrio+nModeMap; i++)
+            {
+                if (D[i]->buttonPressed(posMouse))
+                    prio = i-nModeMap;
+            }
+            for (int i=nModeMap; i<nPrio+nModeMap; i++)
+            {
+                if (i-nModeMap != prio)
+                    D[i]->setPressed(0);
+                else
+                    D[i]->setPressed(1);
+            }
+                    
+            for (int i=nModeMap+nPrio; i<nD; i++)
+            {
+                D[i]->mousePressed(posMouse);
+                D[i]->buttonPressed(posMouse);
+            }
+            if (isWrapped) M->mousePressed(posMouse);
+            sf::Vector2u foo = M->getSizeMap();
+            if (sizeMap != foo)
+            {
+                sizeMap = foo;
+                D[iTextBox[nTextBox-2]]->setString(unsignedIntToString(foo.x));
+                D[iTextBox[nTextBox-1]]->setString(unsignedIntToString(foo.y));
+            }
+            for (int i=0; i<nTexture; i++)
+            {
+                if (P[i]->buttonPressed(posMouse))
+                    iTexture = i;
+            }
+            for (int i=0; i<nTexture; i++)
+            {
+                if (i != iTexture)
+                    P[i]->setPressed(0);
+                else
+                    P[i]->setPressed(1);
+            }
+        }
+        else if (event.mouseButton.button == sf::Mouse::Left)
+        {
+            for (int i=iWrap; i<iWrap+nWrap; i++)
+            {
+                D[i]->mousePressed(posMouse);
+                D[i]->buttonPressed(posMouse);
+            }
             if (D[iWrap+nWrap-1]->getPressed())
             {
                 iTexture = -1;
                 for (int i=0; i<nTexture; i++)
                     P[i]->setPressed(0);
             }
-    	}
-    	else if (event.mouseButton.button == sf::Mouse::Right and isWrapped)
-        	M->setHerosPos(posMouse);
+        }
+        else if (event.mouseButton.button == sf::Mouse::Right and isWrapped)
+            M->setHerosPos(posMouse);
     }
     else if (event.type == sf::Event::MouseButtonReleased && !testJoueur)
     {
-    	if (event.mouseButton.button == sf::Mouse::Left)
-    	{    
-    		posMouse = sf::Mouse::getPosition(*window);
-    		for (int i=0; i<nD; i++)
-    			D[i]->mouseReleased();
-    		if (isWrapped) M->mouseReleased();
-    	}
+        if (event.mouseButton.button == sf::Mouse::Left)
+        {    
+            posMouse = sf::Mouse::getPosition(*window);
+            for (int i=0; i<nD; i++)
+                D[i]->mouseReleased();
+            if (isWrapped) M->mouseReleased();
+        }
     }
     else if (event.type == sf::Event::MouseWheelMoved && !testJoueur)
     {
-    	for (int i=0; i<nD; i++)
-    		D[i]->mouseWheel(event.mouseWheel.delta);
-    	if (isWrapped) M->mouseWheel(event.mouseWheel.delta);
+        for (int i=0; i<nD; i++)
+            D[i]->mouseWheel(event.mouseWheel.delta);
+        if (isWrapped) M->mouseWheel(event.mouseWheel.delta);
     }
     else if (event.type == sf::Event::Resized)
-	{
-	    for (int i=0; i<nD; i++)
-    		D[i]->windowResized(sf::Vector2u(event.size.width,event.size.height));
-    	M->windowResized(sf::Vector2u(event.size.width,event.size.height));
+    {
+        for (int i=0; i<nD; i++)
+            D[i]->windowResized(sf::Vector2u(event.size.width,event.size.height));
+        M->windowResized(sf::Vector2u(event.size.width,event.size.height));
         for (int i=0; i<nTexture; i++)
             P[i]->windowResized(sf::Vector2u(event.size.width,event.size.height));
-    	
-    	sizeWindow = window->getSize();
-    	backGShape.setSize(sf::Vector2f(event.size.width, ly));
-    	limitShape.setSize(sf::Vector2f(event.size.width, sizeLimit));
-	}    
-	else if (event.type == sf::Event::KeyPressed && !textBoxEnabled)
-	{
-		M->keyPressed(event.key.code);
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) && !testJoueur)
-		{
-			if (event.key.code == sf::Keyboard::C)
-			{
-				M->ctrlC();
-				M->setSelect(0,0);
-				mode=iAddButton;
-				for (int i=0; i<nModeMap; i++)
-        		{
-        			if (i != mode)
-        				D[i]->setPressed(0);
-        			else
-        				D[i]->setPressed(1);
-        		}
-        	}
-			if (event.key.code == sf::Keyboard::X)
-			{
-				M->ctrlX();
-				M->setSelect(0,0);
-				D[iAddButton]->setPressed(1);
-				mode=iAddButton;
-				for (int i=0; i<nModeMap; i++)
-        		{
-        			if (i != mode)
-        				D[i]->setPressed(0);
-        			else
-        				D[i]->setPressed(1);
-        		}
-        	}
-			if (event.key.code == sf::Keyboard::Z) M->ctrlZ();
-			if (event.key.code == sf::Keyboard::S) M->saveMap();
-		}
-		if (event.key.code == sf::Keyboard::Delete && !testJoueur) M->suppr();
-		else if (event.key.code == sf::Keyboard::Left && !testJoueur)
-		{
-			for (int i=0; i<nTextBox; i++)
-        		D[iTextBox[i]]->moveLeft();
-		}
-		else if (event.key.code == sf::Keyboard::Right && !testJoueur)
-		{
-			for (int i=0; i<nTextBox; i++)
-        		D[iTextBox[i]]->moveRight();
-		}
-		else if (event.key.code == sf::Keyboard::Escape)
-		{
-			testJoueur = !testJoueur;
-			M->setJoueur(testJoueur);
-			if (testJoueur)
-			{
-				for (int i=0; i<nModeMap; i++)
-        		{
-        			D[i]->setPressed(0);
-        		}
-        		son1.play();
-        		cout<<"Son\n";
-        	}
-        	else son1.stop();
-		}
-		else if (event.key.code == sf::Keyboard::L)
-		{
-			takeMidX = !takeMidX;
-			M->setTakeMidX(takeMidX);
-		}
-		else if (event.key.code == sf::Keyboard::M)
-		{
-			takeMidY = !takeMidY;
-			M->setTakeMidY(takeMidY);
-		}
-		else if (event.key.code == sf::Keyboard::D)
-		{
-			M->setSelect(0,0);
-			D[0]->setPressed(1);
-			mode=0;
-			for (int i=0; i<nModeMap; i++)
-    		{
-    			if (i != mode)
-    				D[i]->setPressed(0);
-    			else
-    				D[i]->setPressed(1);
-    		}
-		}
-		else if (event.key.code == sf::Keyboard::F)
-		{
-			M->setSelect(0,0);
-			D[1]->setPressed(1);
-			mode=1;
-			for (int i=0; i<nModeMap; i++)
-    		{
-    			if (i != mode)
-    				D[i]->setPressed(0);
-    			else
-    				D[i]->setPressed(1);
-    		}
-		}
-		else if (event.key.code == sf::Keyboard::G)
-		{
-			M->setSelect(0,0);
-			D[2]->setPressed(1);
-			mode=2;
-			for (int i=0; i<nModeMap; i++)
-    		{
-    			if (i != mode)
-    				D[i]->setPressed(0);
-    			else
-    				D[i]->setPressed(1);
-    		}
-		}
-		else if (event.key.code == sf::Keyboard::H)
-		{
-			M->setSelect(0,0);
-			D[3]->setPressed(1);
-			mode=3;
-			for (int i=0; i<nModeMap; i++)
-    		{
-    			if (i != mode)
-    				D[i]->setPressed(0);
-    			else
-    				D[i]->setPressed(1);
-    		}
-		}
-		else if (event.key.code == sf::Keyboard::C && !sf::Keyboard::isKeyPressed(sf::Keyboard::LControl))
-		{
-			prio = 0;
-    		for (int i=nModeMap; i<nPrio+nModeMap; i++)
-    		{
-    			if (i-nModeMap != prio)
-    				D[i]->setPressed(0);
-    			else
-    				D[i]->setPressed(1);
-    		}
-		}
-		else if (event.key.code == sf::Keyboard::V)
-		{
-			prio = 1;
-    		for (int i=nModeMap; i<nPrio+nModeMap; i++)
-    		{
-    			if (i-nModeMap != prio)
-    				D[i]->setPressed(0);
-    			else
-    				D[i]->setPressed(1);
-    		}
-		}
-		else if (event.key.code == sf::Keyboard::B)
-		{
-			prio = 2;
-    		for (int i=nModeMap; i<nPrio+nModeMap; i++)
-    		{
-    			if (i-nModeMap != prio)
-    				D[i]->setPressed(0);
-    			else
-    				D[i]->setPressed(1);
-    		}
-		}
-		else if (event.key.code == sf::Keyboard::N)
-		{
-			prio = 3;
-    		for (int i=nModeMap; i<nPrio+nModeMap; i++)
-    		{
-    			if (i-nModeMap != prio)
-    				D[i]->setPressed(0);
-    			else
-    				D[i]->setPressed(1);
-    		}
-		}
-		else if (event.key.code == sf::Keyboard::X && !sf::Keyboard::isKeyPressed(sf::Keyboard::LControl))
-			D[nModeMap+nPrio]->setPressed(!D[nModeMap+nPrio]->getPressed());
-		else if (event.key.code == sf::Keyboard::K)
-			D[nModeMap+nPrio+1]->setPressed(!D[nModeMap+nPrio+1]->getPressed());
-		else if (event.key.code == sf::Keyboard::J)
-			D[nModeMap+nPrio+3]->setPressed(!D[nModeMap+nPrio+3]->getPressed());
-	}
-	else if (event.type == sf::Event::KeyPressed)
-	{
+        
+        sizeWindow = window->getSize();
+        backGShape.setSize(sf::Vector2f(event.size.width, ly));
+        limitShape.setSize(sf::Vector2f(event.size.width, sizeLimit));
+    }    
+    else if (event.type == sf::Event::KeyPressed && !textBoxEnabled)
+    {
+        M->keyPressed(event.key.code);
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) && !testJoueur)
+        {
+            if (event.key.code == sf::Keyboard::C)
+            {
+                M->ctrlC();
+                M->setSelect(0,0);
+                mode=iAddButton;
+                for (int i=0; i<nModeMap; i++)
+                {
+                    if (i != mode)
+                        D[i]->setPressed(0);
+                    else
+                        D[i]->setPressed(1);
+                }
+            }
+            if (event.key.code == sf::Keyboard::X)
+            {
+                M->ctrlX();
+                M->setSelect(0,0);
+                D[iAddButton]->setPressed(1);
+                mode=iAddButton;
+                for (int i=0; i<nModeMap; i++)
+                {
+                    if (i != mode)
+                        D[i]->setPressed(0);
+                    else
+                        D[i]->setPressed(1);
+                }
+            }
+            if (event.key.code == sf::Keyboard::Z) M->ctrlZ();
+            if (event.key.code == sf::Keyboard::S) M->saveMap();
+        }
+        if (event.key.code == sf::Keyboard::Delete && !testJoueur) M->suppr();
+        else if (event.key.code == sf::Keyboard::Left && !testJoueur)
+        {
+            for (int i=0; i<nTextBox; i++)
+                D[iTextBox[i]]->moveLeft();
+        }
+        else if (event.key.code == sf::Keyboard::Right && !testJoueur)
+        {
+            for (int i=0; i<nTextBox; i++)
+                D[iTextBox[i]]->moveRight();
+        }
+        else if (event.key.code == sf::Keyboard::Escape)
+        {
+            testJoueur = !testJoueur;
+            M->setJoueur(testJoueur);
+            if (testJoueur)
+            {
+                for (int i=0; i<nModeMap; i++)
+                {
+                    D[i]->setPressed(0);
+                }
+                son1.play();
+            }
+            else son1.stop();
+        }
+        else if (event.key.code == sf::Keyboard::L)
+        {
+            takeMidX = !takeMidX;
+            M->setTakeMidX(takeMidX);
+        }
+        else if (event.key.code == sf::Keyboard::M)
+        {
+            takeMidY = !takeMidY;
+            M->setTakeMidY(takeMidY);
+        }
+        else if (event.key.code == sf::Keyboard::D)
+        {
+            M->setSelect(0,0);
+            D[0]->setPressed(1);
+            mode=0;
+            for (int i=0; i<nModeMap; i++)
+            {
+                if (i != mode)
+                    D[i]->setPressed(0);
+                else
+                    D[i]->setPressed(1);
+            }
+        }
+        else if (event.key.code == sf::Keyboard::F)
+        {
+            M->setSelect(0,0);
+            D[1]->setPressed(1);
+            mode=1;
+            for (int i=0; i<nModeMap; i++)
+            {
+                if (i != mode)
+                    D[i]->setPressed(0);
+                else
+                    D[i]->setPressed(1);
+            }
+        }
+        else if (event.key.code == sf::Keyboard::G)
+        {
+            M->setSelect(0,0);
+            D[2]->setPressed(1);
+            mode=2;
+            for (int i=0; i<nModeMap; i++)
+            {
+                if (i != mode)
+                    D[i]->setPressed(0);
+                else
+                    D[i]->setPressed(1);
+            }
+        }
+        else if (event.key.code == sf::Keyboard::H)
+        {
+            M->setSelect(0,0);
+            D[3]->setPressed(1);
+            mode=3;
+            for (int i=0; i<nModeMap; i++)
+            {
+                if (i != mode)
+                    D[i]->setPressed(0);
+                else
+                    D[i]->setPressed(1);
+            }
+        }
+        else if (event.key.code == sf::Keyboard::C && !sf::Keyboard::isKeyPressed(sf::Keyboard::LControl))
+        {
+            prio = 0;
+            for (int i=nModeMap; i<nPrio+nModeMap; i++)
+            {
+                if (i-nModeMap != prio)
+                    D[i]->setPressed(0);
+                else
+                    D[i]->setPressed(1);
+            }
+        }
+        else if (event.key.code == sf::Keyboard::V)
+        {
+            prio = 1;
+            for (int i=nModeMap; i<nPrio+nModeMap; i++)
+            {
+                if (i-nModeMap != prio)
+                    D[i]->setPressed(0);
+                else
+                    D[i]->setPressed(1);
+            }
+        }
+        else if (event.key.code == sf::Keyboard::B)
+        {
+            prio = 2;
+            for (int i=nModeMap; i<nPrio+nModeMap; i++)
+            {
+                if (i-nModeMap != prio)
+                    D[i]->setPressed(0);
+                else
+                    D[i]->setPressed(1);
+            }
+        }
+        else if (event.key.code == sf::Keyboard::N)
+        {
+            prio = 3;
+            for (int i=nModeMap; i<nPrio+nModeMap; i++)
+            {
+                if (i-nModeMap != prio)
+                    D[i]->setPressed(0);
+                else
+                    D[i]->setPressed(1);
+            }
+        }
+        else if (event.key.code == sf::Keyboard::X && !sf::Keyboard::isKeyPressed(sf::Keyboard::LControl))
+            D[nModeMap+nPrio]->setPressed(!D[nModeMap+nPrio]->getPressed());
+        else if (event.key.code == sf::Keyboard::K)
+            D[nModeMap+nPrio+1]->setPressed(!D[nModeMap+nPrio+1]->getPressed());
+        else if (event.key.code == sf::Keyboard::J)
+            D[nModeMap+nPrio+3]->setPressed(!D[nModeMap+nPrio+3]->getPressed());
+    }
+    else if (event.type == sf::Event::KeyPressed)
+    {
         if (event.key.code == sf::Keyboard::Left && !testJoueur)
-		{
-			for (int i=0; i<nTextBox; i++)
-        		D[iTextBox[i]]->moveLeft();
-		}
-		else if (event.key.code == sf::Keyboard::Right && !testJoueur)
-		{
-			for (int i=0; i<nTextBox; i++)
-        		D[iTextBox[i]]->moveRight();
-		}
-	}
-	else if (event.type == sf::Event::TextEntered && !testJoueur)
+        {
+            for (int i=0; i<nTextBox; i++)
+                D[iTextBox[i]]->moveLeft();
+        }
+        else if (event.key.code == sf::Keyboard::Right && !testJoueur)
+        {
+            for (int i=0; i<nTextBox; i++)
+                D[iTextBox[i]]->moveRight();
+        }
+    }
+    else if (event.type == sf::Event::TextEntered && !testJoueur)
     {
         sf::String foo = event.text.unicode;
-    	if (event.text.unicode == 8)
-    	{
-    		for (int i=0; i<nTextBox; i++)
-        		D[iTextBox[i]]->backSpace();
+        if (event.text.unicode == 8)
+        {
+            for (int i=0; i<nTextBox; i++)
+                D[iTextBox[i]]->backSpace();
         }
         else if (event.text.unicode == 13)
         {
@@ -426,25 +425,25 @@ void interactiveWindow::windowEvent(sf::Event event)
                 for (int i=0; i<nTexture; i++)
                     P[i]->setPressed(0);
             }
-    		for (int i=0; i<nTextBox; i++)
-        		D[iTextBox[i]]->enter();                
-        }
-    	else	
-    	{
             for (int i=0; i<nTextBox; i++)
-            	D[iTextBox[i]]->textEntered(foo);
+                D[iTextBox[i]]->enter();                
+        }
+        else    
+        {
+            for (int i=0; i<nTextBox; i++)
+                D[iTextBox[i]]->textEntered(foo);
         }
     }
 }
 
 void interactiveWindow::windowResized()
 {
-	sf::Vector2u foo = window->getSize();
-	sizeWindow = foo;
-	for (int i=0; i<nD; i++)
-		D[i]->windowResized(foo);
-	for (int i=0; i<nTexture; i++)
-		P[i]->windowResized(foo);
+    sf::Vector2u foo = window->getSize();
+    sizeWindow = foo;
+    for (int i=0; i<nD; i++)
+        D[i]->windowResized(foo);
+    for (int i=0; i<nTexture; i++)
+        P[i]->windowResized(foo);
 }
 
 void interactiveWindow::update()
@@ -470,32 +469,32 @@ void interactiveWindow::update()
             fileTextures = 0;
         }
     }
-	for (int i=0; i<nD; i++)
-		D[i]->update();
-	isWrapped = !hasFocus();
-	for (int i=0; i<nTexture; i++)
-	{
-	    P[i]->update();
-	    if (P[i]->getPressed() && iTexture >= 0 && M->getImageFile() != fileTextures[i])
-	        M->initPNG(fileTextures[i],'L');
-	}
+    for (int i=0; i<nD; i++)
+        D[i]->update();
+    isWrapped = !hasFocus();
+    for (int i=0; i<nTexture; i++)
+    {
+        P[i]->update();
+        if (P[i]->getPressed() && iTexture >= 0 && M->getImageFile() != fileTextures[i])
+            M->initPNG(fileTextures[i],'L');
+    }
 }
 
 void interactiveWindow::closeWindow()
 {
-	window = 0;
-	for (int i=0; i<nD; i++)
-		D[i]->closeWindow();
-	for (int i=0; i<nTexture; i++)
-	    P[i]->closeWindow();
+    window = 0;
+    for (int i=0; i<nD; i++)
+        D[i]->closeWindow();
+    for (int i=0; i<nTexture; i++)
+        P[i]->closeWindow();
 }
 
 void interactiveWindow::draw()
 {
-	window->draw(backGShape);
-	window->draw(limitShape);
-	for (int i=0; i<nTexture; i++)
-	    P[i]->draw();
-	for (int i=0; i<nD; i++)
-		D[i]->draw();
+    window->draw(backGShape);
+    window->draw(limitShape);
+    for (int i=0; i<nTexture; i++)
+        P[i]->draw();
+    for (int i=0; i<nD; i++)
+        D[i]->draw();
 }
