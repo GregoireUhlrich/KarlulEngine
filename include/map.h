@@ -39,7 +39,9 @@ class mapi
     
     SaveStateMap saveState; // Etat de sauvegarde de la carte
         
-    character* Heros; // Personnage du mode test, sprite ./Graphics/AC001.png
+    hero* Heros; // Personnage du mode test, sprite ./Graphics/AC001.png
+    int nPNJ;
+    vector<character*> PNJ;
     
     StateMap state; // Etat de l'éditeur.
     
@@ -115,7 +117,7 @@ class mapi
     
     public:
     
-    mapi(sf::RenderWindow* w, character* H, string f, int height); // f is the file of the map, height is the height of the map in pixel
+    mapi(sf::RenderWindow* w, hero* H, string f, int height); // f is the file of the map, height is the height of the map in pixel
     ~mapi();
     
     void initPNG(string f, char chirality); // creates a PNG on the left or the right of the window depending on chirality ('L' or 'R')

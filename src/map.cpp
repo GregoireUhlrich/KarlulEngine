@@ -8,11 +8,13 @@ using namespace std;
 
 string dirMaps = "Maps/";
 
-mapi::mapi(sf::RenderWindow* w, character* H, string f, int height)
+mapi::mapi(sf::RenderWindow* w, hero* H, string f, int height)
 {
     stringDirPNG = "./Tileset/";
     window = w;
     Heros = H;
+    nPNJ = 0;
+    PNJ = vector<character*>(0);
     sizeWindow = window->getSize();
     stringFile = f;
     state = moving;
@@ -88,6 +90,9 @@ mapi::~mapi()
     {
         if (events[i] != NULL) delete events[i];
     }
+    for (int i=0; i<nPNJ; i++)
+        delete PNJ[i];
+    PNJ.clear();
 }
 
 void mapi::initPNG(string f, char chirality)
@@ -621,6 +626,7 @@ int mapi::loadMap()
             if (nTotTexture > 0) initPNG(fileTextureVec[0],'L');
             else initPNG("Tileset/base.PNG",'L');
             file>>nEvents>>foo;
+            //cout<<nEvents<<endl;
             if (nEvents > 0) events = vector<gameEvent*>(nEvents);
             for (int i=0; i<nEvents; i++)
             {
@@ -636,6 +642,15 @@ int mapi::loadMap()
                 {
                     file>>fooX>>fooY>>fooDir>>foo;
                     events[i] = new textInteraction(fooX, fooY, fooDir, foo, this, window);
+                }
+                else if (foo == "staticPNJ:")
+                {
+                    string foo2;
+                    file>>fooX>>fooY>>fooDir>>foo>>foo2;
+                    PNJ.push_back(new character("None", foo, fooX,fooY));
+                    nPNJ += 1;
+                    events[i] = new staticPNJ(fooX,fooY,fooDir,foo2,this,window,PNJ[nPNJ-1]);
+                    //cout<<events[i]->x<<" "<<events[i]->y<<" "<<events[i]->dir<<" "<<events[i]->stringFile<<endl;
                 }
                 else
                     events[i] = NULL;
@@ -703,6 +718,10 @@ void mapi::saveMap()
         {
             if (events[i]->type == "changeMap") file<<"changeMap: " <<events[i]->x<<" "<<events[i]->y<<" "<<events[i]->dir<<" "<<events[i]->nameMap<<" "<<events[i]->xNew<<" "<<events[i]->yNew<<" "<<events[i]->dirNew<<" ";
             else if (events[i]->type == "textInteraction") file<<"textInteraction: "<<events[i]->x<<" "<<events[i]->y<<" "<<events[i]->dir<<" "<<events[i]->stringFile<<" ";
+            else if (events[i]->type == "staticPNJ")
+            {
+                file<<"staticPNJ: "<<events[i]->x<<" "<<events[i]->y<<" "<<events[i]->dir<<" "<<events[i]->getStringPNJ()<<" "<<events[i]->stringFile<<" ";
+            }
             else file<<"None ";
         }
         file<<endl<<endl;
@@ -795,6 +814,10 @@ void mapi::reinitMap()
                 }
             }
         }
+        events.clear();
+        PNJ.clear();
+        nEvents = 0;
+        nPNJ = 0;
     }
 }
 
@@ -1570,6 +1593,9 @@ bool mapi::testDir(int dir)
             foo = foo && (passOrNotVec[prio][ix][iy]%2 == 0);
             foo = foo && (passOrNotVec[prio][ix][iy+1]-passOrNotVec[prio][ix][iy+1]%8 == 0);
         }
+        for (int i=0; i<nPNJ; i++)
+            if (PNJ[i]->getX()/xSprites == ix && PNJ[i]->getY()/ySprites == iy+1)
+                return 0;
         break;
         
         case 1:
@@ -1579,6 +1605,9 @@ bool mapi::testDir(int dir)
             foo = foo && (passOrNotVec[prio][ix][iy]%4-passOrNotVec[prio][ix][iy]%2 == 0);
             foo = foo && (passOrNotVec[prio][ix-1][iy]%8-passOrNotVec[prio][ix-1][iy]%4 == 0);
         }
+        for (int i=0; i<nPNJ; i++)
+            if (PNJ[i]->getX()/xSprites == ix-1 && PNJ[i]->getY()/ySprites == iy)
+                return 0;
         break;
         
         case 2:
@@ -1588,6 +1617,9 @@ bool mapi::testDir(int dir)
             foo = foo && (passOrNotVec[prio][ix][iy]%8-passOrNotVec[prio][ix][iy]%4 == 0);
             foo = foo && (passOrNotVec[prio][ix+1][iy]%4-passOrNotVec[prio][ix+1][iy]%2 == 0);
         }
+        for (int i=0; i<nPNJ; i++)
+            if (PNJ[i]->getX()/xSprites == ix+1 && PNJ[i]->getY()/ySprites == iy)
+                return 0;
         break;
         
         case 3:
@@ -1597,6 +1629,9 @@ bool mapi::testDir(int dir)
             foo = foo && (passOrNotVec[prio][ix][iy]-passOrNotVec[prio][ix][iy]%8 == 0);
             foo = foo && (passOrNotVec[prio][ix][iy-1]%2 == 0);
         }
+        for (int i=0; i<nPNJ; i++)
+            if (PNJ[i]->getX()/xSprites == ix && PNJ[i]->getY()/ySprites == iy-1)
+                return 0;
         break;    
     }
     
@@ -1642,6 +1677,9 @@ bool mapi::downOK()
         returnBool = returnBool && (passOrNotVec[prio][ix][iy+1]%(int)pow(2,dirMiror+1)-passOrNotVec[prio][ix][iy+1]%(int)pow(2,dirMiror) == 0);
         returnBool = returnBool && (passOrNotVec[prio][ix][iy]%(int)pow(2,dirHeros+1)-passOrNotVec[prio][ix][iy+1]%(int)pow(2,dirHeros) == 0);
     }
+    for (int i=0; i<nPNJ; i++)
+        if (PNJ[i]->getX()/xSprites == ix && PNJ[i]->getY()/ySprites == iy+1)
+            return 0;
     
     return returnBool;
 }
@@ -1686,6 +1724,9 @@ bool mapi::upOK()
         returnBool = returnBool && (passOrNotVec[prio][ix][iy-1]%(int)pow(2,dirMiror+1)-passOrNotVec[prio][ix][iy-1]%(int)pow(2,dirMiror) == 0);
         returnBool = returnBool && (passOrNotVec[prio][ix][iy]%(int)pow(2,dirHeros+1)-passOrNotVec[prio][ix][iy+1]%(int)pow(2,dirHeros) == 0);
     }
+    for (int i=0; i<nPNJ; i++)
+        if (PNJ[i]->getX()/xSprites == ix && PNJ[i]->getY()/ySprites == iy-1)
+            return 0;
     
     return returnBool;
 }
@@ -1730,7 +1771,10 @@ bool mapi::leftOK()
         returnBool = returnBool && (passOrNotVec[prio][ix-1][iy]%(int)pow(2,dirMiror+1)-passOrNotVec[prio][ix-1][iy]%(int)pow(2,dirMiror) == 0);
         returnBool = returnBool && (passOrNotVec[prio][ix][iy]%(int)pow(2,dirHeros+1)-passOrNotVec[prio][ix][iy+1]%(int)pow(2,dirHeros) == 0);
     }
-    
+    for (int i=0; i<nPNJ; i++)
+        if (PNJ[i]->getX()/xSprites == ix-1 && PNJ[i]->getY()/ySprites == iy)
+            return 0;
+
     return returnBool;
 }
 
@@ -1774,6 +1818,9 @@ bool mapi::rightOK()
         returnBool = returnBool && (passOrNotVec[prio][ix+1][iy]%(int)pow(2,dirMiror+1)-passOrNotVec[prio][ix+1][iy]%(int)pow(2,dirMiror) == 0);
         returnBool = returnBool && (passOrNotVec[prio][ix][iy]%(int)pow(2,dirHeros+1)-passOrNotVec[prio][ix][iy+1]%(int)pow(2,dirHeros) == 0);
     }
+    for (int i=0; i<nPNJ; i++)
+        if (PNJ[i]->getX()/xSprites == ix+1 && PNJ[i]->getY()/ySprites == iy)
+            return 0;
     
     return returnBool;
 }
@@ -2036,6 +2083,8 @@ void mapi::update(double eT)
             }
         }
     }
+    for (int i=0; i<nPNJ; i++)
+        PNJ[i]->update(eT);
 }
 
 void mapi::draw()
@@ -2062,6 +2111,8 @@ void mapi::draw()
                 }
             }
         }
+        for (int i=0; i<nPNJ; i++)
+            mapWindow.draw(PNJ[i]->getSprite());
         if (state == heros)
         {
             mapWindow.draw(Heros->getSprite()); 
@@ -2299,7 +2350,9 @@ void mapi::draw()
             events[i]->testHero(Heros);
         }
     }
+    Heros->setAction(0);
 }
+
 
 void mapi::drawClearWindow()
 {

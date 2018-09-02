@@ -39,10 +39,18 @@ gameEvent::gameEvent(const gameEvent& g)
 
 gameEvent::~gameEvent(){}
 
+void gameEvent::setPosition(sf::Vector2i pos)
+{
+    x = pos.x;
+    y = pos.y;
+}
+
 bool gameEvent::testPos(int xi, int yi)
 {
     return (x==xi && y==yi);
 }
+
+bool gameEvent::testHero(hero* h){ return 0;}
 
 changeMap::changeMap(int xi, int yi, int di, mapi* Mi, sf::RenderWindow* w, string n, int xN, int yN, int dN): gameEvent(xi,yi,di,Mi,w)
 {
@@ -55,7 +63,7 @@ changeMap::changeMap(int xi, int yi, int di, mapi* Mi, sf::RenderWindow* w, stri
 
 changeMap::~changeMap(){}
 
-void changeMap::testHero(character* h)
+bool changeMap::testHero(hero* h)
 {
     float epsilon = 0.1;
     int xSprites, ySprites;
@@ -63,10 +71,14 @@ void changeMap::testHero(character* h)
     xSprites = foo.x;
     ySprites = foo.y;
     if (abs(h->getX()/xSprites-x) < epsilon && abs(h->getY()/ySprites-y) < epsilon && h->getWantedMove() == dir)
+    {
         activate(h);
+        return 1;
+    }
+    return 0;
 }
 
-void changeMap::activate(character* h)
+void changeMap::activate(hero* h)
 {
     M->drawClearWindow();
     M->saveMap();
@@ -105,42 +117,39 @@ textInteraction::textInteraction(int xi, int yi, int di, string f, mapi* M, sf::
 
 textInteraction::~textInteraction(){}
 
-void textInteraction::testHero(character* h)
+bool textInteraction::testHero(hero* h)
 {
     float epsilon = 0.1;
     int xSprites, ySprites;
     sf::Vector2u foo = M->getSizeSprites();
     xSprites = foo.x;
     ySprites = foo.y;
-    if (abs(h->getX()/xSprites-x) < epsilon && abs(h->getY()/ySprites-y) < epsilon && h->getDir() == dir)
-    {
-        if (!activated && h->pullAction() == 1)
-        {
-            activate(h);
-            h->disableMove();
-        }
-        else
-        {
-            if (iText >= text.size() && h->pullAction())
-            {
-                activated = 0;
-                iText = 0;
-                textToDraw.clear();
-                h->enableMove();
-            }
-            else if (activated)
-            {
-                activate(h);
-            }
-        }
-    }
-    else if (activated)
+    if (abs(h->getX()/xSprites-x) < epsilon && abs(h->getY()/ySprites-y) < epsilon && h->getDir() == dir && !activated && h->pullAction())
     {
         activate(h);
+        h->disableMove();
+        return 1;
     }
+    else
+    {
+        if (iText >= text.size() && h->pullAction())
+        {
+            activated = 0;
+            iText = 0;
+            textToDraw.clear();
+            h->enableMove();
+            return 0;
+        }
+        else if (activated)
+        {
+            activate(h);
+            return 1;
+        }
+    }
+    return 0;
 }
 
-void textInteraction::activate(character* h)
+void textInteraction::activate(hero* h)
 {
     int lx, ly;
     sf::Vector2u fooSize = M->getSizeTexture();
@@ -203,4 +212,72 @@ void textInteraction::activate(character* h)
     fooCircle.setFillColor(sf::Color::Red);
     fooCircle.setPosition(lx-30,ly+fooPos.y-30);
     if (iText < text.size()) window->draw(fooCircle);
+}
+
+staticPNJ::staticPNJ(int xi, int yi, int di, string f, mapi* Mi, sf::RenderWindow* w, character* PNJi): textInteraction(xi,yi,di,f,Mi,w)
+{
+    type = "staticPNJ";
+    PNJ = PNJi;
+    sf::Vector2u foo = M->getSizeSprites();
+    x = PNJ->getX()/foo.x;
+    y = PNJ->getY()/foo.y;
+    PNJ->setDir(dir);
+}
+
+staticPNJ::~staticPNJ(){ PNJ = NULL;};
+
+string staticPNJ::getStringPNJ() { return PNJ->getFile();}
+
+bool staticPNJ::testHero(hero* h)
+{
+    float epsilon = 0.1;
+    int xSprites, ySprites;
+    sf::Vector2u foo = M->getSizeSprites();
+    xSprites = foo.x;
+    ySprites = foo.y;
+    if (h->getDir() == 0 && h->getX()/xSprites == x && h->getY()/ySprites == y-1 && !activated && h->pullAction())
+    {
+        PNJ->setDir(3);
+        activate(h);
+        h->disableMove();
+        return 1;
+    }
+    else if (h->getDir() == 1 && h->getX()/xSprites == x+1 && h->getY()/ySprites == y && !activated && h->pullAction())
+    {
+        PNJ->setDir(2);
+        activate(h);
+        h->disableMove();
+        return 1;
+    }
+    else if (h->getDir() == 2 && h->getX()/xSprites == x-1 && h->getY()/ySprites == y && !activated && h->pullAction())
+    {
+        PNJ->setDir(1);
+        activate(h);
+        h->disableMove();
+        return 1;
+    }
+    else if (h->getDir() == 3 && h->getX()/xSprites == x && h->getY()/ySprites == y+1 && !activated && h->pullAction())
+    {
+        PNJ->setDir(0);
+        activate(h);
+        h->disableMove();
+        return 1;
+    }
+    else
+    {
+        if (iText >= text.size() && h->pullAction())
+        {
+            activated = 0;
+            iText = 0;
+            textToDraw.clear();
+            h->enableMove();
+            return 0;
+        }
+        else if (activated)
+        {
+            activate(h);
+            return 1;
+        }
+    }
+    return 0;
 }

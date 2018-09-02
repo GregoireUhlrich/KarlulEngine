@@ -31,10 +31,14 @@ class gameEvent{
     gameEvent();
     gameEvent(int xi, int yi, int di, mapi* Mi, sf::RenderWindow* w);
     gameEvent(const gameEvent& g);
+    
+    virtual string getStringPNJ(){};
+    void setPosition(sf::Vector2i pos);
+    
     virtual ~gameEvent();
     virtual bool testPos(int xi, int yi);
-    virtual void testHero(character* h){};
-    virtual void activate(character* h){};
+    virtual bool testHero(hero* h);
+    virtual void activate(hero* h){};
 
 };
 
@@ -44,13 +48,13 @@ class changeMap: public gameEvent{
     
     changeMap(int xi, int yi, int di, mapi* Mi, sf::RenderWindow* w, string n, int xN, int yN, int dN);
     ~changeMap();
-    void testHero(character* h);
-    void activate(character* h);
+    bool testHero(hero* h);
+    void activate(hero* h);
 };
 
 class textInteraction: public gameEvent{
     
-    private:
+    protected:
     
     bool activated;
     unsigned int characterSize;
@@ -66,8 +70,24 @@ class textInteraction: public gameEvent{
     
     textInteraction(int xi, int yi, int di, string f, mapi* Mi, sf::RenderWindow* w);
     ~textInteraction();
-    void testHero(character* h);
-    void activate(character* h);
+    virtual string getStringPNJ(){};
+    virtual bool testHero(hero* h);
+    void activate(hero* h);
+};
+
+class staticPNJ: public textInteraction{
+
+    private:
+    
+    character* PNJ;
+    
+    public:
+    
+    staticPNJ(int xi, int yi, int di, string f, mapi* Mi, sf::RenderWindow* w, character* PNJi);
+    ~staticPNJ();
+    
+    string getStringPNJ();
+    bool testHero(hero* h);
 };
 
 struct varEvents
