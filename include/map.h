@@ -121,6 +121,8 @@ class mapi
     void initPNG(string f, char chirality); // creates a PNG on the left or the right of the window depending on chirality ('L' or 'R')
     void deletePNG(char chirality); // remove a PNG
     
+    sf::Vector2u getPosition() const;
+    sf::Vector2u getSizeTexture() const;
     sf::Vector2u getSizeMap() const; // return sf::Vector2u(lxMap, lyMap)
     sf::Vector2u getSizeSprites() const;
     SaveStateMap getSaveState() const;
@@ -190,6 +192,7 @@ class mapi
     void update(double eT);
     void draw();
     void drawClearWindow();
+    void draw(sf::Drawable* d);
     
     void closeWindow();
     

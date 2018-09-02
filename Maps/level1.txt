@@ -55,10 +55,6 @@ passOrNotVec
 0 #nExceptions
 	
 
-1 #nGates
-
-12 10 premierePorte 
-
 1 #nEvents
 
 changeMap: 11 32 3 maptmp.txt 14 14 3 

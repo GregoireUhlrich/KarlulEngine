@@ -155,6 +155,10 @@ void mapi::deletePNG(char chirality)
     }
 }
 
+sf::Vector2u mapi::getPosition() const { return sf::Vector2u(x,y);}
+
+sf::Vector2u mapi::getSizeTexture() const { return sf::Vector2u(lx,ly);}
+
 sf::Vector2u mapi::getSizeMap() const { return sf::Vector2u(lxMap,lyMap);}
 
 sf::Vector2u mapi::getSizeSprites() const { return sf::Vector2u(xSprites, ySprites);}
@@ -616,12 +620,6 @@ int mapi::loadMap()
             }
             if (nTotTexture > 0) initPNG(fileTextureVec[0],'L');
             else initPNG("Tileset/base.PNG",'L');
-            file>>nGates>>foo;
-            if (nGates > 0) gates = vector<gate>(nGates);
-            for (int i=0; i<nGates; i++)
-            {
-                file>>gates[i].x>>gates[i].y>>gates[i].name;
-            }
             file>>nEvents>>foo;
             if (nEvents > 0) events = vector<gameEvent*>(nEvents);
             for (int i=0; i<nEvents; i++)
@@ -631,8 +629,13 @@ int mapi::loadMap()
                 {
                     int fooXNew, fooYNew, fooDirNew;
                     file>>fooX>>fooY>>fooDir>>foo>>fooXNew>>fooYNew>>fooDirNew;
-                    events[i] = new changeMap(fooX, fooY, fooDir, this, foo, fooXNew, fooYNew, fooDirNew);
+                    events[i] = new changeMap(fooX, fooY, fooDir, this, window, foo, fooXNew, fooYNew, fooDirNew);
                     //cout<<events[i]->x<<" "<<events[i]->y<<" "<<events[i]->dir<<" "<<events[i]->nameMap<<" "<<events[i]->xNew<<" "<<events[i]->yNew<<" "<<events[i]->dirNew<<endl;
+                }
+                else if (foo == "textInteraction:")
+                {
+                    file>>fooX>>fooY>>fooDir>>foo;
+                    events[i] = new textInteraction(fooX, fooY, fooDir, foo, this, window);
                 }
                 else
                     events[i] = NULL;
@@ -695,14 +698,12 @@ void mapi::saveMap()
             if (i == nPrio-1)
                 file<<"\n\n";
         }
-        file<<nGates<<" #nGates\n\n";
-        for (int i=0; i<nGates; i++)
-            file<<gates[i].x<<" "<<gates[i].y<<" "<<gates[i].name<<" ";
-        file<<endl<<endl;
         file<<nEvents<<" #nEvents\n\n";
         for (int i=0; i<nEvents; i++)
         {
             if (events[i]->type == "changeMap") file<<"changeMap: " <<events[i]->x<<" "<<events[i]->y<<" "<<events[i]->dir<<" "<<events[i]->nameMap<<" "<<events[i]->xNew<<" "<<events[i]->yNew<<" "<<events[i]->dirNew<<" ";
+            else if (events[i]->type == "textInteraction") file<<"textInteraction: "<<events[i]->x<<" "<<events[i]->y<<" "<<events[i]->dir<<" "<<events[i]->stringFile<<" ";
+            else file<<"None ";
         }
         file<<endl<<endl;
         file<<"endFile";
@@ -2034,13 +2035,6 @@ void mapi::update(double eT)
                 select = select2 = 0;
             }
         }
-    }    
-    if (state == heros)
-    {
-        for (int i=0; i<nEvents; i++)
-        {
-            events[i]->testHero(Heros);
-        }
     }
 }
 
@@ -2297,6 +2291,13 @@ void mapi::draw()
             imR->imagePNG::draw();
             window->draw(limR);
         }
+    }  
+    else
+    {
+        for (int i=0; i<nEvents; i++)
+        {
+            events[i]->testHero(Heros);
+        }
     }
 }
 
@@ -2307,6 +2308,12 @@ void mapi::drawClearWindow()
     toDraw.setTexture(mapWindow.getTexture());
     toDraw.setPosition(x,y);
     window->draw(toDraw);
+    window->display();
+}
+
+void mapi::draw(sf::Drawable* d)
+{
+    window->draw(*d);
 }
 
 void mapi::closeWindow()

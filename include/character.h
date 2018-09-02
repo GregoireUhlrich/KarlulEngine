@@ -15,8 +15,10 @@ class character{
     string file;
     int direction;
     bool onGrid;
+    bool action;
     int keyPressed;
     int wantedMove;
+    bool moveEnabled;
     int sx, sy, dx, dy;
     int xSprites, ySprites;
     double x,y;
@@ -45,6 +47,9 @@ class character{
     int getKeyPressed() const;
     int getWantedMove() const;
     
+    void enableMove();
+    void disableMove();
+    
     void setName(string n);
     void setFile(string f);
     void setX(double xNew);
@@ -52,6 +57,8 @@ class character{
     void setDir(int d);
     void setKeyPressed(int key);
     void setWantedMove(int wM);
+    void setAction(bool a);
+    bool pullAction();
     void releaseKey();
     
     void move(double elapsedTime);

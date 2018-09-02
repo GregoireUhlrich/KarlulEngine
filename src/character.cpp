@@ -16,6 +16,8 @@ character::character(string n, string f, double x, double y)
     wantedMove = -1;
     typeSprite = 0.; // int between 0 and 3, which sprite for the walk animation
     onGrid = 1; // bool: is the character on a square or not ?
+    moveEnabled = 1;
+    action = 0; // if the player is pressing action
     keyPressed = -1; // int between 0 and 3, or -1 if no key is pressed
     speed = 6; // speed of the character in square/sec
     walk = 0.5; // number of times the total animation of walk is played in one square distance 
@@ -51,6 +53,8 @@ double character::getTypeSprite() const{ return typeSprite;}
 sf::Sprite character::getSprite() const{ return sprite;}
 int character::getKeyPressed() const{ return keyPressed;}
 int character::getWantedMove() const{ return wantedMove;}
+void character::enableMove(){ moveEnabled = 1;}
+void character::disableMove(){ moveEnabled = 0;}
 
 ///*** set fucntions for private variables ***///
 void character::setName(string n){ name = n;}
@@ -59,47 +63,56 @@ void character::setX(double xNew){ x = xNew;}
 void character::setY(double yNew){ y = yNew;}
 void character::setDir(int d){ if (onGrid) direction = d;}
 void character::setWantedMove(int wM){  if (timeKeyPressed >= thresholdMove) wantedMove = wM;}
+void character::setAction(bool a){ action = a;}
+bool character::pullAction() { bool foo = action; action = 0; return foo;}
 void character::releaseKey(){ keyPressed = -1;}
     
 ///*** set the key interpreted by the game ***///
 void character::setKeyPressed(int key)
 {
-    if (key >= 0) // if the key is valid
+    if (moveEnabled)
     {
-        if (key == keyPressed+5) 
+        if (key >= 0) // if the key is valid
         {
-            keyPressed = -1; // key+5 = the key has been released
-            wantedMove = -1;
-        }
-        else if (key == direction && key!= keyPressed) timeKeyPressed = thresholdMove + 1; 
-        if (key < 4 && keyPressed == -1 && onGrid) // else if no key was already pressed
-        {                                      // we take the new key 
-            keyPressed = key;
-            direction = key;
+            if (key == keyPressed+5) 
+            {
+                keyPressed = -1; // key+5 = the key has been released
+                wantedMove = -1;
+            }
+            else if (key == direction && key!= keyPressed) timeKeyPressed = thresholdMove + 1; 
+            if (key < 4 && keyPressed == -1 && onGrid) // else if no key was already pressed
+            {                                      // we take the new key 
+                keyPressed = key;
+                direction = key;
+            }
         }
     }
+    else keyPressed = -1;
 }
 
 ///*** Update position and sprite for a given elapsed time ***///
 void character::update(double elapsedTime)
 {
-    if (keyPressed >= 0) //we move
+    if (moveEnabled)
     {
-        if (timeKeyPressed <= thresholdMove) timeKeyPressed += elapsedTime; // to make sure the variable timeKeyPressed don't overflow if we don't stop moving ! 
-        else
+        if (keyPressed >= 0) //we move
         {
-            if (onGrid) onGrid = 0;
-            move(elapsedTime);
-            direction = keyPressed;
-            wantedMove = direction;
+            if (timeKeyPressed <= thresholdMove) timeKeyPressed += elapsedTime; // to make sure the variable timeKeyPressed don't overflow if we don't stop moving ! 
+            else
+            {
+                if (onGrid) onGrid = 0;
+                move(elapsedTime);
+                direction = keyPressed;
+                wantedMove = direction;
+            }
         }
+        else if (!onGrid)  // we finish/continue the move the arrive the next square
+        {
+            moveCarefully(elapsedTime);
+        }
+        else timeKeyPressed = 0; // if we don't move at all we 
+        updateSprite(elapsedTime); //update of the sprite with the new position
     }
-    else if (!onGrid)  // we finish/continue the move the arrive the next square
-    {
-        moveCarefully(elapsedTime);
-    }
-    else timeKeyPressed = 0; // if we don't move at all we 
-    updateSprite(elapsedTime); //update of the sprite with the new position
 }
 
 ///*** Move the caracter, d = v*t ***///

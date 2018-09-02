@@ -105,6 +105,10 @@ int main()
                 {
                     testJoueur = !testJoueur;
                 }
+                else if (event.key.code == sf::Keyboard::A)
+                {
+                    Heros.setAction(1);
+                }
             }
             else if (event.type == sf::Event::KeyReleased)
             {
