@@ -74,6 +74,7 @@ double character::getY() const{ return y;}
 int character::getDir() const{ return direction;}
 double character::getTypeSprite() const{ return typeSprite;}
 sf::Sprite character::getSprite() const{ return sprite;}
+sf::Vector2u character::getSizeSprite() const{ return sf::Vector2u(xSprites, ySprites);}
 
 ///*** set fucntions for private variables ***///
 void character::setName(string n){ name = n;}

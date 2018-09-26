@@ -57,6 +57,7 @@ passOrNotVec
 
 1 #nEvents
 
-changeMap: 11 32 3 maptmp.txt 14 14 3 
+changeMap: 11 32 3 maptmp.txt 14 14 3
+
 
 endFile

@@ -38,6 +38,7 @@ class character{
     double getTypeSprite() const;
     sf::Sprite getSprite() const;
     bool isOnGrid() const;
+    sf::Vector2u getSizeSprite() const;
     
     void setName(string n);
     void setFile(string f);

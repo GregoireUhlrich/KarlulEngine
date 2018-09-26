@@ -36,6 +36,10 @@ passOrNotVec
 
 4 #nEvents
 
-changeMap: 14 14 0 level1.txt 11 32 0 changeMap: 15 14 0 level1.txt 11 32 0 staticPNJ: 21 3 3 Graphics/Avatar-Sister.png Texts/text1.txt staticPNJ: 13 9 1 Graphics/025_0.png Texts/text2.txt 
+changeMap: 14 14 0 level1.txt 11 32 0
+changeMap: 15 14 0 level1.txt 11 32 0
+staticPNJ: 21 3 3 Graphics/Avatar-Sister.png Texts/text1.txt
+staticPNJ: 13 9 1 Graphics/025_0.png Texts/text2.txt
+
 
 endFile

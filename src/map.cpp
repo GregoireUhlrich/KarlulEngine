@@ -437,7 +437,7 @@ void mapi::setSizeMap(sf::Vector2u s)
     boundary.setPosition(0,0);
     boundary.setSize(sf::Vector2f(lxMap*xSprites, lyMap*ySprites));
     
-    double sizeGrid = 4;
+    double sizeGrid = 2;
     gridX = vector<sf::RectangleShape>(lxMap-1);
     gridY = vector<sf::RectangleShape>(lyMap-1);
     
@@ -445,13 +445,13 @@ void mapi::setSizeMap(sf::Vector2u s)
     {
         gridX[i-1] = sf::RectangleShape(sf::Vector2f(sizeGrid, lyMap*ySprites));
         gridX[i-1].setPosition(i*xSprites-sizeGrid/2,0);
-        gridX[i-1].setFillColor(sf::Color(128,128,128,100));
+        gridX[i-1].setFillColor(sf::Color(255,255,255,128));
     }
     for (int i=1; i<lyMap; i++)
     {
         gridY[i-1] = sf::RectangleShape(sf::Vector2f(lxMap*xSprites,sizeGrid));
         gridY[i-1].setPosition(0,i*ySprites-sizeGrid/2);
-        gridY[i-1].setFillColor(sf::Color(128,128,128,100));        
+        gridY[i-1].setFillColor(sf::Color(255,255,255,128));        
     }
 }
 
@@ -635,13 +635,13 @@ int mapi::loadMap()
                 {
                     int fooXNew, fooYNew, fooDirNew;
                     file>>fooX>>fooY>>fooDir>>foo>>fooXNew>>fooYNew>>fooDirNew;
-                    events[i] = new changeMap(fooX, fooY, fooDir, this, window, foo, fooXNew, fooYNew, fooDirNew);
+                    events[i] = new changeMap(fooX, fooY, fooDir, this, window, "gate", foo, fooXNew, fooYNew, fooDirNew);
                     //cout<<events[i]->x<<" "<<events[i]->y<<" "<<events[i]->dir<<" "<<events[i]->nameMap<<" "<<events[i]->xNew<<" "<<events[i]->yNew<<" "<<events[i]->dirNew<<endl;
                 }
                 else if (foo == "textInteraction:")
                 {
                     file>>fooX>>fooY>>fooDir>>foo;
-                    events[i] = new textInteraction(fooX, fooY, fooDir, foo, this, window);
+                    events[i] = new textInteraction(fooX, fooY, fooDir, foo, this, window, "action");
                 }
                 else if (foo == "staticPNJ:")
                 {
@@ -649,7 +649,7 @@ int mapi::loadMap()
                     file>>fooX>>fooY>>fooDir>>foo>>foo2;
                     PNJ.push_back(new character("None", foo, fooX,fooY));
                     nPNJ += 1;
-                    events[i] = new staticPNJ(fooX,fooY,fooDir,foo2,this,window,PNJ[nPNJ-1]);
+                    events[i] = new staticPNJ(fooX,fooY,fooDir,foo2,this,window,"interactionStaticPNJ", PNJ[nPNJ-1]);
                     //cout<<events[i]->x<<" "<<events[i]->y<<" "<<events[i]->dir<<" "<<events[i]->stringFile<<endl;
                 }
                 else
@@ -716,13 +716,13 @@ void mapi::saveMap()
         file<<nEvents<<" #nEvents\n\n";
         for (int i=0; i<nEvents; i++)
         {
-            if (events[i]->type == "changeMap") file<<"changeMap: " <<events[i]->x<<" "<<events[i]->y<<" "<<events[i]->dir<<" "<<events[i]->nameMap<<" "<<events[i]->xNew<<" "<<events[i]->yNew<<" "<<events[i]->dirNew<<" ";
-            else if (events[i]->type == "textInteraction") file<<"textInteraction: "<<events[i]->x<<" "<<events[i]->y<<" "<<events[i]->dir<<" "<<events[i]->stringFile<<" ";
+            if (events[i]->type == "changeMap") file<<"changeMap: " <<events[i]->x<<" "<<events[i]->y<<" "<<events[i]->dir<<" "<<events[i]->nameMap<<" "<<events[i]->xNew<<" "<<events[i]->yNew<<" "<<events[i]->dirNew<<"\n";
+            else if (events[i]->type == "textInteraction") file<<"textInteraction: "<<events[i]->x<<" "<<events[i]->y<<" "<<events[i]->dir<<" "<<events[i]->stringFile<<"\n";
             else if (events[i]->type == "staticPNJ")
             {
-                file<<"staticPNJ: "<<events[i]->x<<" "<<events[i]->y<<" "<<events[i]->dir<<" "<<events[i]->getStringPNJ()<<" "<<events[i]->stringFile<<" ";
+                file<<"staticPNJ: "<<events[i]->x<<" "<<events[i]->y<<" "<<events[i]->dir<<" "<<events[i]->getStringPNJ()<<" "<<events[i]->stringFile<<"\n";
             }
-            else file<<"None ";
+            else file<<"None\n";
         }
         file<<endl<<endl;
         file<<"endFile";
@@ -772,7 +772,7 @@ void mapi::reinitMap()
         viewMap.reset(sf::FloatRect(0,0,lx,ly));
         mapWindow.setView(viewMap);
         
-        double sizeGrid = 4;
+        double sizeGrid = 2;
         gridX.clear();
         gridY.clear();
         gridX = vector<sf::RectangleShape>(lxMap-1);
@@ -782,13 +782,13 @@ void mapi::reinitMap()
         {
             gridX[i-1] = sf::RectangleShape(sf::Vector2f(sizeGrid, lyMap*ySprites));
             gridX[i-1].setPosition(i*xSprites-sizeGrid/2,0);
-            gridX[i-1].setFillColor(sf::Color(128,128,128,100));
+            gridX[i-1].setFillColor(sf::Color::White);
         }
         for (int i=1; i<lyMap; i++)
         {
             gridY[i-1] = sf::RectangleShape(sf::Vector2f(lxMap*xSprites,sizeGrid));
             gridY[i-1].setPosition(0,i*ySprites-sizeGrid/2);
-            gridY[i-1].setFillColor(sf::Color(128,128,128,100));
+            gridY[i-1].setFillColor(sf::Color::White);
         }
         for (int i=0; i<nPrio; i++)
         {
@@ -873,7 +873,7 @@ void mapi::initMap()
     viewMap.reset(sf::FloatRect(0,0,lx,ly));
     mapWindow.setView(viewMap);
     
-    double sizeGrid = 4;
+    double sizeGrid = 2;
     gridX.clear();
     gridY.clear();
     gridX = vector<sf::RectangleShape>(lxMap-1);
@@ -883,13 +883,13 @@ void mapi::initMap()
     {
         gridX[i-1] = sf::RectangleShape(sf::Vector2f(sizeGrid, lyMap*ySprites));
         gridX[i-1].setPosition(i*xSprites-sizeGrid/2,0);
-        gridX[i-1].setFillColor(sf::Color(128,128,128,100));
+        gridX[i-1].setFillColor(sf::Color(255,255,255,128));
     }
     for (int i=1; i<lyMap; i++)
     {
         gridY[i-1] = sf::RectangleShape(sf::Vector2f(lxMap*xSprites,sizeGrid));
         gridY[i-1].setPosition(0,i*ySprites-sizeGrid/2);
-        gridY[i-1].setFillColor(sf::Color(128,128,128,100));
+        gridY[i-1].setFillColor(sf::Color(255,255,255,128));
     }
 }
 

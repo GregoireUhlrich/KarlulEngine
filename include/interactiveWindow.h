@@ -11,17 +11,19 @@
 
 class interactiveWindow
 {
-	private:
-	
-	int x, y;
-	int lx, ly;
-	mapi* M;
-	sf::Vector2u sizeMap;
-	sf::RenderWindow* window;
-	sf::Vector2u sizeWindow;
-	sf::Vector2i posMouse;
-	
-	int nD;
+    private:
+    
+    int x, y;
+    int lx, ly;
+    mapi* M;
+    sf::Vector2u sizeMap;
+    sf::RenderWindow* window;
+    sf::Vector2u sizeWindow;
+    sf::Vector2i posMouse;
+    
+    int nD;
+    int nStaticText;
+    int nStaticShape;
     int nModeMap;
     int nPrio;
     int nTextBox;
@@ -36,35 +38,39 @@ class interactiveWindow
     bool takeMidY;
     int ctrl;
     int testJoueur;
-	drawable** D;
-	bool isWrapped;
-	int iWrap, nWrap;
-	
-	int nTexture;
-	string* fileTextures;
-	pushButton** P;
-	
-	int sizeLimit;
-	sf::RectangleShape backGShape;
-	sf::RectangleShape limitShape;
-	
-	sf::SoundBuffer buffer;
-	sf::Sound son1;
-	
-	public:
-	
-	interactiveWindow(sf::RenderWindow* wi, mapi* Mi, int lyi);
-	~interactiveWindow();
-	
-	void closeWindow();
-	
-	bool hasFocus();
-	void lossFocus();
-	void testMouse(sf::Vector2i p);
-	void windowEvent(sf::Event event);
-	void windowResized();
-	void update();
-	void draw();
+    drawable** D;
+    int characterSize;
+    sf::Font font;
+    sf::Text* staticText;
+    sf::RectangleShape* staticShape;
+    bool isWrapped;
+    int iWrap, nWrap;
+    
+    int nTexture;
+    string* fileTextures;
+    pushButton** P;
+    
+    int sizeLimit;
+    sf::RectangleShape backGShape;
+    sf::RectangleShape limitShape;
+    
+    sf::SoundBuffer buffer;
+    sf::Sound son1;
+    
+    public:
+    
+    interactiveWindow(sf::RenderWindow* wi, mapi* Mi, int lyi);
+    ~interactiveWindow();
+    
+    void closeWindow();
+    
+    bool hasFocus();
+    void lossFocus();
+    void testMouse(sf::Vector2i p);
+    void windowEvent(sf::Event event);
+    void windowResized();
+    void update();
+    void draw();
 };
 
 #endif

@@ -6,15 +6,10 @@
 #include <vector>
 #include <fstream>
 #include <iostream>
+#include "triggerEvent.h"
 using namespace std;
 
 class mapi;
-
-struct gate
-{
-    int x, y;
-    string name;
-};
 
 class gameEvent{
 
@@ -28,17 +23,20 @@ class gameEvent{
     string nameMap;
     string stringFile;
     
+    string trigger;
+    
     gameEvent();
-    gameEvent(int xi, int yi, int di, mapi* Mi, sf::RenderWindow* w);
+    gameEvent(int xi, int yi, int di, mapi* Mi, sf::RenderWindow* w, string t);
     gameEvent(const gameEvent& g);
     
     virtual string getStringPNJ(){};
+    string getTrigger() const;
     void setPosition(sf::Vector2i pos);
     
     virtual ~gameEvent();
-    virtual bool testPos(int xi, int yi);
     virtual bool testHero(hero* h);
     virtual void activate(hero* h){};
+    bool triggerEvent(hero* h);
 
 };
 
@@ -46,7 +44,7 @@ class changeMap: public gameEvent{
 
     public:
     
-    changeMap(int xi, int yi, int di, mapi* Mi, sf::RenderWindow* w, string n, int xN, int yN, int dN);
+    changeMap(int xi, int yi, int di, mapi* Mi, sf::RenderWindow* w, string t, string n, int xN, int yN, int dN);
     ~changeMap();
     bool testHero(hero* h);
     void activate(hero* h);
@@ -68,7 +66,7 @@ class textInteraction: public gameEvent{
     
     public:
     
-    textInteraction(int xi, int yi, int di, string f, mapi* Mi, sf::RenderWindow* w);
+    textInteraction(int xi, int yi, int di, string f, mapi* Mi, sf::RenderWindow* w, string t);
     ~textInteraction();
     virtual string getStringPNJ(){};
     virtual bool testHero(hero* h);
@@ -83,27 +81,13 @@ class staticPNJ: public textInteraction{
     
     public:
     
-    staticPNJ(int xi, int yi, int di, string f, mapi* Mi, sf::RenderWindow* w, character* PNJi);
+    staticPNJ(int xi, int yi, int di, string f, mapi* Mi, sf::RenderWindow* w, string t, character* PNJi);
     ~staticPNJ();
     
     string getStringPNJ();
     bool testHero(hero* h);
 };
 
-struct varEvents
-{
-    int nEvents;
-    string* nameEvent;
-};
-
-struct paramsEvents
-{
-    int xNewMap;
-    int yNewMap;
-    int dirNew;
-    string newMap;
-};
-
-void initEvents(varEvents v);
+gameEvent* createEvents(ifstream& f, mapi* M);
 
 #endif

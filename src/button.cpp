@@ -268,6 +268,64 @@ void pushButton::draw()
     window->draw(text);
 }
 
+pushButtonUX::pushButtonUX(sf::RenderTarget* w, mapi* Mi, double xi, double yi, double lxi, double lyi, bool isRighti): drawable(w)
+{
+    isRight = isRighti;
+    x=xi; y=yi; lx=lxi; ly=lyi;
+    M = Mi;
+    isPressed = 0;
+    
+    textureOutline.loadFromFile("Icons/outline.png");
+    outline.setTexture(textureOutline);
+    outline.setPosition(x,y);
+    sf::Vector2u foo = textureOutline.getSize();
+    outline.scale(lx*1./foo.x, ly*1./foo.y);
+}
+
+pushButtonUX::pushButtonUX(const pushButtonUX& b): drawable(b.window)
+{
+    isRight = b.isRight;
+    x = b.x; y = b.y; lx = b.lx; ly = b.ly;
+    M = b.M;
+    isPressed = b.isPressed;
+    textureOutline = b.textureOutline;
+    outline.setTexture(textureOutline);
+    outline.setPosition(x,y);
+    sf::Vector2u foo = textureOutline.getSize();
+    outline.scale(lx*1./foo.x, ly*1./foo.y);
+}
+
+pushButtonUX::~pushButtonUX(){} 
+
+bool pushButtonUX::buttonPressed(sf::Vector2i posMouse)
+{
+    if (testMouse(posMouse)) isPressed = !isPressed;
+    return isMouseHere;
+}
+
+void pushButtonUX::setPressed(bool s) {isPressed = s;}
+
+bool pushButtonUX::getPressed() const { return isPressed;} 
+
+void pushButtonUX::update()
+{}
+
+void pushButtonUX::windowResized(sf::Vector2u newSizeWindow)
+{
+    if (isRight)
+    {
+        x += newSizeWindow.x - sizeWindow.x;    
+        outline.setPosition(x,y);
+    }
+    sizeWindow.x = newSizeWindow.x;
+    sizeWindow.y = newSizeWindow.y;
+}
+
+void pushButtonUX::draw()
+{
+    if (isMouseHere || isPressed) window->draw(outline);
+}
+
 buttonGrid::buttonGrid(sf::RenderTarget* w, mapi* Mi, string t, double xi, double yi, double lxi, double lyi, bool isRighti): pushButton(w,Mi,t,xi,yi,lxi,lyi,isRighti)
 { grid=0;}
 
@@ -288,6 +346,49 @@ void buttonGrid::update()
         grid = 0;
         M->setGrid(grid);
     }
+}
+
+buttonGridUX::buttonGridUX(sf::RenderTarget* w, mapi* Mi, double xi, double yi, double lxi, double lyi, bool isRighti): pushButtonUX(w,Mi,xi,yi,lxi,lyi,isRighti)
+{
+    grid=0;
+    textureA.loadFromFile("Icons/grid-grey.png");
+    textureB.loadFromFile("Icons/grid-blue.png");
+    spriteA.setTexture(textureA);
+    spriteB.setTexture(textureB);
+    xScaleIcon = yScaleIcon = 0.8;
+    spriteA.setPosition(x+(1-xScaleIcon)*lx/2,y+(1-yScaleIcon)*ly/2);
+    spriteB.setPosition(x+(1-xScaleIcon)*lx/2,y+(1-yScaleIcon)*ly/2);
+    sf::Vector2u foo = textureA.getSize();
+    spriteA.scale(lx*xScaleIcon/foo.x, ly*xScaleIcon/foo.y);
+    foo = textureB.getSize();
+    spriteB.scale(lx*xScaleIcon/foo.x, ly*xScaleIcon/foo.y);
+}
+
+
+buttonGridUX::~buttonGridUX(){} 
+
+void buttonGridUX::update()
+{
+    if (isPressed && !grid)
+    {
+        grid = 1;
+        M->setGrid(grid);
+    }
+    else if (!isPressed && grid)
+    {
+        grid = 0;
+        M->setGrid(grid);
+    }
+}
+
+void buttonGridUX::draw()
+{
+    if (isMouseHere || isPressed)
+    {
+        window->draw(outline);
+        window->draw(spriteB);
+    }
+    else window->draw(spriteA);
 }
 
 buttonMap::buttonMap(sf::RenderTarget* w, mapi* Mi, StateMap si, string t, double xi, double yi, double lxi, double lyi, bool isRighti): pushButton(w,Mi,t,xi,yi,lxi,lyi,isRighti)
@@ -311,6 +412,70 @@ void buttonMap::update()
         active = 0;
         M->setState(s);
     }
+}
+
+buttonMapUX::buttonMapUX(sf::RenderTarget* w, mapi* Mi, StateMap si, double xi, double yi, double lxi, double lyi, bool isRighti): pushButtonUX(w,Mi,xi,yi,lxi,lyi,isRighti)
+{
+    s = si;
+    active = 0;
+    if (s == adding)
+    {
+        textureA.loadFromFile("Icons/add-grey.png");
+        textureB.loadFromFile("Icons/add-green.png");
+    }
+    else if (s == erasing)
+    {
+        textureA.loadFromFile("Icons/erase-grey.png");
+        textureB.loadFromFile("Icons/erase-red.png");    
+    }
+    else if (s == selecting)
+    {
+        textureA.loadFromFile("Icons/select-grey.png");
+        textureB.loadFromFile("Icons/select-yellow.png");    
+    }
+    else if (s == moving)
+    {
+        textureA.loadFromFile("Icons/move-grey.png");
+        textureB.loadFromFile("Icons/move-blue.png");    
+    }
+    spriteA.setTexture(textureA);
+    spriteB.setTexture(textureB);
+    xScaleIcon = yScaleIcon = 0.8;
+    spriteA.setPosition(x+(1-xScaleIcon)*lx/2,y+(1-yScaleIcon)*ly/2);
+    spriteB.setPosition(x+(1-xScaleIcon)*lx/2,y+(1-yScaleIcon)*ly/2);
+    sf::Vector2u foo = textureA.getSize();
+    spriteA.scale(lx*xScaleIcon/foo.x, ly*xScaleIcon/foo.y);
+    foo = textureB.getSize();
+    spriteB.scale(lx*xScaleIcon/foo.x, ly*xScaleIcon/foo.y);
+}
+
+buttonMapUX::~buttonMapUX(){} 
+
+void buttonMapUX::setPressed(bool s){ isPressed = s; active=0;}
+
+void buttonMapUX::update()
+{
+    if (isPressed && !active)
+    {
+        active = 1;
+        M->setState(s);
+    }
+    else if (!isPressed && active)
+    {
+        active = 0;
+        M->setState(s);
+    }
+}
+
+void buttonMapUX::draw()
+{
+    if (isMouseHere || isPressed)
+    {
+        window->draw(outline);
+        window->draw(spriteB);
+    }
+    else window->draw(spriteA);
+    
 }
 
 buttonPrio::buttonPrio(sf::RenderTarget* w, mapi* Mi, int p, string t, double xi, double yi, double lxi, double lyi, bool isRighti): pushButton(w,Mi,t,xi,yi,lxi,lyi,isRighti)
@@ -357,6 +522,107 @@ void buttonAllPrio::update()
     }
 }
 
+buttonPrioUX::buttonPrioUX(sf::RenderTarget* w, mapi* Mi, int p, double xi, double yi, double lxi, double lyi, bool isRighti): pushButtonUX(w,Mi,xi,yi,lxi,lyi,isRighti)
+{
+    prio = p;
+    active = 0;
+    characterSize = 20;
+    switch(prio)
+    {
+    case 0:
+        text.setString("0");
+        break;
+    case 1:
+        text.setString("1");
+        break;
+    case 2:
+        text.setString("2");
+        break;
+    case 3:
+        text.setString("3");
+        break;
+    default:
+        text.setString("0");
+    }
+    font.loadFromFile(fonts);
+    text.setFont(font);
+    text.setCharacterSize(characterSize);
+    
+    sf::FloatRect foo = text.getLocalBounds();
+    double xText = x+(lx-foo.width)/2;
+    double yText = y+(ly-foo.height*2)/2;
+    text.setPosition(xText, yText);
+}
+
+buttonPrioUX::~buttonPrioUX(){} 
+
+void buttonPrioUX::setPressed(bool s){ isPressed = s; active=0;}
+
+void buttonPrioUX::update()
+{
+    if (isMouseHere || isPressed) text.setColor(sf::Color(84,106,121));
+    else text.setColor(sf::Color(217,217,217));
+    if (isPressed && !active)
+    {
+        active = 1;
+        M->setPrio(prio);
+    }
+    else if (!isPressed && active)
+    {
+        active = 0;
+        M->setPrio(prio);
+    }
+}
+
+void buttonPrioUX::draw()
+{
+    if (isMouseHere || isPressed) window->draw(outline);
+    window->draw(text);
+}
+
+buttonAllPrioUX::buttonAllPrioUX(sf::RenderTarget* w, mapi* Mi, double xi, double yi, double lxi, double lyi, bool isRighti): pushButtonUX(w,Mi,xi,yi,lxi,lyi,isRighti)
+{
+    allPrio=0;
+    textureA.loadFromFile("Icons/layers-grey.png");
+    textureB.loadFromFile("Icons/layers-blue.png");
+    spriteA.setTexture(textureA);
+    spriteB.setTexture(textureB);
+    xScaleIcon = yScaleIcon = 0.8;
+    spriteA.setPosition(x+(1-xScaleIcon)*lx/2,y+(1-yScaleIcon)*ly/2);
+    spriteB.setPosition(x+(1-xScaleIcon)*lx/2,y+(1-yScaleIcon)*ly/2);
+    sf::Vector2u foo = textureA.getSize();
+    spriteA.scale(lx*xScaleIcon/foo.x, ly*xScaleIcon/foo.y);
+    foo = textureB.getSize();
+    spriteB.scale(lx*xScaleIcon/foo.x, ly*xScaleIcon/foo.y);
+}
+
+buttonAllPrioUX::~buttonAllPrioUX(){} 
+
+void buttonAllPrioUX::update()
+{
+    if (isPressed && !allPrio)
+    {
+        allPrio = 1;
+        M->setAllPrio(1);
+    }
+    else if (!isPressed && allPrio)
+    {
+        allPrio = 0;
+        M->setAllPrio(0);
+    }
+}
+
+void buttonAllPrioUX::draw()
+{
+    if (isMouseHere || isPressed)
+    {
+        window->draw(outline);
+        window->draw(spriteB);
+    }
+    else window->draw(spriteA);
+    
+}
+
 buttonShowPass::buttonShowPass(sf::RenderTarget* w, mapi* Mi, string t, double xi, double yi, double lxi, double lyi, bool isRighti): pushButton(w,Mi,t,xi,yi,lxi,lyi,isRighti)
 { showPass = 1;}
 
@@ -376,6 +642,49 @@ void buttonShowPass::update()
         showPass = 0;
         M->setShowPass(0);
     }
+}
+
+buttonShowPassUX::buttonShowPassUX(sf::RenderTarget* w, mapi* Mi, double xi, double yi, double lxi, double lyi, bool isRighti): pushButtonUX(w,Mi,xi,yi,lxi,lyi,isRighti)
+{
+    showPass = 1;
+    textureA.loadFromFile("Icons/forbidden-grey.png");
+    textureB.loadFromFile("Icons/forbidden-red.png");
+    spriteA.setTexture(textureA);
+    spriteB.setTexture(textureB);
+    xScaleIcon = yScaleIcon = 0.8;
+    spriteA.setPosition(x+(1-xScaleIcon)*lx/2,y+(1-yScaleIcon)*ly/2);
+    spriteB.setPosition(x+(1-xScaleIcon)*lx/2,y+(1-yScaleIcon)*ly/2);
+    sf::Vector2u foo = textureA.getSize();
+    spriteA.scale(lx*xScaleIcon/foo.x, ly*xScaleIcon/foo.y);
+    foo = textureB.getSize();
+    spriteB.scale(lx*xScaleIcon/foo.x, ly*xScaleIcon/foo.y);
+}
+
+buttonShowPassUX::~buttonShowPassUX(){} 
+
+void buttonShowPassUX::update()
+{
+    if (isPressed && !showPass)
+    {
+        showPass = 1;
+        M->setShowPass(1);
+    }
+    else if (!isPressed && showPass)
+    {
+        showPass = 0;
+        M->setShowPass(0);
+    }
+}
+
+void buttonShowPassUX::draw()
+{
+    if (isMouseHere || isPressed)
+    {
+        window->draw(outline);
+        window->draw(spriteB);
+    }
+    else window->draw(spriteA);
+    
 }
 
 textBox::textBox(sf::RenderTarget *w, mapi* Mi, char c, sf::String t, double x,double y,double lx,double ly, bool isRighti): pushButton(w,Mi,"",x,y,lx,ly,isRighti)

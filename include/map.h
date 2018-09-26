@@ -109,9 +109,6 @@ class mapi
     
     mapCtrlZ* ctrlZObject;
     
-    int nGates;
-    vector<gate> gates;
-    
     int nEvents;
     vector<gameEvent*> events;
     

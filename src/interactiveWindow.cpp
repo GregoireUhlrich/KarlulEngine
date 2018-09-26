@@ -2,6 +2,8 @@
 #include <iostream>
 using namespace std;
 
+std::string fileFonts = "Fonts/ubuntu-font-family/Ubuntu-L.ttf";
+
 interactiveWindow::interactiveWindow(sf::RenderWindow* wi, mapi* Mi, int lyi)
 {
     x = y = 0;
@@ -44,21 +46,25 @@ interactiveWindow::interactiveWindow(sf::RenderWindow* wi, mapi* Mi, int lyi)
     string map = "Maps/map1.txt";
     
     D = new drawable*[nD];
-    D[0] = new buttonMap(window, M, adding, "Add (d)", 10,10,100,40,0);
-    D[1] = new buttonMap(window, M, moving, "Move (f)", 120,10,100,40,0);
-    D[2] = new buttonMap(window, M, selecting, "Select (g)", 230,10,100,40,0);
-    D[3] = new buttonMap(window, M, erasing, "Erase (h)", 340,10,100,40,0);
+    int posX = 100;
+    int posY = 60;
+    D[0] = new buttonMapUX(window, M, adding, posX,posY,40,40,0);
+    D[1] = new buttonMapUX(window, M, moving, posX+50,posY,40,40,0);
+    D[2] = new buttonMapUX(window, M, selecting, posX+100,posY,40,40,0);
+    D[3] = new buttonMapUX(window, M, erasing, posX+150,posY,40,40,0);
     
-    D[4] = new buttonPrio(window, M, 0, "0 (c)", 120,60,100,40,0);
-    D[5] = new buttonPrio(window, M, 1, "1 (v)", 230,60,100,40,0);
-    D[6] = new buttonPrio(window, M, 2, "2 (b)", 340,60,100,40,0);
-    D[7] = new buttonPrio(window, M, 3, "3 (n)", 450,60,100,40,0);
+    posX = 665;
+    D[4] = new buttonPrioUX(window, M, 0, posX+50,posY,40,40,0);
+    D[5] = new buttonPrioUX(window, M, 1, posX+100,posY,40,40,0);
+    D[6] = new buttonPrioUX(window, M, 2, posX+150,posY,40,40,0);
+    D[7] = new buttonPrioUX(window, M, 3, posX+200,posY,40,40,0);
+    D[8] = new buttonAllPrioUX(window, M, posX,posY,40,40,0);
     
-    D[8] = new buttonAllPrio(window, M, "Prio (x)", 10,60,100,40,0);
-    D[9] = new buttonShowPass(window, M, "Pass (k)", 560,10,100,40,0);
+    posX = 445;
+    D[9] = new buttonShowPassUX(window, M, posX,posY,40,40,0);
+    D[11] = new buttonGridUX(window, M, posX+50,posY,40,40,0);
     
     D[10] = new buttonSave(window, M, 'S', "Save", sizeWindow.x-430,60,100,40,1);
-    D[11] = new buttonGrid(window, M, "Grid (j)", 450,10,100,40,0);
     D[12] = new textBox(window, M, 'L', sf::String(im1), 10,110,270,40,0);
     D[13] = new textBox(window, M, 'M', sf::String(map), sizeWindow.x-330,10,320,40,1);
     D[14] = new textBox(window, M, 'X', unsignedIntToString(sizeMap.x), sizeWindow.x-440,10,100,40,1);
@@ -85,7 +91,37 @@ interactiveWindow::interactiveWindow(sf::RenderWindow* wi, mapi* Mi, int lyi)
     limitShape.setPosition(x, y+ly);
     sizeLimit = 5;
     limitShape.setSize(sf::Vector2f(lx,sizeLimit));
-    limitShape.setFillColor(sf::Color::Black);    
+    limitShape.setFillColor(sf::Color::Black);
+    
+    font.loadFromFile(fileFonts);
+    characterSize = 20;
+    nStaticText = 3;
+    staticText = new sf::Text[nStaticText];
+    staticText[0].setString("Action");
+    staticText[0].setCharacterSize(characterSize);
+    staticText[0].setFont(font);
+    staticText[0].setPosition(30,67+40/2-characterSize);
+    staticText[0].setColor(sf::Color(84,106,139));
+    staticText[1].setString("Display");
+    staticText[1].setCharacterSize(characterSize);
+    staticText[1].setFont(font);
+    staticText[1].setPosition(350,67+40/2-characterSize);
+    staticText[1].setColor(sf::Color(84,106,139));
+    staticText[2].setString("Layers");
+    staticText[2].setCharacterSize(characterSize);
+    staticText[2].setFont(font);
+    staticText[2].setPosition(595,67+40/2-characterSize);
+    staticText[2].setColor(sf::Color(84,106,139));
+    
+    nStaticShape = 2;
+    staticShape = new sf::RectangleShape[nStaticShape];
+    int l = 35;
+    staticShape[0].setSize(sf::Vector2f(2, l));
+    staticShape[0].setPosition(320,80-l/2);
+    staticShape[0].setFillColor(sf::Color(232,232,232));
+    staticShape[1].setSize(sf::Vector2f(2, l));
+    staticShape[1].setPosition(565,80-l/2);
+    staticShape[1].setFillColor(sf::Color(232,232,232));
 }
 
 interactiveWindow::~interactiveWindow()
@@ -497,4 +533,8 @@ void interactiveWindow::draw()
         P[i]->draw();
     for (int i=0; i<nD; i++)
         D[i]->draw();
+    for (int i=0; i<nStaticShape; i++)
+        window->draw(staticShape[i]);
+    for (int i=0; i<nStaticText; i++)
+        window->draw(staticText[i]);
 }

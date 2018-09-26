@@ -16,9 +16,6 @@ using namespace std;
 
 int main()
 {
-    varEvents varE;
-    initEvents(varE);
-    
     int xWindow = sf::VideoMode::getDesktopMode().width-100;
     int yWindow = sf::VideoMode::getDesktopMode().height-100;
     int yMap = yWindow-170;

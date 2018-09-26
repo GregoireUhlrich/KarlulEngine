@@ -4,13 +4,6 @@ using namespace std;
 
 std::string fontEvents = "Fonts/ubuntu-font-family/Ubuntu-L.ttf";
 
-void initEvents(varEvents v)
-{
-    v.nEvents = 1;
-    v.nameEvent = new string[1];
-    v.nameEvent[0] = "Change map";
-}
-
 gameEvent::gameEvent()
 {
     x = y = 0;
@@ -18,9 +11,10 @@ gameEvent::gameEvent()
     M = NULL;
 }
 
-gameEvent::gameEvent(int xi, int yi, int di, mapi* Mi, sf::RenderWindow* w)
+gameEvent::gameEvent(int xi, int yi, int di, mapi* Mi, sf::RenderWindow* w, string t)
 {
     window = w;
+    trigger = t;
     type = "None";
     x = xi;
     y = yi;
@@ -39,20 +33,17 @@ gameEvent::gameEvent(const gameEvent& g)
 
 gameEvent::~gameEvent(){}
 
+string gameEvent::getTrigger() const{ return trigger;}
+
 void gameEvent::setPosition(sf::Vector2i pos)
 {
     x = pos.x;
     y = pos.y;
 }
 
-bool gameEvent::testPos(int xi, int yi)
-{
-    return (x==xi && y==yi);
-}
-
 bool gameEvent::testHero(hero* h){ return 0;}
 
-changeMap::changeMap(int xi, int yi, int di, mapi* Mi, sf::RenderWindow* w, string n, int xN, int yN, int dN): gameEvent(xi,yi,di,Mi,w)
+changeMap::changeMap(int xi, int yi, int di, mapi* Mi, sf::RenderWindow* w, string t, string n, int xN, int yN, int dN): gameEvent(xi,yi,di,Mi,w,t)
 {
     type = "changeMap";
     nameMap = n;
@@ -65,12 +56,7 @@ changeMap::~changeMap(){}
 
 bool changeMap::testHero(hero* h)
 {
-    float epsilon = 0.1;
-    int xSprites, ySprites;
-    sf::Vector2u foo = M->getSizeSprites();
-    xSprites = foo.x;
-    ySprites = foo.y;
-    if (abs(h->getX()/xSprites-x) < epsilon && abs(h->getY()/ySprites-y) < epsilon && h->getWantedMove() == dir)
+    if (triggerEvent(h))
     {
         activate(h);
         return 1;
@@ -92,7 +78,7 @@ void changeMap::activate(hero* h)
     M->setState(heros);
 }
 
-textInteraction::textInteraction(int xi, int yi, int di, string f, mapi* M, sf::RenderWindow* w): gameEvent(xi,yi,di,M,w)
+textInteraction::textInteraction(int xi, int yi, int di, string f, mapi* M, sf::RenderWindow* w, string t): gameEvent(xi,yi,di,M,w,t)
 {
     type = "textInteraction";
     stringFile = f;
@@ -119,12 +105,7 @@ textInteraction::~textInteraction(){}
 
 bool textInteraction::testHero(hero* h)
 {
-    float epsilon = 0.1;
-    int xSprites, ySprites;
-    sf::Vector2u foo = M->getSizeSprites();
-    xSprites = foo.x;
-    ySprites = foo.y;
-    if (abs(h->getX()/xSprites-x) < epsilon && abs(h->getY()/ySprites-y) < epsilon && h->getDir() == dir && !activated && h->pullAction())
+    if (triggerEvent(h))
     {
         activate(h);
         h->disableMove();
@@ -214,7 +195,7 @@ void textInteraction::activate(hero* h)
     if (iText < text.size()) window->draw(fooCircle);
 }
 
-staticPNJ::staticPNJ(int xi, int yi, int di, string f, mapi* Mi, sf::RenderWindow* w, character* PNJi): textInteraction(xi,yi,di,f,Mi,w)
+staticPNJ::staticPNJ(int xi, int yi, int di, string f, mapi* Mi, sf::RenderWindow* w, string t, character* PNJi): textInteraction(xi,yi,di,f,Mi,w,t)
 {
     type = "staticPNJ";
     PNJ = PNJi;
@@ -230,35 +211,9 @@ string staticPNJ::getStringPNJ() { return PNJ->getFile();}
 
 bool staticPNJ::testHero(hero* h)
 {
-    float epsilon = 0.1;
-    int xSprites, ySprites;
-    sf::Vector2u foo = M->getSizeSprites();
-    xSprites = foo.x;
-    ySprites = foo.y;
-    if (h->getDir() == 0 && h->getX()/xSprites == x && h->getY()/ySprites == y-1 && !activated && h->pullAction())
+    if (!activated && triggerEvent(h))
     {
-        PNJ->setDir(3);
-        activate(h);
-        h->disableMove();
-        return 1;
-    }
-    else if (h->getDir() == 1 && h->getX()/xSprites == x+1 && h->getY()/ySprites == y && !activated && h->pullAction())
-    {
-        PNJ->setDir(2);
-        activate(h);
-        h->disableMove();
-        return 1;
-    }
-    else if (h->getDir() == 2 && h->getX()/xSprites == x-1 && h->getY()/ySprites == y && !activated && h->pullAction())
-    {
-        PNJ->setDir(1);
-        activate(h);
-        h->disableMove();
-        return 1;
-    }
-    else if (h->getDir() == 3 && h->getX()/xSprites == x && h->getY()/ySprites == y+1 && !activated && h->pullAction())
-    {
-        PNJ->setDir(0);
+        PNJ->setDir(3-h->getDir());
         activate(h);
         h->disableMove();
         return 1;
@@ -280,4 +235,55 @@ bool staticPNJ::testHero(hero* h)
         }
     }
     return 0;
+}
+
+bool gameEvent::triggerEvent(hero* h)
+{
+    string trigger = getTrigger();
+    if (trigger == "cross")
+        return cross(h, x, y);
+    else if (trigger == "action")
+        return action(h, x, y);
+    else if (trigger == "boundaryMap")
+        return boundaryMap(h, x, y, dir);
+    else if (trigger == "gate")
+        return gate(h, x, y, dir);
+    else if (trigger == "interactionStaticPNJ")
+        return interactionStaticPNJ(h, x, y);
+    else return 0;
+}
+
+gameEvent* createEvents(ifstream& f, mapi* M)
+{/*
+    string typeEvent, trigger;
+    f>>typeEvent;
+    gameEvent* newEvent;
+    int fooX, fooY;
+    string foo;
+    if (typeEvent == "changeMap:")
+    {
+        int fooXNew, fooYNew, fooDirNew;
+        f>>fooX>>fooY>>foo>>fooXNew>>fooYNew>>fooDirNew;
+        newEvent = new changeMap(fooX, fooY,M,M->getWindow(), "gate", foo, fooXNew, fooYNew, fooDirNew);
+        //cout<<events[i]->x<<" "<<events[i]->y<<" "<<events[i]->dir<<" "<<events[i]->nameMap<<" "<<events[i]->xNew<<" "<<events[i]->yNew<<" "<<events[i]->dirNew<<endl;
+    }
+    else if (typeEvent == "textInteraction:")
+    {
+        f>>fooX>>fooY>>foo;
+        newEvent = new textInteraction(fooX, fooY,M,M->getWindow(), "action", foo);
+        newEvent->setDir(fooDir);
+    }
+    else if (typeEvent == "staticPNJ:")
+    {
+        string foo2;
+        f>>fooX>>fooY>>foo>>foo2;
+        PNJ.push_back(new character("None", foo, fooX,fooY));
+        nPNJ += 1;
+        newEvent = new staticPNJ(fooX,fooY,M,M->getWindow(),"interactionStaticPNJ", PNJ[nPNJ-1], foo2);
+        //cout<<events[i]->x<<" "<<events[i]->y<<" "<<events[i]->dir<<" "<<events[i]->stringFile<<endl;
+    }
+    else
+        newEvent = NULL;
+    
+    return newEvent;*/
 }
