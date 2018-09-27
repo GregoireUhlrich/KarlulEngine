@@ -20,6 +20,8 @@ mapi::mapi(sf::RenderWindow* w, hero* H, string f, int height)
     state = moving;
     saveState = initialized;
     
+    thickness = 3;
+    backGColor = sf::Color(232,232,232);
     iZoom = 0.95;
     maxZoom = 5;
     minZoom = 0.3;
@@ -40,8 +42,8 @@ mapi::mapi(sf::RenderWindow* w, hero* H, string f, int height)
     prioCtrlC = -1;
     
     selectRect.setFillColor(sf::Color::Transparent);
-    selectRect.setOutlineColor(sf::Color::Red);
-    selectRect.setOutlineThickness(8.);
+    selectRect.setOutlineColor(sf::Color(84,106,139));
+    selectRect.setOutlineThickness(3.);
     
     grid = 0;
     
@@ -531,7 +533,7 @@ int mapi::loadMap()
     bool fooLoading = 0;
     if (saveState == edited)
     {
-        conf = loadWindow();
+        conf = loadWindow(window);
         if (conf == 0)
             fooLoading = 1;
         saveState = loaded;
@@ -669,7 +671,7 @@ void mapi::saveMap()
 {
     ofstream file((dirMaps+stringFile).c_str(), ios::out);
     int confirmation = 0;
-    if (saveState == loaded) confirmation = saveWindow();
+    if (saveState == loaded) confirmation = saveWindow(window);
     if (confirmation == 0)
     {    
         saveState = saved;
@@ -737,7 +739,7 @@ void mapi::saveMap()
 void mapi::reinitMap()
 {
     int conf = 0;
-    if (saveState == edited) conf = reinitWindow();
+    if (saveState == edited) conf = reinitWindow(window);
     if (conf != 2)
     {
         if (conf == 1) saveMap();
@@ -761,9 +763,7 @@ void mapi::reinitMap()
         indexSpriteVec = vector<vector<vector<vector<int> > > >(4);
         spriteVec = vector<vector<vector<sf::Sprite> > >(4);
         boundary.setFillColor(sf::Color::Transparent);
-        boundary.setOutlineColor(sf::Color::Green);
-    
-        double thickness = xSprites;
+        boundary.setOutlineColor(sf::Color::White);
         boundary.setOutlineThickness(thickness);
     
         boundary.setPosition(0,0);
@@ -862,9 +862,8 @@ sf::Vector2i mapi::invConvertPos(sf::Vector2f p)
 void mapi::initMap()
 {
     boundary.setFillColor(sf::Color::Transparent);
-    boundary.setOutlineColor(sf::Color::Green);
+    boundary.setOutlineColor(sf::Color::White);
     
-    double thickness = xSprites;
     boundary.setOutlineThickness(thickness);
     
     boundary.setPosition(0,0);
@@ -2089,7 +2088,7 @@ void mapi::update(double eT)
 
 void mapi::draw()
 {
-    mapWindow.clear(sf::Color::Black);
+    mapWindow.clear(backGColor);
     sf::Sprite foo;
     if (!allPrio || state == heros)
     {

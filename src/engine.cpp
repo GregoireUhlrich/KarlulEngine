@@ -67,7 +67,7 @@ int main()
                 if (s == edited || s == loaded)
                 {
                     window.setActive(0);
-                    int foo = quitWindow();
+                    int foo = quitWindow(&window);
                     window.setActive(1);
                     switch(foo)
                     {

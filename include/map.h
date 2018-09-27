@@ -36,6 +36,8 @@ class mapi
     int x, y, lx, ly; // Position et taille de la carte dans la fenêtre SFML
     int lxMap, lyMap; // Taille de la carte en nombre de sprites
     int xSprites, ySprites; // Taille des sprites en pixel
+    double thickness; //thickness of the boundary
+    sf::Color backGColor; // backGround color
     
     SaveStateMap saveState; // Etat de sauvegarde de la carte
         

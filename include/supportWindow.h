@@ -2,12 +2,15 @@
 #define SUPPORTWINDOW_H_INCLUDED
 
 #include <SFML/Graphics.hpp>
+#include <vector>
+#include "map.h"
 using namespace std;
 
-int quitWindow();
-int saveWindow();
-int loadWindow();
-int reinitWindow();
+int quitWindow(sf::RenderWindow* w);
+int saveWindow(sf::RenderWindow* w);
+int loadWindow(sf::RenderWindow* w);
+int reinitWindow(sf::RenderWindow* w);
+vector<int> changeSizeMapWindow(sf::RenderWindow* w, mapi* M);
 
 #endif
 

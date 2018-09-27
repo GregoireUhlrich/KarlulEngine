@@ -362,6 +362,7 @@ class textBox: public pushButton
     ~textBox();
     
     void setString(string s);
+    string getString() const;
     void windowResized(sf::Vector2u newSizeWindow);
     void mousePressed(sf::Vector2i p);
     
@@ -445,6 +446,120 @@ class wrapMenuTexture: public wrapMenu
     ~wrapMenuTexture();
     
     void update();
+};
+
+class wrapMenuUX: public drawable
+{
+    protected:
+    
+    int yMenu;
+    int lyMenu;
+    int ly0;
+    int yScroll;
+    int sizeWrapInWindow;
+    int offsetTexture;
+    float maxSizeChoice;
+    
+    bool isWrapped;
+    bool isPressed;
+    bool isRight;
+    unsigned int characterSize;
+    mapi* M;
+    
+    int nChoice;
+    sf::Text* choice;
+    int heightChoice;
+    
+    sf::RectangleShape rect;
+    sf::Text text;
+    sf::Font font;
+    
+    sf::RenderTexture* texture;
+    sf::View view;
+    sf::Sprite* sprite;
+    
+    sf::RectangleShape contourShape;
+    sf::RectangleShape selectShape;
+    sf::RectangleShape scrollBar;
+    sf::Vector2f sizeScrollBar;
+    
+    public:
+    wrapMenuUX(sf::RenderTarget *w, mapi* Mi, string t, double x,double y,double lx,double ly, bool isRighti);
+    ~wrapMenuUX();
+    
+    virtual int testMouse(sf::Vector2i v);
+    virtual bool getIsMouseHere() const;
+    void setWrapped(bool s);
+    bool getWrapped();
+    virtual void addChoice(string c);
+    void deleteChoice(int i);
+    virtual void windowResized(sf::Vector2u newSizeWindow);
+        
+    virtual void update();
+    virtual void draw();
+};
+
+class wrapMenuSideLoad;
+
+class wrapMenuFile: public wrapMenuUX
+{
+    private:
+    
+    wrapMenuSideLoad* mLoad;
+    
+    public:
+    
+    wrapMenuFile(sf::RenderTarget *w, mapi* Mi, string t, double x,double y,double lx,double ly, bool isRighti);
+    ~wrapMenuFile();
+    
+    int testMouse(sf::Vector2i v);
+    virtual bool getIsMouseHere() const;
+    void mousePressed(sf::Vector2i posMouse);
+    void mouseReleased();
+    
+    void update();
+    void draw();
+};
+
+class wrapMenuEdit: public wrapMenuUX
+{
+    protected:
+    
+    sf::RenderWindow* windowFIX;
+    
+    public:
+    
+    wrapMenuEdit(sf::RenderWindow *w, mapi* Mi, string t, double x,double y,double lx,double ly, bool isRighti);
+    ~wrapMenuEdit();
+    
+    void update();
+};
+
+class wrapMenuSide: public wrapMenuUX
+{
+    protected:
+    
+    int lxMenu;
+    
+    public:
+
+    wrapMenuSide(sf::RenderTarget *w, mapi* Mi, string t, double x,double y,double lx,double ly, bool isRighti);
+    ~wrapMenuSide();
+    
+    int testMouse(sf::Vector2i v);
+    void addChoice(string c);
+    virtual void windowResized(sf::Vector2u newSizeWindow);
+        
+    virtual void update();
+    virtual void draw();
+};
+
+class wrapMenuSideLoad: public wrapMenuSide
+{
+    public: 
+    
+    wrapMenuSideLoad(sf::RenderTarget *w, mapi* Mi, string t, double x,double y,double lx,double ly, bool isRighti);
+    ~wrapMenuSideLoad();
 };
 
 #endif

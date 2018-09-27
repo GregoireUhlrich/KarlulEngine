@@ -1,4 +1,5 @@
 #include "../include/button.h"
+#include "../include/supportWindow.h"
 #include <cmath>
 #include <iostream>
 #include <string>
@@ -718,6 +719,8 @@ void textBox::setString(string s)
     stringText = sf::String(s);
 }
 
+string textBox::getString() const { return stringText.toAnsiString();}
+
 void textBox::windowResized(sf::Vector2u newSizeWindow)
 {
     double rx = newSizeWindow.x * 1./sizeWindow.x;
@@ -769,10 +772,12 @@ void textBox::enter()
             M->setDirPNG(stringText.toAnsiString());
         else if (chirality == 'M')
             M->setFile(stringText.toAnsiString());
+        /*
         else if (chirality == 'X')
             M->setLxMap(stringToUnsignedInt(stringText.toAnsiString()));
         else if (chirality == 'Y')
             M->setLyMap(stringToUnsignedInt(stringText.toAnsiString()));
+        */
         isPressed = active = 0;
     }
 }
@@ -811,15 +816,15 @@ void textBox::update()
         sf::Vector2u fooVec = M->getSizeMap();
         if (chirality == 'X')
         {
-            stringText = sf::String(unsignedIntToString(fooVec.x));
+            /*stringText = sf::String(unsignedIntToString(fooVec.x));
             len = stringText.getSize();
-            pos = len;
+            pos = len;*/
         }
         else if (chirality == 'Y')
         {
-            stringText = sf::String(unsignedIntToString(fooVec.y));
+            /*stringText = sf::String(unsignedIntToString(fooVec.y));
             len = stringText.getSize();
-            pos = len;
+            pos = len;*/
         }
         else if (chirality == 'M')
         {
@@ -1289,3 +1294,644 @@ void wrapMenuTexture::update()
             isPressed = 1;
     }
 }
+
+wrapMenuUX::wrapMenuUX(sf::RenderTarget *w, mapi* Mi, string t, double xi,double yi,double lxi,double lyi, bool isRighti): drawable(w)
+{
+    yScroll = 30;
+    isRight = isRighti;
+    x=xi; y=yi; lx=lxi; ly=lyi;
+    lyMenu = 0;
+    yMenu = y+ly;
+    ly0 = ly;
+    sprite = new sf::Sprite;
+    texture = 0;
+    sprite = 0;
+    
+    nChoice = 0;
+    choice = 0;
+    heightChoice = ly;
+    sizeWrapInWindow = round((int)sizeWindow.y/(2*heightChoice))*heightChoice;
+    offsetTexture = 0;
+    maxSizeChoice = 0;
+    
+    M = Mi;
+    isMouseHere = 0;
+    isPressed = 0;
+    isWrapped = 0;
+    rect.setSize(sf::Vector2f(lx,ly));
+    rect.setPosition(x,y);
+    rect.setFillColor(sf::Color::Transparent);
+    rect.setOutlineThickness(1);
+    rect.setOutlineColor(sf::Color::Transparent);
+    characterSize = 20;
+    text.setString(t);
+    font.loadFromFile(fonts);
+    text.setFont(font);
+    text.setCharacterSize(characterSize);
+    text.setColor(sf::Color(84,106,139));
+    
+    contourShape.setPosition(x,y+ly0+offsetTexture);
+    contourShape.setSize(sf::Vector2f(lx,min(lyMenu,sizeWrapInWindow)));
+    contourShape.setFillColor(sf::Color::Transparent);
+    contourShape.setOutlineColor(sf::Color(232,232,232));
+    contourShape.setOutlineThickness(1.);
+    
+    selectShape.setFillColor(sf::Color(84,106,121));
+    selectShape.setPosition(x,y);
+    selectShape.setSize(sf::Vector2f(lx,heightChoice));
+    
+    sizeScrollBar = sf::Vector2f(5,10);
+    scrollBar.setPosition(lx-sizeScrollBar.x-1,1);
+    scrollBar.setSize(sizeScrollBar);
+    scrollBar.setFillColor(sf::Color::Blue);
+    scrollBar.setOutlineColor(sf::Color::Black);
+    scrollBar.setOutlineThickness(1);
+    
+    sf::FloatRect foo = text.getLocalBounds();
+    double sizeString = foo.width;
+    double xText = x+(lx-sizeString)/2;
+    double yText = y+(ly-characterSize)/2;
+    text.setPosition(xText, yText);
+}
+
+wrapMenuUX::~wrapMenuUX()
+{
+    delete[] choice;
+    if (texture != 0) delete texture;
+    if (sprite != 0) delete sprite;
+}
+
+int wrapMenuUX::testMouse(sf::Vector2i v)
+{
+    int xMouse = v.x;
+    int yMouse = v.y;
+    posMouse = sf::Vector2i(xMouse,yMouse);
+    
+    if ((xMouse>x && xMouse<x+lx && yMouse>y && yMouse<=y+ly0) || (!isWrapped && (xMouse>x && xMouse<x+max((double)lx, maxSizeChoice*4./3+30) && yMouse>=y+ly0 && yMouse<y+ly0+min(lyMenu,sizeWrapInWindow))))
+        isMouseHere = 1;
+    else
+        isMouseHere = 0;
+    
+    return isMouseHere;
+}
+
+bool wrapMenuUX::getIsMouseHere() const { return isMouseHere;}
+
+void wrapMenuUX::setWrapped(bool s)
+{
+    isWrapped = s;
+    if (s == 1)
+    {
+        ly = ly0;
+        yMenu = y+ly;
+        view.reset(sf::FloatRect(0,0,max((double)lx, maxSizeChoice*4./3+30),min(lyMenu,sizeWrapInWindow)));
+        texture->setView(view);
+        isWrapped = 1;
+    }
+}
+
+bool wrapMenuUX::getWrapped() { return isWrapped;}
+
+void wrapMenuUX::addChoice(string c)
+{
+    lyMenu += heightChoice;
+    
+    sf::Text foo;
+    foo.setString(c);
+    foo.setFont(font);
+    foo.setCharacterSize(characterSize);
+    
+    sf::Text* fooChoice = new sf::Text[nChoice+1];
+    fooChoice[nChoice] = foo;
+    for (int i=0; i<nChoice; i++)
+        fooChoice[i] = choice[i];
+    sf::FloatRect fooRect = fooChoice[nChoice].getLocalBounds();
+    if (fooRect.width > maxSizeChoice) maxSizeChoice = fooRect.width;
+    double sizeString = fooRect.width;
+    double xText = 20;
+    double yText = nChoice*heightChoice+(heightChoice-characterSize)/2;
+    fooChoice[nChoice].setPosition(xText, yText);
+    if (choice != 0) delete[] choice;
+    nChoice += 1;
+    
+    choice = new sf::Text[nChoice];
+    for (int i=0; i<nChoice; i++)
+        choice[i] = fooChoice[i];
+    delete[] fooChoice;    
+    
+    if (texture != 0) delete texture;
+    texture = new sf::RenderTexture;
+    texture->create(max((double)lx, maxSizeChoice*4./3+30),min(lyMenu,sizeWrapInWindow));
+    view.reset(sf::FloatRect(0,0,max((double)lx, maxSizeChoice*4./3+30),min(lyMenu,sizeWrapInWindow)));
+    texture->setView(view);
+    if (sprite != 0) delete sprite;
+    sprite = new sf::Sprite;
+    sprite->setTexture(texture->getTexture());
+}
+
+void wrapMenuUX::deleteChoice(int iChoice)
+{
+    delete texture;
+    texture = 0;
+    lyMenu -= heightChoice;
+    if (lyMenu > 0)
+    {
+        texture = new sf::RenderTexture;
+        texture->create(lx,min(lyMenu,sizeWrapInWindow));
+        view.reset(sf::FloatRect(0,0,max((double)lx, maxSizeChoice*4./3+30),min(lyMenu,sizeWrapInWindow)));
+        texture->setView(view);
+    }
+    if (iChoice < nChoice && iChoice >= 0)
+    {
+        sf::Text* foo = new sf::Text[nChoice-1];
+        for (int i=0; i<nChoice; i++)
+        {
+            if (i < iChoice) foo[i] = choice[i];
+            else if (i > iChoice)
+            {
+                foo[i-1] = choice[i];
+                sf::FloatRect fooRect = foo[i-1].getLocalBounds();
+                double sizeString = fooRect.width;
+                double xText = (lx-sizeString)/2;
+                double yText = (i-1)*heightChoice+(heightChoice-characterSize)/2;
+                foo[i-1].setPosition(xText, yText); 
+            }
+        }
+        delete[] choice;
+        
+        nChoice -= 1;
+        choice = new sf::Text[nChoice];
+        for (int i=0; i<nChoice; i++)
+            choice[i] = foo[i];
+        delete[] foo;
+    }
+}
+
+void wrapMenuUX::windowResized(sf::Vector2u newSizeWindow)
+{
+    double rx = newSizeWindow.x * 1./sizeWindow.x;
+    double ry = newSizeWindow.y * 1./sizeWindow.y;
+    sizeWrapInWindow = round((int)newSizeWindow.y/(2*heightChoice))*heightChoice;
+    rect.setSize(sf::Vector2f(lx/rx,ly/ry));
+    delete texture;    
+    texture = new sf::RenderTexture;
+    texture->create(max((double)lx, maxSizeChoice*4./3+30),min(lyMenu,sizeWrapInWindow));
+    if (sprite != 0) delete sprite;
+    sprite = new sf::Sprite;
+    contourShape.setSize(sf::Vector2f(lx,min(lyMenu,sizeWrapInWindow)));
+    view.reset(sf::FloatRect(0,0,max((double)lx, maxSizeChoice*4./3+30),min(lyMenu,sizeWrapInWindow)));
+    texture->setView(view);
+    if (isRight)
+    {
+        x += (int)newSizeWindow.x - sizeWindow.x;
+        rect.setPosition(x,y);
+        contourShape.setPosition(x,y+ly0+offsetTexture);
+        sf::Vector2f foo = text.getPosition();
+        foo.x += (int)newSizeWindow.x - (int)sizeWindow.x;
+        text.setPosition(foo);
+    }
+    sizeWindow = newSizeWindow;
+}
+
+void wrapMenuUX::update()
+{
+    selectShape.setSize(sf::Vector2f(max((double)lx, maxSizeChoice*4./3+30),heightChoice));
+    contourShape.setSize(sf::Vector2f(max((double)lx, maxSizeChoice*4./3+30),heightChoice*nChoice));
+    if (isMouseHere)
+    {
+        rect.setFillColor(sf::Color(232,232,232));
+        rect.setOutlineColor(sf::Color(232,232,232));
+    }
+    else
+    {
+        rect.setFillColor(sf::Color::Transparent);
+        rect.setOutlineColor(sf::Color::Transparent);
+    }
+}
+
+void wrapMenuUX::draw()
+{
+    window->draw(rect);
+    window->draw(text);
+    if (not isWrapped)
+    {
+        texture->clear(sf::Color::White);
+        int foo = posMouse.y-yMenu;
+        if (foo >= 0)
+        {
+            foo = foo/heightChoice;
+            if (foo < nChoice)
+            {
+                selectShape.setPosition(0,foo*heightChoice);
+                texture->draw(selectShape);
+            }
+        }
+        for (int i=0; i<nChoice; i++)
+        {
+            if (i == foo) choice[i].setColor(sf::Color::White);
+            else choice[i].setColor(sf::Color(132,148,159));
+            texture->draw(choice[i]);
+        }
+        if (lyMenu > sizeWrapInWindow)
+        {
+            sizeScrollBar.y = sizeWrapInWindow*sizeWrapInWindow/lyMenu;
+            scrollBar.setSize(sizeScrollBar);
+            sf::Vector2f fooPos = scrollBar.getPosition();
+            fooPos.y = (sizeWrapInWindow-sizeScrollBar.y)*(y+ly0-yMenu)/(lyMenu-sizeWrapInWindow) + (y+ly0-yMenu);
+            scrollBar.setPosition(fooPos);
+            texture->draw(scrollBar);
+        }   
+        texture->display();
+        sprite->setTexture(texture->getTexture());
+        sprite->setPosition(x,y+ly0+offsetTexture);
+        window->draw(*sprite);
+        window->draw(contourShape);
+    }
+}
+
+
+wrapMenuFile::wrapMenuFile(sf::RenderTarget *w, mapi* Mi, string t, double x,double y,double lx,double ly, bool isRighti): wrapMenuUX(w,Mi,t,x,y,lx,ly,isRighti)
+{
+    addChoice("New map");
+    addChoice("Load map");
+    addChoice("Save");
+    mLoad = new wrapMenuSideLoad(w,Mi,"",x,y+ly+heightChoice,round(max((double)lx, maxSizeChoice*4./3+30)),ly,isRighti);
+    //addChoice("Save as");
+}
+
+wrapMenuFile::~wrapMenuFile()
+{
+    delete mLoad;
+}
+
+int wrapMenuFile::testMouse(sf::Vector2i v)
+{
+    int xMouse = v.x;
+    int yMouse = v.y;
+    posMouse = sf::Vector2i(xMouse,yMouse);
+    if (isMouseHere or not mLoad->getWrapped()) mLoad->testMouse(v);
+    else mLoad->setWrapped(1);
+    
+    if ((xMouse>x && xMouse<x+lx && yMouse>y && yMouse<=y+ly0) || (!isWrapped && (xMouse>x && xMouse<x+max((double)lx, maxSizeChoice*4./3+30) && yMouse>=y+ly0 && yMouse<y+ly0+min(lyMenu,sizeWrapInWindow))))
+        isMouseHere = 1;
+    else
+        isMouseHere = 0;
+        
+    return isMouseHere;
+}
+
+bool wrapMenuFile::getIsMouseHere() const
+{
+    return (isMouseHere or mLoad->getIsMouseHere());
+}
+
+void wrapMenuFile::mousePressed(sf::Vector2i posMouse)
+{
+    if (isMouseHere)
+    {
+        isMousePressed = 1;
+        if (!click)
+        {
+            click = 1;
+            posClick = posMouse;
+        }
+    }
+    else if (mLoad->getIsMouseHere()) mLoad->mousePressed(posMouse);
+}
+
+void wrapMenuFile::mouseReleased()
+{
+    isMousePressed = 0;
+    click = 0;
+    if (mLoad->getIsMouseHere()) mLoad->mouseReleased();
+}
+
+void wrapMenuFile::update()
+{
+    mLoad->update();
+    selectShape.setSize(sf::Vector2f(max((double)lx, maxSizeChoice*4./3+30),heightChoice));
+    contourShape.setSize(sf::Vector2f(max((double)lx, maxSizeChoice*4./3+30),nChoice*heightChoice));
+    if (isMouseHere or mLoad->getIsMouseHere())
+    {
+        rect.setFillColor(sf::Color(232,232,232));
+        rect.setOutlineColor(sf::Color(232,232,232));
+    }
+    else
+    {
+        rect.setFillColor(sf::Color::Transparent);
+        rect.setOutlineColor(sf::Color::Transparent);
+    }
+    view.reset(sf::FloatRect(0,y+ly0-yMenu,max((double)lx, maxSizeChoice*4./3+30),min(lyMenu, sizeWrapInWindow)));
+    texture->setView(view);
+    
+    if (isMouseHere and isWrapped)
+    {
+        lyMenu = nChoice*heightChoice;
+        ly = min(ly0+lyMenu, ly0+sizeWrapInWindow);
+        isWrapped = 0;
+    }
+    else if (!isMouseHere and not isWrapped and mLoad->getWrapped())
+    {
+        setWrapped(1);
+    }
+    if (isPressed && isMouseHere && !isMousePressed)
+    {
+        isPressed = 0;
+        int foo = posMouse.y- yMenu;
+        if (foo >= 0)
+        {
+            foo = foo/heightChoice;
+            if (foo < nChoice)
+            {
+                setWrapped(1);
+                if (choice[foo].getString().toAnsiString() == "New map") M->reinitMap();
+                else if (choice[foo].getString().toAnsiString() == "Load map") M->loadMap();
+                else if (choice[foo].getString().toAnsiString() == "Save") M->saveMap();
+            }
+        }
+    }
+    if(isMouseHere && isMousePressed)
+        isPressed = 1;
+}
+
+void wrapMenuFile::draw()
+{
+    window->draw(rect);
+    window->draw(text);
+    if (not isWrapped)
+    {
+        texture->clear(sf::Color::White);
+        int foo = posMouse.y-yMenu;
+        if (foo >= 0 && mLoad->getWrapped())
+        {
+            foo = foo/heightChoice;
+            if (foo < nChoice)
+            {
+                selectShape.setPosition(0,foo*heightChoice);
+                texture->draw(selectShape);
+            }
+        }
+        else if (not mLoad->getWrapped())
+        {
+            foo = 1;
+            selectShape.setPosition(0,foo*heightChoice);
+            texture->draw(selectShape);
+        }
+        for (int i=0; i<nChoice; i++)
+        {
+            if (i == foo) choice[i].setColor(sf::Color::White);
+            else choice[i].setColor(sf::Color(132,148,159));
+            texture->draw(choice[i]);
+        }
+        if (lyMenu > sizeWrapInWindow)
+        {
+            sizeScrollBar.y = sizeWrapInWindow*sizeWrapInWindow/lyMenu;
+            scrollBar.setSize(sizeScrollBar);
+            sf::Vector2f fooPos = scrollBar.getPosition();
+            fooPos.y = (sizeWrapInWindow-sizeScrollBar.y)*(y+ly0-yMenu)/(lyMenu-sizeWrapInWindow) + (y+ly0-yMenu);
+            scrollBar.setPosition(fooPos);
+            texture->draw(scrollBar);
+        }   
+        texture->display();
+        sprite->setTexture(texture->getTexture());
+        sprite->setPosition(x,y+ly0+offsetTexture);
+        window->draw(*sprite);
+        window->draw(contourShape);
+        if (foo >= 0 && foo < nChoice && choice[foo].getString().toAnsiString() == "Load map") mLoad->draw();
+    }
+}
+wrapMenuEdit::wrapMenuEdit(sf::RenderWindow *w, mapi* Mi, string t, double x,double y,double lx,double ly, bool isRighti): wrapMenuUX(w,Mi,t,x,y,lx,ly,isRighti)
+{
+    windowFIX = w;
+    addChoice("Change size map");
+}
+
+wrapMenuEdit::~wrapMenuEdit(){}
+
+void wrapMenuEdit::update()
+{
+    selectShape.setSize(sf::Vector2f(max((double)lx, maxSizeChoice*4./3+30),heightChoice));
+    contourShape.setSize(sf::Vector2f(max((double)lx, maxSizeChoice*4./3+30),nChoice*heightChoice));
+    if (isMouseHere)
+    {
+        rect.setFillColor(sf::Color(232,232,232));
+        rect.setOutlineColor(sf::Color(232,232,232));
+    }
+    else
+    {
+        rect.setFillColor(sf::Color::Transparent);
+        rect.setOutlineColor(sf::Color::Transparent);
+    }
+    view.reset(sf::FloatRect(0,y+ly0-yMenu,max((double)lx, maxSizeChoice*4./3+30),min(lyMenu, sizeWrapInWindow)));
+    texture->setView(view);
+    if (isMouseHere and isWrapped)
+    {
+        lyMenu = nChoice*heightChoice;
+        ly = min(ly0+lyMenu, ly0+sizeWrapInWindow);
+        isWrapped = 0;
+    }
+    else if (!isMouseHere and not isWrapped)
+    {
+        setWrapped(1);
+    }
+    if (isPressed && isMouseHere && !isMousePressed)
+    {
+        isPressed = 0;
+        int foo = posMouse.y- yMenu;
+        if (foo >= 0)
+        {
+            foo = foo/heightChoice;
+            if (foo < nChoice)
+            {
+                setWrapped(1);
+                if (choice[foo].getString().toAnsiString() == "Change size map")
+                {
+                    vector<int> foo(2);
+                    foo = changeSizeMapWindow(windowFIX, M);
+                    M->setLxMap(foo[0]);
+                    M->setLyMap(foo[1]);
+                }
+            }
+        }
+    }
+    if(isMouseHere && isMousePressed)
+        isPressed = 1;
+}
+
+wrapMenuSide::wrapMenuSide(sf::RenderTarget *w, mapi* Mi, string t, double x,double y,double lx,double ly, bool isRighti): wrapMenuUX(w,Mi,t,x,y,lx,ly,isRighti)
+{
+    lxMenu = 0;
+    contourShape.setPosition(x+lx, y);
+    isWrapped = 1;
+    isMouseHere = 0;
+}
+
+wrapMenuSide::~wrapMenuSide(){}
+
+int wrapMenuSide::testMouse(sf::Vector2i v)
+{
+    int xMouse = v.x;
+    int yMouse = v.y;
+    posMouse = sf::Vector2i(xMouse,yMouse);
+    
+    if ((xMouse>x && xMouse<=x+lx && yMouse>y && yMouse<=y+ly0) || (!isWrapped && (xMouse>=x+lx && xMouse<x+lx+lxMenu && yMouse>=y && yMouse<y+lyMenu)))
+        isMouseHere = 1;
+    else
+        isMouseHere = 0;
+        
+    return isMouseHere;
+}
+
+void wrapMenuSide::addChoice(string c)
+{
+    lyMenu += heightChoice;
+    
+    sf::Text foo;
+    foo.setString(c);
+    foo.setFont(font);
+    foo.setCharacterSize(characterSize);
+    
+    sf::Text* fooChoice = new sf::Text[nChoice+1];
+    fooChoice[nChoice] = foo;
+    for (int i=0; i<nChoice; i++)
+        fooChoice[i] = choice[i];
+    sf::FloatRect fooRect = fooChoice[nChoice].getLocalBounds();
+    if (fooRect.width > maxSizeChoice) maxSizeChoice = fooRect.width;
+    lxMenu = maxSizeChoice*4./3+30;
+    double sizeString = fooRect.width;
+    double xText = 20;
+    double yText = nChoice*heightChoice+(heightChoice-characterSize)/2;
+    fooChoice[nChoice].setPosition(xText, yText);
+    if (choice != 0) delete[] choice;
+    nChoice += 1;
+    
+    choice = new sf::Text[nChoice];
+    for (int i=0; i<nChoice; i++)
+        choice[i] = fooChoice[i];
+    delete[] fooChoice;    
+    
+    if (texture != 0) delete texture;
+    texture = new sf::RenderTexture;
+    texture->create(lxMenu,min(lyMenu,sizeWrapInWindow));
+    view.reset(sf::FloatRect(0,0,lxMenu,min(lyMenu,sizeWrapInWindow)));
+    texture->setView(view);
+    if (sprite != 0) delete sprite;
+    sprite = new sf::Sprite;
+    sprite->setTexture(texture->getTexture());
+}
+
+void wrapMenuSide::windowResized(sf::Vector2u newSizeWindow)
+{
+    double rx = newSizeWindow.x * 1./sizeWindow.x;
+    double ry = newSizeWindow.y * 1./sizeWindow.y;
+    sizeWrapInWindow = round((int)newSizeWindow.y/(2*heightChoice))*heightChoice;
+    rect.setSize(sf::Vector2f(lx/rx,ly/ry));
+    delete texture;    
+    texture = new sf::RenderTexture;
+    texture->create(lxMenu,min(lyMenu,sizeWrapInWindow));
+    if (sprite != 0) delete sprite;
+    sprite = new sf::Sprite;
+    contourShape.setSize(sf::Vector2f(lxMenu,min(lyMenu,sizeWrapInWindow)));
+    view.reset(sf::FloatRect(0,0,lxMenu,min(lyMenu,sizeWrapInWindow)));
+    texture->setView(view);
+    if (isRight)
+    {
+        x += (int)newSizeWindow.x - sizeWindow.x;
+        contourShape.setPosition(x+lx,y+offsetTexture);
+        sf::Vector2f foo = text.getPosition();
+        foo.x += (int)newSizeWindow.x - (int)sizeWindow.x;
+    }
+    sizeWindow = newSizeWindow;
+}
+
+void wrapMenuSide::update()
+{
+    selectShape.setSize(sf::Vector2f(lxMenu,heightChoice));
+    contourShape.setSize(sf::Vector2f(lxMenu,heightChoice*nChoice));
+    if (isMouseHere and isWrapped)
+    {
+        lyMenu = nChoice*heightChoice;
+        ly = min(lyMenu, sizeWrapInWindow);
+        isWrapped = 0;
+    }
+    else if (!isMouseHere and not isWrapped)
+    {
+        setWrapped(1);
+    }
+    if (isPressed && isMouseHere && !isMousePressed)
+    {
+        isPressed = 0;
+        int foo = posMouse.y - y;
+        if (foo >= 0)
+        {
+            foo = foo/heightChoice;
+            if (foo < nChoice)
+            {
+                M->setFile(choice[foo].getString().toAnsiString());
+                M->loadMap();
+                setWrapped(1);
+            }
+        }
+    }
+    if(isMouseHere && isMousePressed)
+        isPressed = 1;
+}
+
+void wrapMenuSide::draw()
+{
+    if (not isWrapped)
+    {
+        texture->clear(sf::Color::White);
+        int foo = posMouse.y-y;
+        if (foo >= 0 and (posMouse.x>=x+lx && posMouse.x<x+lx+lxMenu && posMouse.y>=y && posMouse.y<y+lyMenu))
+        {
+            foo = foo/heightChoice;
+            if (foo < nChoice)
+            {
+                selectShape.setPosition(0,foo*heightChoice);
+                texture->draw(selectShape);
+            }
+        }
+        else foo = -1;
+        for (int i=0; i<nChoice; i++)
+        {
+            if (i == foo) choice[i].setColor(sf::Color::White);
+            else choice[i].setColor(sf::Color(132,148,159));
+            texture->draw(choice[i]);
+        }
+        if (lyMenu > sizeWrapInWindow)
+        {
+            sizeScrollBar.y = sizeWrapInWindow*sizeWrapInWindow/lyMenu;
+            scrollBar.setSize(sizeScrollBar);
+            sf::Vector2f fooPos = scrollBar.getPosition();
+            fooPos.y = (sizeWrapInWindow-sizeScrollBar.y)*(y+ly0-yMenu)/(lyMenu-sizeWrapInWindow) + (y+ly0-yMenu);
+            scrollBar.setPosition(fooPos);
+            texture->draw(scrollBar);
+        }   
+        texture->display();
+        sprite->setTexture(texture->getTexture());
+        sprite->setPosition(x+lx,y);
+        window->draw(*sprite);
+        window->draw(contourShape);
+    }
+}
+
+wrapMenuSideLoad::wrapMenuSideLoad(sf::RenderTarget *w, mapi* Mi, string t, double x,double y,double lx,double ly, bool isRighti): wrapMenuSide(w,Mi,t,x,y,lx,ly,isRighti)
+{
+    isMouseHere = 0;
+    DIR * rep = opendir("./Maps/"); 
+  
+    if (rep != NULL) 
+    { 
+        struct dirent * ent; 
+  
+        while ((ent = readdir(rep)) != NULL) 
+        { 
+            if (string(ent->d_name) != "." && string(ent->d_name) != ".." && string(ent->d_name) != "dataMap.txt") addChoice(string(ent->d_name));
+        } 
+  
+        closedir(rep); 
+    }
+}
+
+wrapMenuSideLoad::~wrapMenuSideLoad(){}

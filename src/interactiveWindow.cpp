@@ -19,16 +19,13 @@ interactiveWindow::interactiveWindow(sf::RenderWindow* wi, mapi* Mi, int lyi)
     son1.setLoop(1);
     son1.setBuffer(buffer);
     
-    nD = 19;
+    nD = 15;
     nModeMap = 4;
     nPrio = 4;
-    nTextBox = 4;
-    iTextBox = new int[5];
-    iBoxImage = 12;
-    iTextBox[0] = 12;
-    iTextBox[1] = 13;
-    iTextBox[2] = 14;
-    iTextBox[3] = 15;
+    nTextBox = 1;
+    iTextBox = new int[1];
+    iBoxImage = 11;
+    iTextBox[0] = 11;
     iAddButton = 0;
     mode = 1;
     iTexture = 0;
@@ -37,8 +34,8 @@ interactiveWindow::interactiveWindow(sf::RenderWindow* wi, mapi* Mi, int lyi)
     takeMidX = 0;
     takeMidY = 0;
     isWrapped = 1;
-    iWrap = 17;
-    nWrap = 2;
+    iWrap = 12;
+    nWrap = 3;
     
     ctrl = 0;
     testJoueur = 0;
@@ -47,7 +44,7 @@ interactiveWindow::interactiveWindow(sf::RenderWindow* wi, mapi* Mi, int lyi)
     
     D = new drawable*[nD];
     int posX = 100;
-    int posY = 60;
+    int posY = 50;
     D[0] = new buttonMapUX(window, M, adding, posX,posY,40,40,0);
     D[1] = new buttonMapUX(window, M, moving, posX+50,posY,40,40,0);
     D[2] = new buttonMapUX(window, M, selecting, posX+100,posY,40,40,0);
@@ -62,16 +59,15 @@ interactiveWindow::interactiveWindow(sf::RenderWindow* wi, mapi* Mi, int lyi)
     
     posX = 445;
     D[9] = new buttonShowPassUX(window, M, posX,posY,40,40,0);
-    D[11] = new buttonGridUX(window, M, posX+50,posY,40,40,0);
+    D[10] = new buttonGridUX(window, M, posX+50,posY,40,40,0);
     
-    D[10] = new buttonSave(window, M, 'S', "Save", sizeWindow.x-430,60,100,40,1);
-    D[12] = new textBox(window, M, 'L', sf::String(im1), 10,110,270,40,0);
-    D[13] = new textBox(window, M, 'M', sf::String(map), sizeWindow.x-330,10,320,40,1);
-    D[14] = new textBox(window, M, 'X', unsignedIntToString(sizeMap.x), sizeWindow.x-440,10,100,40,1);
-    D[15] = new textBox(window, M, 'Y', unsignedIntToString(sizeMap.y), sizeWindow.x-550,10,100,40,1);
-    D[16] = new buttonSave(window, M, 'I', "New", sizeWindow.x-110,60,100,40,1);
-    D[17] = new wrapMenuLoad(window,M,"Load Map",sizeWindow.x-320,60,200,40,1);
-    D[18] = new wrapMenuTexture(window,M,"Load Texture",290,110,200,40,0);
+    D[11] = new textBox(window, M, 'L', sf::String(im1), 10,110,270,40,0);
+    D[12] = new wrapMenuTexture(window,M,"Load Texture",290,110,200,40,0);
+    
+    posX = 5;
+    posY = 5;
+    D[13] = new wrapMenuFile(window,M,"File",posX, posY,90,40,0);
+    D[14] = new wrapMenuEdit(window,M,"Edit",posX+90,posY,90,40,0);
     
     M->setState(moving);
     D[1]->setPressed(1);
@@ -122,6 +118,7 @@ interactiveWindow::interactiveWindow(sf::RenderWindow* wi, mapi* Mi, int lyi)
     staticShape[1].setSize(sf::Vector2f(2, l));
     staticShape[1].setPosition(565,80-l/2);
     staticShape[1].setFillColor(sf::Color(232,232,232));
+    
 }
 
 interactiveWindow::~interactiveWindow()
@@ -149,8 +146,16 @@ void interactiveWindow::lossFocus()
 void interactiveWindow::testMouse(sf::Vector2i p)
 {
     posMouse = p;
-    for (int i=0; i<nD; i++)
-        D[i]->testMouse(posMouse);
+    if (!hasFocus())
+    {
+        for (int i=0; i<nD; i++)
+            D[i]->testMouse(posMouse);
+    }
+    else
+    {
+        for (int i=iWrap; i<iWrap+nWrap; i++)
+            if (D[i]->getIsMouseHere()) D[i]->testMouse(posMouse);
+    }
 }
 
 void interactiveWindow::windowEvent(sf::Event event)
@@ -531,10 +536,10 @@ void interactiveWindow::draw()
     window->draw(limitShape);
     for (int i=0; i<nTexture; i++)
         P[i]->draw();
-    for (int i=0; i<nD; i++)
-        D[i]->draw();
     for (int i=0; i<nStaticShape; i++)
         window->draw(staticShape[i]);
     for (int i=0; i<nStaticText; i++)
         window->draw(staticText[i]);
+    for (int i=0; i<nD; i++)
+        D[i]->draw();
 }
