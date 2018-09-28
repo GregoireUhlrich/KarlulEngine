@@ -37,6 +37,7 @@ class mapi
     int lxMap, lyMap; // Taille de la carte en nombre de sprites
     int xSprites, ySprites; // Taille des sprites en pixel
     double thickness; //thickness of the boundary
+    int thicknessBorderImage;
     sf::Color backGColor; // backGround color
     
     SaveStateMap saveState; // Etat de sauvegarde de la carte

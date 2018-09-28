@@ -168,7 +168,7 @@ void movingCircle::draw()
     window->draw(shape);
 }
 
-imagePNG::imagePNG(sf::RenderTarget* w, string f, char p, int y0i): drawable(w)
+imagePNG::imagePNG(sf::RenderTarget* w, string f, char p, int y0i, int thicknessi): drawable(w)
 {
     yScroll = 30;
     xSprites = ySprites = 32;
@@ -179,13 +179,15 @@ imagePNG::imagePNG(sf::RenderTarget* w, string f, char p, int y0i): drawable(w)
     nxSprites = 0;
     nySprites = 0;
     spriteToPull = 0;
+    thickness = thicknessi;
     
     file = f;
     texture.loadFromFile(file);
-    sprite.setTexture(texture);
     sf::Vector2u v = texture.getSize();
     lx = v.x;
     ly = v.y;
+    renderTexture = new sf::RenderTexture();
+    renderTexture->create(lx,ly);
     
     pos = p;
     if (pos == 'R')
@@ -200,12 +202,12 @@ imagePNG::imagePNG(sf::RenderTarget* w, string f, char p, int y0i): drawable(w)
     }
         
     y = y0;
-    sprite.setPosition(x,y);
+    sprite.setPosition(0,0);
     backGShape.setFillColor(sf::Color::White);
-    backGShape.setPosition(x,y);
+    backGShape.setPosition(0,0);
     backGShape.setSize(sf::Vector2f(lx,max(ly,(int)sizeWindow.y)));
     selectRect.setFillColor(sf::Color::Transparent);
-    selectRect.setOutlineColor(sf::Color::Blue);
+    selectRect.setOutlineColor(sf::Color(84,106,139));
     selectRect.setOutlineThickness(3.);
 }
 
@@ -265,9 +267,9 @@ void imagePNG::update()
         int xNewRect = v.x - x + sizeWindow.x - lx;
         selectRect.setPosition(xNewRect,v.y);
         x = sizeWindow.x - lx;
-        sprite.setPosition(x,y);
+        sprite.setPosition(0,y-y0);
         backGShape.setFillColor(sf::Color::White);
-        backGShape.setPosition(x,y);
+        backGShape.setPosition(0,y-y0);
     }
     sf::Vector2f fooSize = backGShape.getSize();
     if (fooSize.y < sizeWindow.y-y)
@@ -281,12 +283,12 @@ void imagePNG::update()
             delta = delta*yScroll;
             int sizeY = sizeWindow.y;
             sf::Vector2f fooPos = selectRect.getPosition();
-            if (y+ly+delta<sizeY)
+            if (y-y0+ly+delta<sizeY)
             {
                 y = -1*ly+sizeY;
                 delta = -y -1*ly+sizeY;
             }
-            if (y+delta>y0)
+            if (y-y0+delta>0)
             {
                 y = y0;
                 delta = y0-y;
@@ -296,8 +298,7 @@ void imagePNG::update()
             
             fooPos.y += delta;            
             selectRect.setPosition(fooPos);    
-            backGShape.setPosition(x,y);
-            sprite.setPosition(x,y);
+            backGShape.setPosition(0,y-y0);
             posClick = sf::Vector2i(posClick.x, posClick.y+delta);
             delta = 0;    
         }
@@ -407,8 +408,14 @@ void imagePNG::update()
 
 void imagePNG::draw()
 {
-    window->draw(backGShape);
-    window->draw(sprite);
+    renderTexture->clear(sf::Color::White);
+    sprite.setTexture(texture);
+    sprite.setPosition(0,y-y0);
+    renderTexture->draw(sprite);
     if (select || isMousePressed)
-        window->draw(selectRect);
+        renderTexture->draw(selectRect);
+    renderTexture->display();
+    sprite.setTexture(renderTexture->getTexture());
+    sprite.setPosition(x+thickness, y+thickness);
+    window->draw(sprite);
 }

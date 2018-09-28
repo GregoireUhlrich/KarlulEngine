@@ -85,9 +85,9 @@ interactiveWindow::interactiveWindow(sf::RenderWindow* wi, mapi* Mi, int lyi)
     backGShape.setSize(sf::Vector2f(lx,ly));
     backGShape.setFillColor(sf::Color::White);
     limitShape.setPosition(x, y+ly);
-    sizeLimit = 5;
+    sizeLimit = 1;
     limitShape.setSize(sf::Vector2f(lx,sizeLimit));
-    limitShape.setFillColor(sf::Color::Black);
+    limitShape.setFillColor(sf::Color(217,217,217));
     
     font.loadFromFile(fileFonts);
     characterSize = 20;

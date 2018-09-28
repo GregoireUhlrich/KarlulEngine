@@ -108,15 +108,18 @@ class imagePNG: public drawable
     int nySprites;
     int* spriteToPull;
     
+    int thickness;
+    
     std::string file;
     sf::Texture texture;
+    sf::RenderTexture* renderTexture;
     sf::Sprite sprite;
     sf::RectangleShape backGShape;
     sf::RectangleShape selectRect;
     
     public:
     
-    imagePNG(sf::RenderTarget* w, std::string f, char p, int y0i);
+    imagePNG(sf::RenderTarget* w, std::string f, char p, int y0i, int thickness);
     virtual ~imagePNG();
     
     virtual int testMouse (sf::Vector2i posMouse);

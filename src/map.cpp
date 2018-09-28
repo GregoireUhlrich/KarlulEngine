@@ -21,6 +21,7 @@ mapi::mapi(sf::RenderWindow* w, hero* H, string f, int height)
     saveState = initialized;
     
     thickness = 3;
+    thicknessBorderImage = 10;
     backGColor = sf::Color(232,232,232);
     iZoom = 0.95;
     maxZoom = 5;
@@ -107,17 +108,19 @@ void mapi::initPNG(string f, char chirality)
             if (isImLeft)
             {
                 delete imL;
-                imL = new imagePNG(window, f, chirality, sizeWindow.y-ly);
+                imL = new imagePNG(window, f, chirality, sizeWindow.y-ly,thicknessBorderImage);
             }
             else
             {
                 isImLeft = 1;
-                imL = new imagePNG(window, f, chirality, sizeWindow.y-ly);
+                imL = new imagePNG(window, f, chirality, sizeWindow.y-ly,thicknessBorderImage);
             }
             sf::Vector2i v = imL->getSize();
-            limL = sf::RectangleShape(sf::Vector2f(sizeLim,ly));
-            limL.setFillColor(sf::Color::Black);
-            limL.setPosition(v.x,y);
+            limL = sf::RectangleShape(sf::Vector2f(v.x+2*thicknessBorderImage,v.y+2*thicknessBorderImage));
+            limL.setFillColor(sf::Color(146,161,176));
+            limL.setPosition(0,sizeWindow.y-ly);
+            limL.setOutlineThickness(1);
+            limL.setOutlineColor(sf::Color(217,217,217));
             
             sf::Vector2i foo = imL->imagePNG::getPosition();
             imL->imagePNG::setPosition(foo.x, sizeWindow.y-ly);
@@ -127,12 +130,12 @@ void mapi::initPNG(string f, char chirality)
             if (isImRight)
             {
                 delete imR;
-                imR = new imagePNG(window, f, chirality, sizeWindow.y-ly);
+                imR = new imagePNG(window, f, chirality, sizeWindow.y-ly,thicknessBorderImage);
             }
             else
             {
                 isImRight = 1;
-                imR = new imagePNG(window, f, chirality, sizeWindow.y-ly);
+                imR = new imagePNG(window, f, chirality, sizeWindow.y-ly,thicknessBorderImage);
             }
             sf::Vector2i v = imR->getSize();
             limR = sf::RectangleShape(sf::Vector2f(sizeLim,ly));
@@ -431,9 +434,8 @@ void mapi::setSizeMap(sf::Vector2u s)
     lyMap = s.y;
     
     boundary.setFillColor(sf::Color::Transparent);
-    boundary.setOutlineColor(sf::Color::Green);
+    boundary.setOutlineColor(sf::Color::White);
     
-    double thickness = xSprites;
     boundary.setOutlineThickness(thickness);
     
     boundary.setPosition(0,0);
@@ -1467,7 +1469,8 @@ void mapi::windowResized(sf::Vector2u newSizeWindow)
     if (isImLeft)
     {
         imL->imagePNG::windowResized(newSizeWindow);
-        limL.setSize(sf::Vector2f(sizeLim,ly));
+        sf::Vector2i v = imL->getSize();
+        limL.setSize(sf::Vector2f(v.x+2*thicknessBorderImage,ly+2*thicknessBorderImage));
     }
         
     double ratioX = newSizeWindow.x*1./sizeWindow.x;
@@ -2333,13 +2336,13 @@ void mapi::draw()
     {
         if (isImLeft)
         {
-            imL->imagePNG::draw();
             window->draw(limL);
+            imL->imagePNG::draw();
         }
         if (isImRight)
         {
-            imR->imagePNG::draw();
             window->draw(limR);
+            imR->imagePNG::draw();
         }
     }  
     else
