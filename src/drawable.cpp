@@ -170,8 +170,8 @@ void movingCircle::draw()
 
 imagePNG::imagePNG(sf::RenderTarget* w, string f, char p, int y0i, int thicknessi): drawable(w)
 {
-    yScroll = 30;
     xSprites = ySprites = 32;
+    yScroll = ySprites;
     select = 0, loadedSprites = 1;
     y0 = y0i;
     takeMidX = takeMidY = 0;
@@ -187,28 +187,24 @@ imagePNG::imagePNG(sf::RenderTarget* w, string f, char p, int y0i, int thickness
     lx = v.x;
     ly = v.y;
     renderTexture = new sf::RenderTexture();
+    lyView = sizeWindow.y-y0-2*thickness;
+    ly = max(ly,lyView);
     renderTexture->create(lx,ly);
     
     pos = p;
     if (pos == 'R')
-        x = sizeWindow.x - lx;
-    else if (pos == 'L')
+        x = sizeWindow.x - lx - 2*thickness;
+    else
         x = 0;
-    else 
-    {
-        cout<<"Invalid position!\n";
-        x = sizeWindow.x - lx;
-        pos = 'R';
-    }
-        
-    y = y0;
-    sprite.setPosition(0,0);
+
+    y = 0;
     backGShape.setFillColor(sf::Color::White);
     backGShape.setPosition(0,0);
-    backGShape.setSize(sf::Vector2f(lx,max(ly,(int)sizeWindow.y)));
+    backGShape.setSize(sf::Vector2f(lx,ly));
     selectRect.setFillColor(sf::Color::Transparent);
     selectRect.setOutlineColor(sf::Color(84,106,139));
     selectRect.setOutlineThickness(3.);
+    view = sf::IntRect(0,y,lx,lyView);
 }
 
 imagePNG::~imagePNG()
@@ -225,12 +221,36 @@ string imagePNG::getFile() const
 int imagePNG::testMouse(sf::Vector2i v)
 {
     posMouse = v;
-    if (posMouse.x > x && posMouse.x < x+lx && posMouse.y > y0 && posMouse.y < sizeWindow.y)
+    if (posMouse.x > x+thickness && posMouse.x < x+thickness+lx && posMouse.y > y0+thickness && posMouse.y < sizeWindow.y-thickness)
         isMouseHere = 1;
     else
         isMouseHere = 0;
     
     return isMouseHere;
+}
+
+sf::Vector2i imagePNG::convertPosMouse(sf::Vector2i p)
+{
+    sf::Vector2i posTopLeft;
+    posTopLeft.x = view.left;
+    posTopLeft.y = view.top;
+    
+    p.x += posTopLeft.x - thickness;
+    p.y += posTopLeft.y - (y0+thickness);
+    
+    return p;
+}
+
+sf::Vector2i imagePNG::invConvertPosMouse(sf::Vector2i p)
+{
+    sf::Vector2i posTopLeft;
+    posTopLeft.x = view.left;
+    posTopLeft.y = view.top;
+    
+    p.x -= posTopLeft.x - thickness;
+    p.y -= posTopLeft.y - (y0+thickness);
+    
+    return p;
 }
 
 sf::Sprite imagePNG::getSprite() const { return sprite;}
@@ -261,57 +281,35 @@ void imagePNG::freeSprites()
 
 void imagePNG::update()
 {
-    if (pos == 'R' && sizeWindow.x - lx != x)
-    {
-        sf::Vector2f v = selectRect.getPosition();
-        int xNewRect = v.x - x + sizeWindow.x - lx;
-        selectRect.setPosition(xNewRect,v.y);
-        x = sizeWindow.x - lx;
-        sprite.setPosition(0,y-y0);
-        backGShape.setFillColor(sf::Color::White);
-        backGShape.setPosition(0,y-y0);
-    }
+    sf::Vector2i foo;
+    sf::Vector2i effPosClick = convertPosMouse(posClick);
+    foo = convertPosMouse(posMouse);
+    sf::Vector2i posMouse = foo;
+    if (pos == 'R' && sizeWindow.x - lx - 2*thickness != x)
+        x = sizeWindow.x - lx - 2*thickness;
     sf::Vector2f fooSize = backGShape.getSize();
-    if (fooSize.y < sizeWindow.y-y)
-    {
-        backGShape.setSize(sf::Vector2f(fooSize.x, sizeWindow.y-y));
-    }
+    view = sf::IntRect(0,y,lx,lyView);
     if (isMouseHere || select)
     {
         if (delta != 0)
         {
             delta = delta*yScroll;
-            int sizeY = sizeWindow.y;
-            sf::Vector2f fooPos = selectRect.getPosition();
-            if (y-y0+ly+delta<sizeY)
-            {
-                y = -1*ly+sizeY;
-                delta = -y -1*ly+sizeY;
-            }
-            if (y-y0+delta>0)
-            {
-                y = y0;
-                delta = y0-y;
-            }
-            else
-                y = y+delta;
-            
-            fooPos.y += delta;            
-            selectRect.setPosition(fooPos);    
-            backGShape.setPosition(0,y-y0);
-            posClick = sf::Vector2i(posClick.x, posClick.y+delta);
+            if (y-delta < 0) delta = y;
+            else if (y-delta+lyView > ly) delta = y+lyView-ly;
+            y -= delta;
+            view = sf::IntRect(0,y,lx,lyView);
             delta = 0;    
         }
         if (isMousePressed)
         {
             if (!takeMidX)
-                posClick.x = floor((posClick.x*1.-x)/xSprites)*xSprites+x;
+                effPosClick.x = floor((effPosClick.x*1.)/xSprites)*xSprites;
             else
-                posClick.x = floor((posClick.x*1.-x-xSprites/2)/xSprites)*xSprites+x+xSprites/2;
+                effPosClick.x = floor((effPosClick.x*1.-xSprites/2)/xSprites)*xSprites+xSprites/2;
             if (!takeMidY)
-                posClick.y = floor((posClick.y*1.-y)/ySprites)*ySprites+y;
+                effPosClick.y = floor((effPosClick.y*1.)/ySprites)*ySprites;
             else
-                posClick.y = floor((posClick.y*1.-y-ySprites/2)/ySprites)*ySprites+y+ySprites/2;
+                effPosClick.y = floor((effPosClick.y*1.-ySprites/2)/ySprites)*ySprites+ySprites/2;
             if (!select || (select && loadedSprites))
             {
                 loadedSprites = 0;
@@ -325,37 +323,37 @@ void imagePNG::update()
             {
                 int fooInt[2];
                 if (!takeMidX)
-                    fooInt[0] = ceil((posMouse.x*1.-x)/xSprites)*xSprites+x;
+                    fooInt[0] = ceil((posMouse.x*1.)/xSprites)*xSprites;
                 else
-                    fooInt[0] = ceil((posMouse.x*1.-x-xSprites/2)/xSprites)*xSprites+x+xSprites/2;
+                    fooInt[0] = ceil((posMouse.x*1.-xSprites/2)/xSprites)*xSprites+xSprites/2;
                 if (!takeMidY)
-                    fooInt[1] = ceil((posMouse.y*1.-y)/ySprites)*ySprites+y;
+                    fooInt[1] = ceil((posMouse.y*1.)/ySprites)*ySprites;
                 else
-                    fooInt[1] = ceil((posMouse.y*1.-y-ySprites/2)/ySprites)*ySprites+y+ySprites/2;
+                    fooInt[1] = ceil((posMouse.y*1.-ySprites/2)/ySprites)*ySprites+ySprites/2;
         
-                int xmin = min(posClick.x, fooInt[0]);
-                int xmax = max(posClick.x, fooInt[0]);
-                int ymin = min(posClick.y, fooInt[1]);
-                int ymax = max(posClick.y, fooInt[1]);
+                int xmin = min(effPosClick.x, fooInt[0]);
+                int xmax = max(effPosClick.x, fooInt[0]);
+                int ymin = min(effPosClick.y, fooInt[1]);
+                int ymax = max(effPosClick.y, fooInt[1]);
                 if (!takeMidX)
                 {
-                    xmin = max(xmin, x);
-                    xmax = min(xmax, x+lx);
+                    xmin = max(xmin, 0);
+                    xmax = min(xmax, lx);
                 }
                 else
                 {
-                    xmin = max(xmin, x+xSprites/2);
-                    xmax = min(xmax, x+lx-xSprites/2);
+                    xmin = max(xmin, xSprites/2);
+                    xmax = min(xmax, lx-xSprites/2);
                 }
                 if (!takeMidY)            
                 {
-                    ymin = max(ymin, y);
-                    ymax = min(ymax, y+ly);
+                    ymin = max(ymin, 0);
+                    ymax = min(ymax, ly);
                 }
                 else
                 {
-                    ymin = max(ymin, y+ySprites/2);
-                    ymax = min(ymax, y+ly-ySprites/2);
+                    ymin = max(ymin, ySprites/2);
+                    ymax = min(ymax, ly-ySprites/2);
                 }
         
                 selectRect.setPosition(xmin, ymin);
@@ -372,27 +370,27 @@ void imagePNG::update()
             double xmin, ymin, xmax, ymax;
             if (!takeMidX)
             {
-                xmin = min(floor((foo.x-x)/xSprites)*xSprites+x,(float)1.*x+lx-xSprites);
-                xmax = max(xmin+xSprites,round((foo.x+foo2.x-x)/xSprites)*xSprites+x);
-                xmax = min(xmax, 1.*x+lx);
+                xmin = min(floor((foo.x)/xSprites)*xSprites,(float)lx-xSprites);
+                xmax = max(xmin+xSprites,round((foo.x+foo2.x)/xSprites)*xSprites);
+                xmax = min(xmax,(double)lx);
             }
             else
             {
-                xmin = min(floor((foo.x-x)*2./xSprites)*xSprites/2.+x,x+lx-1.5*xSprites);
-                xmax = max(xmin+xSprites,round((foo.x+foo2.x-x-xSprites/2)/xSprites)*xSprites+x+xSprites/2);    
-                xmax = min(xmax, x+lx-xSprites/2.);
+                xmin = min(floor((foo.x)*2./xSprites)*xSprites/2.,(float)lx-1.5*xSprites);
+                xmax = max(xmin+xSprites,round((foo.x+foo2.x-xSprites/2)/xSprites)*xSprites+xSprites/2);    
+                xmax = min(xmax, (double)lx-xSprites/2.);
             }
             if (!takeMidY)
             {
-                ymin = min(floor((foo.y-y)/ySprites)*ySprites+y,(float)1.*y+ly-ySprites);
-                ymax = max(ymin+ySprites,round((foo.y+foo2.y-y)/ySprites)*ySprites+y);
-                ymax = min(ymax, 1.*y+ly);
+                ymin = min(floor((foo.y)/ySprites)*ySprites,(float)ly-ySprites);
+                ymax = max(ymin+ySprites,round((foo.y+foo2.y)/ySprites)*ySprites);
+                ymax = min(ymax,(double)ly);
             }
             else
             {
-                ymin = min(floor((foo.y-y)*2./ySprites)*ySprites/2.+y,y+ly-1.5*ySprites);
-                ymax = max(ymin+ySprites,round((foo.y+foo2.y-y-ySprites/2)/ySprites)*ySprites+y+ySprites/2);    
-                ymax = min(ymax, y+ly-ySprites/2.);        
+                ymin = min(floor((foo.y)*2./ySprites)*ySprites/2.,(float)ly-1.5*ySprites);
+                ymax = max(ymin+ySprites,round((foo.y+foo2.y-ySprites/2)/ySprites)*ySprites+ySprites/2);    
+                ymax = min(ymax, (double)ly-ySprites/2.);        
             }
             selectRect.setPosition(xmin,ymin);
             selectRect.setSize(sf::Vector2f(xmax-xmin, ymax-ymin));
@@ -400,22 +398,25 @@ void imagePNG::update()
             nxSprites = round((xmax-xmin)/xSprites);
             nySprites = round((ymax-ymin)/ySprites);
             spriteToPull = new int[2];
-            spriteToPull[0] = xmin-x;
-            spriteToPull[1] = ymin-y;
+            spriteToPull[0] = xmin;
+            spriteToPull[1] = ymin;
         }
     }
+    posClick = invConvertPosMouse(effPosClick);
 }
 
 void imagePNG::draw()
 {
     renderTexture->clear(sf::Color::White);
     sprite.setTexture(texture);
-    sprite.setPosition(0,y-y0);
+    sprite.setPosition(0,0);
     renderTexture->draw(sprite);
     if (select || isMousePressed)
         renderTexture->draw(selectRect);
     renderTexture->display();
-    sprite.setTexture(renderTexture->getTexture());
-    sprite.setPosition(x+thickness, y+thickness);
-    window->draw(sprite);
+    sprite2.setTexture(renderTexture->getTexture());
+    view = sf::IntRect(0,y,lx,lyView);
+    sprite2.setTextureRect(view);
+    sprite2.setPosition(x+thickness, y0+thickness);
+    window->draw(sprite2);
 }

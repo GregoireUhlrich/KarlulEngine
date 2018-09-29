@@ -123,7 +123,6 @@ void mapi::initPNG(string f, char chirality)
             limL.setOutlineColor(sf::Color(217,217,217));
             
             sf::Vector2i foo = imL->imagePNG::getPosition();
-            imL->imagePNG::setPosition(foo.x, sizeWindow.y-ly);
         }
         else if (chirality == 'R')
         {
@@ -138,12 +137,13 @@ void mapi::initPNG(string f, char chirality)
                 imR = new imagePNG(window, f, chirality, sizeWindow.y-ly,thicknessBorderImage);
             }
             sf::Vector2i v = imR->getSize();
-            limR = sf::RectangleShape(sf::Vector2f(sizeLim,ly));
-            limR.setFillColor(sf::Color::Black);
-            limR.setPosition(sizeWindow.x-v.x,y);
+            limR = sf::RectangleShape(sf::Vector2f(v.x+2*thicknessBorderImage,v.y+2*thicknessBorderImage));
+            limR.setFillColor(sf::Color(146,161,176));
+            limR.setPosition(sizeWindow.x-v.x-2*thicknessBorderImage,sizeWindow.y-ly);
+            limR.setOutlineThickness(1);
+            limR.setOutlineColor(sf::Color(217,217,217));
             
             sf::Vector2i foo = imR->imagePNG::getPosition();
-            imR->imagePNG::setPosition(foo.x, sizeWindow.y-ly);
             
             file.close();
         }
@@ -629,6 +629,8 @@ int mapi::loadMap()
             }
             if (nTotTexture > 0) initPNG(fileTextureVec[0],'L');
             else initPNG("Tileset/base.PNG",'L');
+            sf::Vector2i fooSizeIm = imL->getSize();
+            viewMap.reset(sf::FloatRect(-(lx-lxMap*xSprites+fooSizeIm.x)/2,-(ly-lyMap*ySprites)/2,lx,ly));
             file>>nEvents>>foo;
             //cout<<nEvents<<endl;
             if (nEvents > 0) events = vector<gameEvent*>(nEvents);
@@ -770,8 +772,8 @@ void mapi::reinitMap()
     
         boundary.setPosition(0,0);
         boundary.setSize(sf::Vector2f(lxMap*xSprites, lyMap*ySprites));
-    
-        viewMap.reset(sf::FloatRect(0,0,lx,ly));
+        sf::Vector2i fooSizeIm = imL->getSize();
+        viewMap.reset(sf::FloatRect(-(lx-lxMap*xSprites+fooSizeIm.x)/2,-(ly-lyMap*ySprites)/2,lx,ly));
         mapWindow.setView(viewMap);
         
         double sizeGrid = 2;
@@ -871,7 +873,7 @@ void mapi::initMap()
     boundary.setPosition(0,0);
     boundary.setSize(sf::Vector2f(lxMap*xSprites, lyMap*ySprites));
     
-    viewMap.reset(sf::FloatRect(0,0,lx,ly));
+    //viewMap.reset(sf::FloatRect(0,0,lx,ly));
     mapWindow.setView(viewMap);
     
     double sizeGrid = 2;

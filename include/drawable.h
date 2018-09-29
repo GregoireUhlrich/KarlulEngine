@@ -99,6 +99,7 @@ class imagePNG: public drawable
     
     char pos;
     int y0;
+    int lyView;
     int xSprites,ySprites;
     bool select, loadedSprites;
     bool takeMidX, takeMidY;
@@ -113,7 +114,8 @@ class imagePNG: public drawable
     std::string file;
     sf::Texture texture;
     sf::RenderTexture* renderTexture;
-    sf::Sprite sprite;
+    sf::IntRect view;
+    sf::Sprite sprite, sprite2;
     sf::RectangleShape backGShape;
     sf::RectangleShape selectRect;
     
@@ -123,6 +125,8 @@ class imagePNG: public drawable
     virtual ~imagePNG();
     
     virtual int testMouse (sf::Vector2i posMouse);
+    sf::Vector2i convertPosMouse(sf::Vector2i posMouse);
+    sf::Vector2i invConvertPosMouse(sf::Vector2i effPosMouse);
     
     std::string getFile() const;
     sf::Vector2u getNSprites() const;
