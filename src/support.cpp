@@ -4,23 +4,24 @@ using namespace std;
 
 string unsignedIntToString(unsigned int i)
 {
-	stringstream stream;
-	stream<<i;
-	return stream.str();
+    stringstream stream;
+    stream<<i;
+    return stream.str();
 }
 
 unsigned int stringToUnsignedInt(string s)
 {
-	unsigned int i;
-	istringstream (s) >> i;
-	return i;
+    unsigned int i;
+    istringstream (s) >> i;
+    if (s == "") i = 0;
+    return i;
 }
 
 const unsigned int constStringToUnsignedInt(string s)
 {
-	unsigned int i;
-	istringstream (s) >> i;
-	const int iReturn = i;
-	return iReturn;
+    unsigned int i;
+    istringstream (s) >> i;
+    const int iReturn = i;
+    return iReturn;
 }
 
