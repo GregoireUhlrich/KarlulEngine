@@ -125,7 +125,7 @@ interactiveWindow::interactiveWindow(sf::RenderWindow* wi, mapi* Mi, int lyi)
     nameMap.setCharacterSize(characterSize);
     nameMap.setFont(font);
     nameMap.setStyle(sf::Text::Bold);
-    nameMap.setPosition(sizeWindow.x-posX,posY+40/2-characterSize);
+    nameMap.setPosition(round(sizeWindow.x-posX),round(posY+40/2-characterSize));
     nameMap.setColor(sf::Color(84,106,139));
     
     string fooString = M->getImageFile();
@@ -137,7 +137,7 @@ interactiveWindow::interactiveWindow(sf::RenderWindow* wi, mapi* Mi, int lyi)
     nameTexture.setCharacterSize(characterSize);
     nameTexture.setFont(font);
     nameTexture.setStyle(sf::Text::Bold);
-    nameTexture.setPosition(sizeWindow.x-posX,posY+40+40/2-characterSize);
+    nameTexture.setPosition(round(sizeWindow.x-posX),round(posY+40+40/2-characterSize));
     nameTexture.setColor(sf::Color(84,106,139));
     
     limitNames.setSize(sf::Vector2f(2,ly));
@@ -434,13 +434,13 @@ void interactiveWindow::windowResized()
     for (int i=0; i<nD; i++)
         D[i]->windowResized(foo);
     sf::Vector2f fooPos = nameMap.getPosition();
-    fooPos.x += deltaX;
+    fooPos.x = round(fooPos.x + deltaX);
     nameMap.setPosition(fooPos);
     fooPos = nameTexture.getPosition();
-    fooPos.x += deltaX;
+    fooPos.x = round(fooPos.x + deltaX);
     nameTexture.setPosition(fooPos);
     fooPos = limitNames.getPosition();
-    fooPos.x += deltaX;
+    fooPos.x = round(fooPos.x + deltaX);
     limitNames.setPosition(fooPos);
 }
 

@@ -156,7 +156,10 @@ class mapi
     void setTakeMidY(bool s);
     void setPosHero(int xi, int yi);
     void setDirHero(int dir);
+    void newMap();
     int loadMap();
+    int loadMap(string file);
+    void loadEmpty(int lxMap,int lyMap);
     void saveMap();
     void initMap();
     void reinitMap();

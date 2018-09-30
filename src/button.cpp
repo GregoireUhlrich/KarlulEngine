@@ -5,7 +5,7 @@
 #include <string>
 #include <dirent.h>
 
-std::string fonts = "Fonts/ubuntu-font-family/Ubuntu-L.ttf";
+sf::String fonts = "Fonts/ubuntu-font-family/Ubuntu-L.ttf";
 
 button::button(sf::RenderTarget* w, string t, double xi, double yi, double lxi, double lyi, bool isRighti): drawable(w)
 {
@@ -27,7 +27,7 @@ button::button(sf::RenderTarget* w, string t, double xi, double yi, double lxi, 
     sf::FloatRect foo = text.getLocalBounds();
     double sizeString = foo.width;
     double xText = x+(lx-sizeString)/2;
-    double yText = y+(ly-characterSize)/2;
+    double yText = y+(ly-1.15*characterSize)/2;
     text.setPosition(round(xText), round(yText));
 }
 
@@ -104,22 +104,40 @@ void button::draw()
     window->draw(text);
 }
 
-signalButton::signalButton(sf::RenderTarget *w, string t, double x,double y,double lx,double ly,bool isRighti): button(w,t,x,y,lx,ly,isRighti)
+signalButton::signalButton(sf::RenderTarget *w, string t, sf::Color ci, double x,double y,double lx,double ly,bool isRighti): button(w,t,x,y,lx,ly,isRighti)
 {
-    rect.setFillColor(sf::Color::White);
-    text.setColor(sf::Color::Black);
+    enabled = 1;
+    c = ci;
+    rect.setFillColor(c);
+    rect.setOutlineThickness(0);
+    text.setColor(sf::Color::White);
 }
 
 signalButton::~signalButton(){};
 
+void signalButton::enable()
+{
+    enabled = 1;
+    rect.setFillColor(c);
+}
+
+void signalButton::disable()
+{
+    enabled = 0;
+    rect.setFillColor(sf::Color(217,217,217));
+    isMouseHere = 0;
+    isPressed = 0;
+    isMousePressed = 0;
+}
+
 bool signalButton::updateSignal()
 {
-    if (isMousePressed && !isPressed)
+    if (isMousePressed && !isPressed && enabled)
     {
         pressButton();
         isPressed = 1;
     }
-    else if (!isMousePressed && isPressed)
+    else if (!isMousePressed && isPressed && enabled)
     {
         releaseButton();
         isPressed = 0;
@@ -702,7 +720,7 @@ interactiveButtonUX::interactiveButtonUX(sf::RenderTarget* w, mapi* Mi, double x
     text.setString(sf::String("Run game"));
     text.setFont(font);
     text.setCharacterSize(characterSize);
-    text.setPosition(ly+5,ly/2+characterSize/2-23);
+    text.setPosition(round(ly+5),round(ly/2+characterSize/2-23));
     text.setColor(sf::Color(97,184,114));
     renderTexture.create(lx,ly);
     
@@ -777,12 +795,12 @@ void interactiveButtonUX::draw()
     if (isMousePressed)
     {
         sprite.setScale(ratioPressed, ratioPressed);
-        sprite.setPosition(x+(1-ratioPressed)*lx/2,y+(1-ratioPressed)*ly/2);
+        sprite.setPosition(round(x+(1-ratioPressed)*lx/2),round(y+(1-ratioPressed)*ly/2));
     }
     else
     {
         sprite.setScale(1,1);
-        sprite.setPosition(x,y);
+        sprite.setPosition(round(x),round(y));
     }
     window->draw(sprite);
 }
@@ -796,19 +814,24 @@ textBox::textBox(sf::RenderTarget *w, mapi* Mi, char c, sf::String t, double x,d
     pos = len;
     
     rect.setFillColor(sf::Color::White);
-    rect.setOutlineColor(sf::Color::Black);
+    rect.setOutlineColor(sf::Color(217,217,217));
+    rect.setOutlineThickness(1);
     stringText = t;
     textit.setString(stringText);
     textit.setColor(sf::Color::Black);
     textit.setFont(font);
     textit.setCharacterSize(characterSize);
-    underline.setSize(sf::Vector2f(characterSize*2./3,5));
+    underline.setSize(sf::Vector2f(1,1.2*characterSize));
     underline.setFillColor(sf::Color::Black);
     
     texture.create(lx,ly);
     sprite.setPosition(x,y);
     view.reset(sf::FloatRect(-5,0,lx,ly));
     texture.setView(view);
+    
+    threshold = 0.4;
+    elapsedTime = threshold + 1;
+    stateUnderline = 0;
 }
 
 
@@ -898,7 +921,13 @@ void textBox::textEntered(sf::String f)
 {
     if (isPressed)
     {
-        if ((chirality != 'X' && chirality != 'Y' ) || f=="0" || f=="1" || f=="2" || f=="3" || f=="4" || f=="5" || f=="6" || f=="7" || f=="8" || f=="9")
+        if (f=="0" || f=="1" || f=="2" || f=="3" || f=="4" || f=="5" || f=="6" || f=="7" || f=="8" || f=="9")
+        {
+            stringText.insert(pos,f);
+            pos += 1;
+            len += 1;
+        }
+        else if ((chirality == 'N') && (f=='A' || f=='B' || f=='C' || f=='D' || f=='E' || f=='F' || f=='G' || f=='H' || f=='I' || f=='J' || f=='K' || f=='L' || f=='M' || f=='N' || f=='O' || f=='P' || f=='Q' || f=='R' || f=='S' || f=='T' || f=='U' || f=='V' || f=='W' || f=='X' || f=='Y' || f=='Z' || f=='a' || f=='b' || f=='c' || f=='d' || f=='e' || f=='f' || f=='g' || f=='h' || f=='i' || f=='j' || f=='k' || f=='l' || f=='m' || f=='n' || f=='o' || f=='p' || f=='q' || f=='r' || f=='s' || f=='t' || f=='u' || f=='v' || f=='w' || f=='x' || f=='y' || f=='z' || f=='_' || f=='-'))
         {
             stringText.insert(pos,f);
             pos += 1;
@@ -909,36 +938,6 @@ void textBox::textEntered(sf::String f)
 
 void textBox::update()
 {
-    if (isPressed) rect.setOutlineColor(sf::Color(0,0,255,255));
-    else
-    {
-        rect.setOutlineColor(sf::Color(0,0,0,255));
-        sf::Vector2u fooVec = M->getSizeMap();
-        if (chirality == 'X')
-        {
-            /*stringText = sf::String(unsignedIntToString(fooVec.x));
-            len = stringText.getSize();
-            pos = len;*/
-        }
-        else if (chirality == 'Y')
-        {
-            /*stringText = sf::String(unsignedIntToString(fooVec.y));
-            len = stringText.getSize();
-            pos = len;*/
-        }
-        else if (chirality == 'M')
-        {
-            stringText = sf::String(M->getFile());
-            len = stringText.getSize();
-            pos = len;
-        }
-        else if (chirality == 'L' || chirality == 'R')
-        {
-            stringText = M->getDirPNG();
-            len = stringText.getSize();
-            pos = len;
-        }
-    }       
     textit.setString(stringText);        
     textit.setColor(sf::Color::Black);
     sf::FloatRect foo = textit.getLocalBounds();
@@ -946,12 +945,12 @@ void textBox::update()
     double yText = (ly-characterSize)/2;
     double xText;
     sf::Vector2f foo2 = textit.findCharacterPos(pos);
-    underline.setPosition(foo2.x,characterSize);
+    underline.setPosition(foo2.x,0);
     if (foo2.x > 3.*lx/4)
         xText = 3.*lx/4-foo2.x;
     else
         xText = 0;
-    view.reset(sf::FloatRect(-5-xText,-yText,lx,ly));
+    view.reset(sf::FloatRect(round(-5-xText),-yText,lx,ly));
     texture.setView(view);
     if (isPressed && !active)
     {
@@ -973,6 +972,24 @@ void textBox::draw()
     texture.display();
     sprite.setTexture(texture.getTexture());
     window->draw(sprite);
+}
+
+void textBox::draw(double eT)
+{
+    elapsedTime += eT;
+    window->draw(rect);
+    texture.clear(sf::Color::White);
+    texture.draw(textit);
+    if (elapsedTime > threshold)
+    {
+        stateUnderline = !stateUnderline;
+        elapsedTime = 0;
+    }
+    if (stateUnderline and isPressed) texture.draw(underline);
+    texture.display();
+    sprite.setTexture(texture.getTexture());
+    window->draw(sprite);
+    if (elapsedTime > threshold) elapsedTime = 0;
 }
 
 wrapMenu::wrapMenu(sf::RenderTarget *w, mapi* Mi, string t, double xi,double yi,double lxi,double lyi, bool isRighti): drawable(w)
@@ -1269,8 +1286,7 @@ void wrapMenuLoad::update()
             foo = foo/heightChoice;
             if (foo < nChoice)
             {
-                M->setFile(choice[foo].getString().toAnsiString());
-                M->loadMap();
+                M->loadMap(choice[foo].getString().toAnsiString());
                 setWrapped(1);
             }
         }
@@ -1449,7 +1465,7 @@ wrapMenuUX::wrapMenuUX(sf::RenderTarget *w, mapi* Mi, string t, double xi,double
     double sizeString = foo.width;
     double xText = x+(lx-sizeString)/2;
     double yText = y+(ly-characterSize)/2;
-    text.setPosition(xText, yText);
+    text.setPosition(round(xText), round(yText));
 }
 
 wrapMenuUX::~wrapMenuUX()
@@ -1746,8 +1762,7 @@ void wrapMenuFile::update()
             if (foo < nChoice)
             {
                 setWrapped(1);
-                if (choice[foo].getString().toAnsiString() == "New map") M->reinitMap();
-                else if (choice[foo].getString().toAnsiString() == "Load map") M->loadMap();
+                if (choice[foo].getString().toAnsiString() == "New map") M->newMap();
                 else if (choice[foo].getString().toAnsiString() == "Save") M->saveMap();
             }
         }
@@ -1993,8 +2008,7 @@ void wrapMenuSide::update()
             foo = foo/heightChoice;
             if (foo < nChoice)
             {
-                M->setFile(choice[foo].getString().toAnsiString());
-                M->loadMap();
+                M->loadMap(choice[foo].getString().toAnsiString());
                 setWrapped(1);
             }
         }
@@ -2084,7 +2098,7 @@ wrapMenuTextureUX::wrapMenuTextureUX(sf::RenderTarget *w, mapi* Mi, string t, do
     double sizeString = foo.width;
     double xText = x+(lx-sizeString)/2;
     double yText = y+(ly-characterSize)/2;
-    text.setPosition(xText, yText);
+    text.setPosition(round(xText), round(yText));
 }
 
 wrapMenuTextureUX::~wrapMenuTextureUX(){};
@@ -2155,7 +2169,12 @@ void wrapMenuTextureUX::update()
         for (int i=0; i<M->getNTextures(); i++)
         {
             int foo = fooString[i].find('/');
-            fooString[i].erase(0,foo+1);
+            if (foo != -1)
+            {
+                fooString[i].erase(0,foo+1);
+                int foo = fooString[i].find('/');
+                if (foo != -1) fooString[i].erase(0,foo+1);
+            }
             addChoice(fooString[i]);
         }
         delete[] fooString;

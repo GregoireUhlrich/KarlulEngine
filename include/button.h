@@ -42,10 +42,18 @@ class button: public drawable
 
 class signalButton: public button
 {
+    protected:
+    
+    sf::Color c;
+    bool enabled;
+    
     public:
-    signalButton(sf::RenderTarget *w, string t, double x,double y,double lx,double ly,bool isRighti);
+    signalButton(sf::RenderTarget *w, string t, sf::Color c, double x,double y,double lx,double ly,bool isRighti);
     ~signalButton();
     bool updateSignal();
+    
+    void enable();
+    void disable();
 };
 
 class buttonIm: public button
@@ -387,6 +395,10 @@ class textBox: public pushButton
     sf::Sprite sprite;
     sf::RectangleShape underline;
     
+    double elapsedTime;
+    double threshold;
+    bool stateUnderline;
+    
     public:
     
     textBox(sf::RenderTarget *w, mapi* Mi, char c, sf::String t, double x,double y,double lx,double ly, bool isRighti);
@@ -404,6 +416,7 @@ class textBox: public pushButton
     void moveRight();
     
     void update();
+    void draw(double elapsedTime);
     void draw();
 };
 

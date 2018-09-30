@@ -10,6 +10,7 @@ int quitWindow(sf::RenderWindow* w);
 int saveWindow(sf::RenderWindow* w);
 int loadWindow(sf::RenderWindow* w);
 int reinitWindow(sf::RenderWindow* w);
+void newMapWindow(sf::RenderWindow* w, mapi* M);
 vector<int> changeSizeMapWindow(sf::RenderWindow* w, mapi* M);
 
 #endif

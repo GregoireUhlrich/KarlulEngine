@@ -179,7 +179,7 @@ int mapi::getThicknessIm() const { return thicknessBorderImage;}
 
 sf::Vector2u mapi::getSizeSprites() const { return sf::Vector2u(xSprites, ySprites);}
 
-SaveStateMap mapi::getSaveState() const {return saveState;}
+SaveStateMap mapi::getSaveState() const { return saveState;}
 
 bool mapi::isSaved() const { return saveState == saved;}
 
@@ -548,19 +548,165 @@ void mapi::removeTexture(int prio, int iT, string t)
         iTextureVec[prio].erase(iTextureVec[prio].begin()+iT);
 }
 
-int mapi::loadMap()
+void mapi::newMap()
+{
+    newMapWindow(window,this);
+}
+
+int mapi::loadMap(string file)
 {
     int conf = 0;
     bool fooLoading = 0;
     if (saveState == edited)
     {
         conf = loadWindow(window);
-        if (conf == 0)
+        if (conf == 0 or conf == 1)
             fooLoading = 1;
-        saveState = loaded;
     }
     else fooLoading = 1;
+    if (conf == 1) saveMap();
             
+    if (fooLoading)
+    {
+        if (saveState != initialized) reinitMap();
+        stringFile = file;
+        saveState = saved;
+        ifstream file((dirMaps+stringFile).c_str(), ios::in);
+        if (file)
+        {
+            string foo;
+            file>>lxMap>>lyMap>>foo;        
+            for (int i=0; i<nPrio; i++)
+            {
+                passOrNotVec[i] = vector<vector<int> >(lxMap);
+                for (int j=0; j<lxMap; j++)
+                {
+                    passOrNotVec[i][j] = vector<int>(lyMap);
+                    for (int k=0; k<lyMap; k++)
+                        passOrNotVec[i][j][k] = 0;
+                }
+            }
+        
+            for (int i=0; i<nPrio; i++)
+            {
+                indexSpriteVec[i] = vector<vector<vector<int > > >(lxMap);
+                for (int j=0; j<lxMap; j++)
+                {
+                    indexSpriteVec[i][j] = vector<vector<int> >(lyMap);
+                    for (int k=0; k<lyMap; k++)
+                    {
+                        indexSpriteVec[i][j][k] = vector<int>(2);
+                        indexSpriteVec[i][j][k][0] = -1;
+                        indexSpriteVec[i][j][k][1] = -1;
+                    }
+                }
+            }
+            for (int i=0; i<nPrio; i++)
+            {    
+                file>>foo>>nTextureVec[i]>>foo;
+                if (nTextureVec[i] > 0)
+                {
+                    nSpriteVec[i] = vector<int>(nTextureVec[i]);
+                    iTextureVec[i] = vector<int>(nTextureVec[i]);
+                    spriteVec[i] = vector<vector<sf::Sprite> >(nTextureVec[i]);
+                
+                    for (int j=0; j<nTextureVec[i]; j++)
+                    {
+                        file>>nSpriteVec[i][j];
+                        spriteVec[i][j] = vector<sf::Sprite>(nSpriteVec[i][j]);
+                    }
+                    file>>foo;
+                
+                    for (int j=0; j<nTextureVec[i]; j++)
+                    {
+                        file>>foo;
+                        iTextureVec[i][j] = addTexture(foo);
+                        file>>foo;
+                        if (foo[0] != '{')
+                        {    
+                            cout<<"Invalid syntax for texture "<<fileTextureVec[iTextureVec[i][j]]<<" at prio "<<i<<endl;
+                            return 0;
+                        }
+                        sprite s;
+                        for (int k=0; k<nSpriteVec[i][j]; k++)
+                        {
+                            file>>s.x>>s.y>>s.xPNG>>s.yPNG>>foo;
+                            spriteVec[i][j][k].setTexture(textureVec[iTextureVec[i][j]]);
+                            spriteVec[i][j][k].setTextureRect(sf::IntRect(s.xPNG,s.yPNG,xSprites,ySprites));
+                            spriteVec[i][j][k].setPosition(s.x,s.y);        
+                            if (s.x>=0 && s.x<lxMap*xSprites && s.y>=0 && s.y<lyMap*ySprites)
+                            {
+                                indexSpriteVec[i][s.x/xSprites][s.y/ySprites][0] = j;
+                                indexSpriteVec[i][s.x/xSprites][s.y/ySprites][1] = k;
+                            }
+                        }
+                    }
+                }
+            }
+            resetTextureSprite();
+        
+            int fooPrio = 0, fooDir = 0, fooX = 0, fooY = 0;
+            file>>foo>>nExceptions>>foo;
+            for (int i=0; i<nExceptions; i++)
+            {
+                file>>fooPrio>>fooX>>fooY>>fooDir;
+                passOrNotVec[fooPrio][fooX][fooY] = fooDir;            
+            }
+            if (nTotTexture > 0)
+            {
+                initPNG(fileTextureVec[0],'L');
+                addTexture(fileTextureVec[0]);
+            }
+            else
+            {   
+                initPNG("Tileset/base.png",'L');
+                addTexture("Tileset/base.png");
+            }
+            sf::Vector2i fooSizeIm = imL->getSize();
+            viewMap.reset(sf::FloatRect(-(lx-lxMap*xSprites+fooSizeIm.x)/2,-(ly-lyMap*ySprites)/2,lx,ly));
+            file>>nEvents>>foo;
+            //cout<<nEvents<<endl;
+            if (nEvents > 0) events = vector<gameEvent*>(nEvents);
+            for (int i=0; i<nEvents; i++)
+            {
+                file>>foo;
+                if (foo == "changeMap:")
+                {
+                    int fooXNew, fooYNew, fooDirNew;
+                    file>>fooX>>fooY>>fooDir>>foo>>fooXNew>>fooYNew>>fooDirNew;
+                    events[i] = new changeMap(fooX, fooY, fooDir, this, window, "gate", foo, fooXNew, fooYNew, fooDirNew);
+                    //cout<<events[i]->x<<" "<<events[i]->y<<" "<<events[i]->dir<<" "<<events[i]->nameMap<<" "<<events[i]->xNew<<" "<<events[i]->yNew<<" "<<events[i]->dirNew<<endl;
+                }
+                else if (foo == "textInteraction:")
+                {
+                    file>>fooX>>fooY>>fooDir>>foo;
+                    events[i] = new textInteraction(fooX, fooY, fooDir, foo, this, window, "action");
+                }
+                else if (foo == "staticPNJ:")
+                {
+                    string foo2;
+                    file>>fooX>>fooY>>fooDir>>foo>>foo2;
+                    PNJ.push_back(new character("None", foo, fooX,fooY));
+                    nPNJ += 1;
+                    events[i] = new staticPNJ(fooX,fooY,fooDir,foo2,this,window,"interactionStaticPNJ", PNJ[nPNJ-1]);
+                    //cout<<events[i]->x<<" "<<events[i]->y<<" "<<events[i]->dir<<" "<<events[i]->stringFile<<endl;
+                }
+                else
+                    events[i] = NULL;
+            }
+            file.close();
+            initMap();
+            return 1;   
+        }
+        else cout<<"Unable to open file! "<<endl;
+        return 0;
+    }
+    return 0;
+}
+
+int mapi::loadMap()
+{
+    bool fooLoading = 1;
     if (fooLoading)
     {
         if (saveState != initialized) reinitMap();
@@ -646,8 +792,16 @@ int mapi::loadMap()
                 file>>fooPrio>>fooX>>fooY>>fooDir;
                 passOrNotVec[fooPrio][fooX][fooY] = fooDir;            
             }
-            if (nTotTexture > 0) initPNG(fileTextureVec[0],'L');
-            else initPNG("Tileset/base.PNG",'L');
+            if (nTotTexture > 0)
+            {
+                initPNG(fileTextureVec[0],'L');
+                addTexture(fileTextureVec[0]);
+            }
+            else
+            {   
+                initPNG("Tileset/base.png",'L');
+                addTexture("Tileset/base.png");
+            }
             sf::Vector2i fooSizeIm = imL->getSize();
             viewMap.reset(sf::FloatRect(-(lx-lxMap*xSprites+fooSizeIm.x)/2,-(ly-lyMap*ySprites)/2,lx,ly));
             file>>nEvents>>foo;
@@ -688,6 +842,61 @@ int mapi::loadMap()
         return 0;
     }
     return 0;
+}
+
+void mapi::loadEmpty(int lxi, int lyi)
+{
+    lxMap = lxi;
+    lyMap = lyi;
+    if (lxMap < 1) lxMap = 1;
+    if (lyMap < 1) lyMap = 1;
+    for (int i=0; i<nPrio; i++)
+    {
+        passOrNotVec[i] = vector<vector<int> >(lxMap);
+        for (int j=0; j<lxMap; j++)
+        {
+            passOrNotVec[i][j] = vector<int>(lyMap);
+            for (int k=0; k<lyMap; k++)
+                passOrNotVec[i][j][k] = 0;
+        }
+    }
+    for (int i=0; i<nPrio; i++)
+    {
+        indexSpriteVec[i] = vector<vector<vector<int > > >(lxMap);
+        for (int j=0; j<lxMap; j++)
+        {
+            indexSpriteVec[i][j] = vector<vector<int> >(lyMap);
+            for (int k=0; k<lyMap; k++)
+            {
+                indexSpriteVec[i][j][k] = vector<int>(2);
+                indexSpriteVec[i][j][k][0] = -1;
+                indexSpriteVec[i][j][k][1] = -1;
+            }
+        }
+    }
+    for (int i=0; i<nPrio; i++)
+    {    
+        nTextureVec[i] = 0;
+        nSpriteVec[i] = vector<int>(nTextureVec[i]);
+        iTextureVec[i] = vector<int>(nTextureVec[i]);
+        spriteVec[i] = vector<vector<sf::Sprite> >(nTextureVec[i]);
+        if (nTextureVec[i] > 0)
+        {        
+            for (int j=0; j<nTextureVec[i]; j++)
+            {
+                nSpriteVec[i][j] = 0;
+                spriteVec[i][j] = vector<sf::Sprite>(nSpriteVec[i][j]);
+            }
+        }
+    }
+
+    nExceptions = 0;
+    initPNG("Tileset/base.png",'L');
+    addTexture("Tileset/base.png");
+    sf::Vector2i fooSizeIm = imL->getSize();
+    viewMap.reset(sf::FloatRect(-(lx-lxMap*xSprites+fooSizeIm.x)/2,-(ly-lyMap*ySprites)/2,lx,ly));
+    nEvents = 0;
+    initMap();
 }
 
 void mapi::saveMap()
@@ -761,87 +970,66 @@ void mapi::saveMap()
 
 void mapi::reinitMap()
 {
-    int conf = 0;
-    if (saveState == edited) conf = reinitWindow(window);
-    if (conf != 2)
-    {
-        if (conf == 1) saveMap();
-        if (saveState != loaded) saveState = edited;
-        freeSpritesCtrlC();
-        nTotTexture = 0;
-        textureVec.clear();
-        nTextureVec.clear();
-        iTextureVec.clear();
-        indexSpriteVec.clear();
-        fileTextureVec.clear();
-        nSpriteVec.clear();
-        passOrNotVec.clear();
-        spriteVec.clear();
-        passOrNotVec = vector<vector<vector<int> > >(4);
-        nSpriteVec = vector<vector<int> >(4);
-        nTextureVec = vector<int>(4);
-        for (int i=0; i<nPrio; i++)
-            nTextureVec[i] = 0;
-        iTextureVec = vector<vector<int> >(4);
-        indexSpriteVec = vector<vector<vector<vector<int> > > >(4);
-        spriteVec = vector<vector<vector<sf::Sprite> > >(4);
-        boundary.setFillColor(sf::Color::Transparent);
-        boundary.setOutlineColor(sf::Color::White);
-        boundary.setOutlineThickness(thickness);
+    isMouseHere = isMousePressed = 0;
+    click = 0;
+    select = select2 = 0;
+    delta = 0;
+    allPrio = 0;
+    showPass = 1;
+    currentPrio = 0;
+    posMouse = sf::Vector2i(0,0);
+    oldPosMouse = sf::Vector2i(0,0);
+    posClick = sf::Vector2i(0,0);
+    ghostSprite = 0;
+    grid = 0;
+    lxMap = lyMap = 0;
     
-        boundary.setPosition(0,0);
-        boundary.setSize(sf::Vector2f(lxMap*xSprites, lyMap*ySprites));
-        sf::Vector2i fooSizeIm = imL->getSize();
-        viewMap.reset(sf::FloatRect(-(lx-lxMap*xSprites+fooSizeIm.x)/2,-(ly-lyMap*ySprites)/2,lx,ly));
-        mapWindow.setView(viewMap);
-        
-        double sizeGrid = 2;
-        gridX.clear();
-        gridY.clear();
-        gridX = vector<sf::RectangleShape>(lxMap-1);
-        gridY = vector<sf::RectangleShape>(lyMap-1);
-        
-        for (int i=1; i<lxMap; i++)
-        {
-            gridX[i-1] = sf::RectangleShape(sf::Vector2f(sizeGrid, lyMap*ySprites));
-            gridX[i-1].setPosition(i*xSprites-sizeGrid/2,0);
-            gridX[i-1].setFillColor(sf::Color::White);
-        }
-        for (int i=1; i<lyMap; i++)
-        {
-            gridY[i-1] = sf::RectangleShape(sf::Vector2f(lxMap*xSprites,sizeGrid));
-            gridY[i-1].setPosition(0,i*ySprites-sizeGrid/2);
-            gridY[i-1].setFillColor(sf::Color::White);
-        }
-        for (int i=0; i<nPrio; i++)
-        {
-            passOrNotVec[i] = vector<vector<int > >(lxMap);
-            for (int j=0; j<lxMap; j++)
-            {
-                passOrNotVec[i][j] = vector<int>(lyMap);
-                for (int k=0; k<lyMap; k++)
-                    passOrNotVec[i][j][k] = 0;
-            }
-        }
-        for (int i=0; i<nPrio; i++)
-        {
-            indexSpriteVec[i] = vector<vector<vector<int > > >(lxMap);
-            for (int j=0; j<lxMap; j++)
-            {
-                indexSpriteVec[i][j] = vector<vector<int> >(lyMap);
-                for (int k=0; k<lyMap; k++)
-                {
-                    indexSpriteVec[i][j][k] = vector<int>(2);
-                    indexSpriteVec[i][j][k][0] = -1;
-                    indexSpriteVec[i][j][k][1] = -1;
-                }
-            }
-        }
-        events.clear();
-        PNJ.clear();
-        nEvents = 0;
-        nPNJ = 0;
-    }
+    nxCtrlC = nyCtrlC = 0;
+    xCtrlC = yCtrlC = 0;
+    prioCtrlC = -1;
+    deletePNG('L');
+    deletePNG('R');
+    isImLeft = 0;
+    isImRight = 0;
+    sizeLim = 5;
+    imL = 0;
+    imR = 0;
+    
+    state = moving;
+    saveState = initialized;
+    freeSpritesCtrlC();
+    nTotTexture = 0;
+    textureVec.clear();
+    nTextureVec.clear();
+    iTextureVec.clear();
+    indexSpriteVec.clear();
+    fileTextureVec.clear();
+    nSpriteVec.clear();
+    passOrNotVec.clear();
+    spriteVec.clear();
+    spriteCtrlCVec.clear();
+    fileCtrlCVec.clear();
+    
+    indexSpriteVec = vector<vector<vector<vector<int> > > >(4);
+    nTextureVec = vector<int>(4);
+    nSpriteVec = vector<vector<int> >(4);
+    passOrNotVec = vector<vector<vector<int> > >(4);
+    spriteCtrlCVec = vector<vector<vector<sf::Sprite> > >(4);
+    fileCtrlCVec = vector<vector<vector<string> > >(4);
+    spriteVec = vector<vector<vector<sf::Sprite> > >(4);
+    iTextureVec = vector<vector<int> >(4);
+    textureVec = vector<sf::Texture>(0);
+    
+    nExceptions = 0;
+    gridX.clear();
+    gridY.clear();
+    events.clear();
+    PNJ.clear();
+    nEvents = 0;
+    nPNJ = 0;
+    
+    delete ctrlZObject;
+    ctrlZObject = new mapCtrlZ(this);
 }
 
 sf::Vector2f mapi::convertPos(sf::Vector2i p)
