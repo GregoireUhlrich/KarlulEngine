@@ -26,9 +26,6 @@ class interactiveWindow
     int nStaticShape;
     int nModeMap;
     int nPrio;
-    int nTextBox;
-    int iBoxImage;
-    int* iTextBox;
     int iAddButton;
     int mode;
     int iTexture;
@@ -37,18 +34,20 @@ class interactiveWindow
     bool takeMidX;
     bool takeMidY;
     int ctrl;
-    int testJoueur;
     drawable** D;
     int characterSize;
     sf::Font font;
     sf::Text* staticText;
     sf::RectangleShape* staticShape;
+    sf::Text nameMap;
+    sf::Text nameTexture;
+    sf::RectangleShape limitNames;
+    
     bool isWrapped;
     int iWrap, nWrap;
+    bool testJoueur;
+    int iButtonGame;
     
-    int nTexture;
-    string* fileTextures;
-    pushButton** P;
     
     int sizeLimit;
     sf::RectangleShape backGShape;
@@ -61,6 +60,8 @@ class interactiveWindow
     
     interactiveWindow(sf::RenderWindow* wi, mapi* Mi, int lyi);
     ~interactiveWindow();
+    
+    bool getTestJoueur();
     
     void closeWindow();
     

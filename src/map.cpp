@@ -20,6 +20,7 @@ mapi::mapi(sf::RenderWindow* w, hero* H, string f, int height)
     state = moving;
     saveState = initialized;
     
+    sizeWrapMenuTexture = 40;
     thickness = 3;
     thicknessBorderImage = 10;
     backGColor = sf::Color(232,232,232);
@@ -74,6 +75,7 @@ mapi::mapi(sf::RenderWindow* w, hero* H, string f, int height)
     y = sizeWindow.y - height;
     lx = sizeWindow.x;
     ly = height;
+    ly0 = ly;
     
     ctrlZObject = new mapCtrlZ(this);
     nEvents = 0;
@@ -108,17 +110,17 @@ void mapi::initPNG(string f, char chirality)
             if (isImLeft)
             {
                 delete imL;
-                imL = new imagePNG(window, f, chirality, sizeWindow.y-ly,thicknessBorderImage);
+                imL = new imagePNG(window, f, chirality, sizeWindow.y-ly+2*sizeWrapMenuTexture+2,thicknessBorderImage);
             }
             else
             {
                 isImLeft = 1;
-                imL = new imagePNG(window, f, chirality, sizeWindow.y-ly,thicknessBorderImage);
+                imL = new imagePNG(window, f, chirality, sizeWindow.y-ly+2*sizeWrapMenuTexture+2,thicknessBorderImage);
             }
             sf::Vector2i v = imL->getSize();
             limL = sf::RectangleShape(sf::Vector2f(v.x+2*thicknessBorderImage,v.y+2*thicknessBorderImage));
             limL.setFillColor(sf::Color(146,161,176));
-            limL.setPosition(0,sizeWindow.y-ly);
+            limL.setPosition(0,sizeWindow.y-ly+2*sizeWrapMenuTexture+2);
             limL.setOutlineThickness(1);
             limL.setOutlineColor(sf::Color(217,217,217));
             
@@ -170,6 +172,10 @@ sf::Vector2u mapi::getPosition() const { return sf::Vector2u(x,y);}
 sf::Vector2u mapi::getSizeTexture() const { return sf::Vector2u(lx,ly);}
 
 sf::Vector2u mapi::getSizeMap() const { return sf::Vector2u(lxMap,lyMap);}
+
+sf::Vector2i mapi::getSizeIm() const { return imL->getSize();}
+
+int mapi::getThicknessIm() const { return thicknessBorderImage;}
 
 sf::Vector2u mapi::getSizeSprites() const { return sf::Vector2u(xSprites, ySprites);}
 
@@ -303,9 +309,22 @@ void mapi::pastePassOrNot(int dir, int prio, int xmin, int ymin, int lxS, int ly
 void mapi::setJoueur(bool s)
 {
     if (s == 1)
+    {
         state = heros;
+        ly = sizeWindow.y;
+        y = 0;
+        viewMap.setSize(lx,ly);
+    }
     else
+    {
         state = nothing;
+        ly = ly0;
+        y = sizeWindow.y-ly;
+        sf::Vector2i fooSizeIm = imL->getSize();
+        viewMap.reset(sf::FloatRect(-(lx-lxMap*xSprites+fooSizeIm.x)/2,-(ly-lyMap*ySprites)/2,lx,ly));
+    }
+    mapWindow.create(lx,ly);
+    mapWindow.setView(viewMap);
 }
 
 void mapi::setSizeMap(sf::Vector2u s)
@@ -2331,7 +2350,9 @@ void mapi::draw()
     */
     mapWindow.display();
     mapWindow.setView(viewMap);
-    toDraw.setTexture(mapWindow.getTexture());
+    sf::Sprite fooSprite;
+    fooSprite.setTexture(mapWindow.getTexture());
+    toDraw = fooSprite;
     toDraw.setPosition(x,y);
     window->draw(toDraw);
     if (state != heros)

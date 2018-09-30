@@ -33,8 +33,9 @@ class mapi
 {
     private:
     
-    int x, y, lx, ly; // Position et taille de la carte dans la fenêtre SFML
+    int x, y, lx, ly, ly0; // Position et taille de la carte dans la fenêtre SFML
     int lxMap, lyMap; // Taille de la carte en nombre de sprites
+    int sizeWrapMenuTexture;
     int xSprites, ySprites; // Taille des sprites en pixel
     double thickness; //thickness of the boundary
     int thicknessBorderImage;
@@ -127,6 +128,8 @@ class mapi
     sf::Vector2u getSizeTexture() const;
     sf::Vector2u getSizeMap() const; // return sf::Vector2u(lxMap, lyMap)
     sf::Vector2u getSizeSprites() const;
+    sf::Vector2i getSizeIm() const;
+    int getThicknessIm() const;
     SaveStateMap getSaveState() const;
     int getNTextures() const;
     string* getFileTextures() const;

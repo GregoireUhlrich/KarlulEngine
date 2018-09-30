@@ -340,6 +340,37 @@ class buttonShowPassUX: public pushButtonUX
     void draw();
 };
 
+class interactiveButtonUX: public drawable
+{
+    protected:
+    
+    bool isRight;
+    bool isPressed;
+    float ratioPressed;
+    unsigned int characterSize;
+    mapi* M;
+    sf::Font font;
+    sf::Text text;
+    
+    sf::RenderTexture renderTexture;
+    sf::Sprite sprite;
+    
+    sf::Texture textureIcon1;
+    sf::Sprite icon1;
+    
+    public:
+    
+    interactiveButtonUX(sf::RenderTarget *w, mapi* Mi, double x,double y,double lx,double ly, bool isRighti);
+    interactiveButtonUX(const interactiveButtonUX& b);
+    ~interactiveButtonUX();
+    
+    bool getSignal();
+    void windowResized(sf::Vector2u newSizeWindow);
+    
+    void update();    
+    void draw();
+    
+};
 
 class textBox: public pushButton
 {
@@ -540,12 +571,16 @@ class wrapMenuSide: public wrapMenuUX
     protected:
     
     int lxMenu;
+    float ratio; 
+    sf::Texture textureArrow;
+    sf::Sprite spriteArrow;
     
     public:
 
     wrapMenuSide(sf::RenderTarget *w, mapi* Mi, string t, double x,double y,double lx,double ly, bool isRighti);
     ~wrapMenuSide();
     
+    void setWrapped(bool s);
     int testMouse(sf::Vector2i v);
     void addChoice(string c);
     virtual void windowResized(sf::Vector2u newSizeWindow);
@@ -554,12 +589,39 @@ class wrapMenuSide: public wrapMenuUX
     virtual void draw();
 };
 
+class wrapMenuTextureUX: public wrapMenuSide
+{
+    protected:
+    
+    string dirPNG;
+    int mode;
+    int nTexture;
+    string fileMap;
+    
+    public:
+    
+    wrapMenuTextureUX(sf::RenderTarget *w, mapi* Mi, string t, double x,double y,double lx,double ly, bool isRighti, int mode);
+    ~wrapMenuTextureUX();
+    
+    void addChoice(string c);
+    
+    void update();
+    void draw();
+};
+
 class wrapMenuSideLoad: public wrapMenuSide
 {
+    private:
+    
+    sf::Texture textureArrow2;
+    sf::Sprite spriteArrow2;
+    
     public: 
     
     wrapMenuSideLoad(sf::RenderTarget *w, mapi* Mi, string t, double x,double y,double lx,double ly, bool isRighti);
     ~wrapMenuSideLoad();
+    
+    void draw();
 };
 
 #endif

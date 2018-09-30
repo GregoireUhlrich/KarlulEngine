@@ -16,10 +16,10 @@ using namespace std;
 
 int main()
 {
-    int xWindow = sf::VideoMode::getDesktopMode().width-100;
-    int yWindow = sf::VideoMode::getDesktopMode().height-100;
-    int yMap = yWindow-170;
-    sf::RenderWindow window(sf::VideoMode(xWindow,yWindow), "\'Map haie\', dit Thor");
+    int xWindow = 1600;
+    int yWindow = 1600*9/16;
+    int yMap = yWindow-100;
+    sf::RenderWindow window(sf::VideoMode(xWindow,yWindow), "Plagiat-mon project");
     
     sf::SoundBuffer buffer1;
     buffer1.loadFromFile("Audio/Projet1Arch.ogg");
@@ -42,7 +42,7 @@ int main()
     int tmp = M->loadMap();
     sf::Vector2u sizeMap = M->getSizeMap();
     M->initMap();
-    interactiveWindow IWindow(&window, M, 170);
+    interactiveWindow IWindow(&window, M, 100);
     
     bool testJoueur = 0;
     sf::Clock clock;
@@ -131,6 +131,7 @@ int main()
         window.clear();
         if (window.isOpen())
         {
+            if (IWindow.getTestJoueur()) testJoueur = 1;
             if (window.getSize() != sizeWindow)
             {
                 sizeWindow = window.getSize();
@@ -143,8 +144,8 @@ int main()
             IWindow.update();
             M->update(mapElapsedTime.asSeconds());
             M->draw();
-            IWindow.draw();
-            if (testJoueur)
+            if (!testJoueur) IWindow.draw();
+            else
             {
                 IWindow.lossFocus();
                 if (!M->downOK()) Heros.setKeyPressed(0+5);

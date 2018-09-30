@@ -279,6 +279,23 @@ void imagePNG::freeSprites()
     loadedSprites = 0;
 }
 
+void imagePNG::windowResized(sf::Vector2u newSizeWindow)
+{
+    sizeWindow = newSizeWindow;
+    lyView = sizeWindow.y-y0-2*thickness;
+    ly = max(ly,lyView);
+    renderTexture->create(lx,ly);
+    
+    if (pos == 'R')
+        x = sizeWindow.x - lx - 2*thickness;
+    else
+        x = 0;
+
+    y = 0;
+    backGShape.setSize(sf::Vector2f(lx,ly));
+    view = sf::IntRect(0,y,lx,lyView);
+}
+
 void imagePNG::update()
 {
     sf::Vector2i foo;

@@ -43,6 +43,7 @@ class drawable
     
     virtual int testMouse (sf::Vector2i posMouse);
     void setMouse(bool s);
+    virtual bool getSignal(){};
     virtual void mousePressed (sf::Vector2i posMouse);
     virtual bool buttonPressed (sf::Vector2i posMouse);
     virtual void setPressed(bool s){};
@@ -137,6 +138,7 @@ class imagePNG: public drawable
     void setTakeMidX(bool t);
     void setTakeMidY(bool t);
     
+    void windowResized(sf::Vector2u s);
     virtual void update();
     virtual void draw();
 };
