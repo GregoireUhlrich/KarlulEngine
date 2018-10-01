@@ -1613,6 +1613,7 @@ void wrapMenuUX::windowResized(sf::Vector2u newSizeWindow)
 
 void wrapMenuUX::update()
 {
+    if (isMousePressed and !isMouseHere) isMousePressed = 0;
     selectShape.setSize(sf::Vector2f(max((double)lx, maxSizeChoice*4./3+30),heightChoice));
     contourShape.setSize(sf::Vector2f(max((double)lx, maxSizeChoice*4./3+30),heightChoice*nChoice));
     if (isMouseHere)
@@ -2106,7 +2107,8 @@ wrapMenuTextureUX::~wrapMenuTextureUX(){};
 void wrapMenuTextureUX::addChoice(string c)
 {
     lyMenu += heightChoice;
-    
+    int fooInt = c.find("Tileset/");
+    if (fooInt != -1) c.erase(0,fooInt+8);
     sf::Text foo;
     foo.setString(c);
     foo.setFont(font);

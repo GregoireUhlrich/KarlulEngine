@@ -1,0 +1,32 @@
+10 10 #dimensions
+
+Prio0
+
+	0 #nTextureVec
+	
+
+Prio1
+
+	0 #nTextureVec
+	
+
+Prio2
+
+	0 #nTextureVec
+	
+
+Prio3
+
+	0 #nTextureVec
+	
+
+passOrNotVec
+
+0 #nExceptions
+	
+
+0 #nEvents
+
+
+
+endFile

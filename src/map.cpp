@@ -10,7 +10,7 @@ string dirMaps = "Maps/";
 
 mapi::mapi(sf::RenderWindow* w, hero* H, string f, int height)
 {
-    stringDirPNG = "./Tileset/";
+    stringDirPNG = "Tileset/";
     window = w;
     Heros = H;
     nPNJ = 0;

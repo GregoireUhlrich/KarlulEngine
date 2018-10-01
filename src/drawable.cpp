@@ -69,7 +69,7 @@ void drawable::setMouse(bool s)
 
 void drawable::mousePressed(sf::Vector2i posMouse)
 {
-    if (testMouse(posMouse))
+    if (isMouseHere)
     {
         isMousePressed = 1;
         if (!click)
@@ -209,6 +209,7 @@ imagePNG::imagePNG(sf::RenderTarget* w, string f, char p, int y0i, int thickness
 
 imagePNG::~imagePNG()
 {
+    delete renderTexture;
     if (spriteToPull != 0)
         delete[] spriteToPull;
 }

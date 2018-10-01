@@ -173,7 +173,11 @@ void interactiveWindow::testMouse(sf::Vector2i p)
     posMouse = p;
     if (!hasFocus())
     {
-        for (int i=0; i<nD; i++)
+        for (int i=0; i<iWrap; i++)
+            D[i]->testMouse(posMouse);
+        for (int i=iWrap; i<iWrap+nWrap; i++)
+            if (D[i]->testMouse(posMouse)) break;
+        for (int i=iWrap+nWrap; i<nD; i++)
             D[i]->testMouse(posMouse);
     }
     else
