@@ -526,7 +526,10 @@ void mapi::resetTextureSprite()
 
 int mapi::addTexture(string t)
 {
-    int fooInt = -1;
+    int fooInt = t.find("Tileset");
+    if (fooInt != -1) t.erase(0,fooInt+8);
+    
+    fooInt = -1;
     for (int i=0; i<nTotTexture; i++)
         if (t == fileTextureVec[i] && fooInt == -1)
             fooInt = i;
@@ -534,7 +537,7 @@ int mapi::addTexture(string t)
     if (fooInt == -1)
     {
         textureVec.push_back(sf::Texture());
-        textureVec[nTotTexture].loadFromFile(t);
+        textureVec[nTotTexture].loadFromFile(stringDirPNG+t);
         fileTextureVec.push_back(t);
         nTotTexture += 1;
         return (nTotTexture-1);
@@ -654,7 +657,7 @@ int mapi::loadMap(string file)
             }
             if (nTotTexture > 0)
             {
-                initPNG(fileTextureVec[0],'L');
+                initPNG(stringDirPNG+fileTextureVec[0],'L');
                 addTexture(fileTextureVec[0]);
             }
             else
@@ -794,13 +797,13 @@ int mapi::loadMap()
             }
             if (nTotTexture > 0)
             {
-                initPNG(fileTextureVec[0],'L');
+                initPNG(stringDirPNG+fileTextureVec[0],'L');
                 addTexture(fileTextureVec[0]);
             }
             else
             {   
                 initPNG("Tileset/base.png",'L');
-                addTexture("Tileset/base.png");
+                addTexture("base.png");
             }
             sf::Vector2i fooSizeIm = imL->getSize();
             viewMap.reset(sf::FloatRect(-(lx-lxMap*xSprites+fooSizeIm.x)/2,-(ly-lyMap*ySprites)/2,lx,ly));
@@ -892,7 +895,7 @@ void mapi::loadEmpty(int lxi, int lyi)
 
     nExceptions = 0;
     initPNG("Tileset/base.png",'L');
-    addTexture("Tileset/base.png");
+    addTexture("base.png");
     sf::Vector2i fooSizeIm = imL->getSize();
     viewMap.reset(sf::FloatRect(-(lx-lxMap*xSprites+fooSizeIm.x)/2,-(ly-lyMap*ySprites)/2,lx,ly));
     nEvents = 0;

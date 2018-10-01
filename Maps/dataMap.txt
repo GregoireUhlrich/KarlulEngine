@@ -1,2 +1,2 @@
-maptmp.txt
+map2.txt
 Tileset/

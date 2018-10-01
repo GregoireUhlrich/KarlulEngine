@@ -499,7 +499,7 @@ void newMapWindow(sf::RenderWindow* w, mapi* M)
         }
         foo1 = stringToUnsignedInt(width.getString());
         foo2 = stringToUnsignedInt(height.getString());
-        if (foo1 > 0 and foo1 < 501 and foo2 > 0 and foo2 < 501)
+        if (foo1 > 0 and foo1 < 501 and foo2 > 0 and foo2 < 501 and name.getString().length() > 0)
         {
             if (!mapAlreadyExists) SQ.enable();
             enableValidation = 1;
