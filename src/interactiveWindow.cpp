@@ -456,8 +456,18 @@ void interactiveWindow::update()
         D[i]->update();
     isWrapped = !hasFocus();
     
-    if (M->getFile() != nameMap.getString().toAnsiString())
+    if (M->getFile() != nameMap.getString().toAnsiString() and M->getFile()+" (unsaved)" != nameMap.getString().toAnsiString())
     {
+        nameMap.setString("Map: "+sf::String(M->getFile()));
+    }
+    if (M->getSaveState() == edited)
+    {
+        nameMap.setColor(sf::Color(215,90,74));
+        nameMap.setString(nameMap.getString() + sf::String(" (unsaved)"));
+    }
+    else
+    {
+        nameMap.setColor(sf::Color(84,106,139));
         nameMap.setString("Map: "+sf::String(M->getFile()));
     }
     string fooString = M->getImageFile();
