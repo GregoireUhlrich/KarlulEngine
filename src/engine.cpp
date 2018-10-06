@@ -16,8 +16,8 @@ using namespace std;
 
 int main()
 {
-    int xWindow = 1600;
-    int yWindow = 1600*9/16;
+    int xWindow = min(1600,(int)round(8/10.*sf::VideoMode::getDesktopMode().width));
+    int yWindow = xWindow*9/16;
     int yMap = yWindow-100;
     sf::RenderWindow window(sf::VideoMode(xWindow,yWindow), "Plagiat-mon project");
     
@@ -64,7 +64,7 @@ int main()
             if (event.type == sf::Event::Closed)
             {    
                 SaveStateMap s = M->getSaveState();
-                if (s == edited || s == loaded)
+                if (s == edited)
                 {
                     window.setActive(0);
                     int foo = quitWindow(&window);
