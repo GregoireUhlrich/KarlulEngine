@@ -42,6 +42,32 @@ character::character(string n, string f, double xi, double yi)
     sprite.setPosition(sf::Vector2f(x+dx,y+dy));
 }
 
+character::character(string f, int xi, int yi, int dir)
+{
+    file = f; // file of the texture
+    name = ""; // name of the carachter
+    xSprites = ySprites = 32;
+    typeSprite = 0;
+    x = xi;
+    y = yi;
+    direction = dir; // int between 0 and 3, direction in which the sprite looks
+    onGrid = 1; // bool: is the character on a square or not ?
+    
+    ///* Reading of the texture, loading the init sprite at the init pos *///
+    if (!texture.loadFromFile(path_sprites+file))
+    {
+        cout<<"File not found!"<<endl;
+    }
+    sf::Vector2u v = texture.getSize();
+    sx = v.x/4;
+    sy = v.y/4;
+    dx = (xSprites - sx)/2;
+    dy = ySprites - sy;
+    sprite.setTexture(texture);
+    sprite.setTextureRect(sf::IntRect(sx*ceil(typeSprite),sy*direction,sx,sy));
+    sprite.setPosition(sf::Vector2f(x+dx,y+dy));
+}
+
 character::character(const character& c)
 {
     file = c.file;
@@ -267,4 +293,82 @@ character& character::operator=(const character& c) // copy assignment
     sprite.setTextureRect(sf::IntRect(sx*ceil(typeSprite),sy*direction,sx,sy));
     sprite.setPosition(sf::Vector2f(x+dx,y+dy));
     return *this;
+}
+
+ListCharacter::ListCharacter()
+{
+    nCharacter = 0;
+    list = vector<character*>(0);
+}
+
+ListCharacter::ListCharacter(sf::RenderWindow* w)
+{
+    window = w;
+    nCharacter = 0;
+    list = vector<character*>(0);
+}
+
+ListCharacter::~ListCharacter()
+{
+    for (int i=0; i<nCharacter; i++)
+        delete list[i];
+    nCharacter = 0;
+    list.clear();
+}
+
+void ListCharacter::setWindow(sf::RenderWindow* w)
+{   
+    window = w;
+}
+
+void ListCharacter::addCharacter(character* c)
+{
+    list.push_back(c);
+    nCharacter += 1;
+}
+
+void ListCharacter::deleteCharacter(character* c)
+{
+    bool characterErased = 0;
+    for (int i=0; i<nCharacter; i++)
+    {
+        if (c == list[i])
+        {   
+            characterErased = 1;
+            list.erase(list.begin()+i);
+            nCharacter -= 1;
+            break;
+        }
+    }
+    if (!characterErased) cout<<"Unable to erase character, was not in the list!\n";
+}
+
+void ListCharacter::draw()
+{
+    vector<float> yCharacter(nCharacter);
+    vector<int> posToDraw(nCharacter);
+    for (int i=0; i<nCharacter; i++)
+    {
+        yCharacter[i] = list[i]->getY();
+        posToDraw[i] = 0;
+    }
+    float max;
+    int iMax;
+    for (int i=0; i<nCharacter; i++)
+    {   
+        max = 0;
+        iMax = 0;
+        for (int j=0; j<nCharacter; j++)
+        {
+            if (list[j]->getY() > max)
+            {
+                max = list[j]->getY();
+                iMax = j;
+            }
+        }
+        posToDraw[i] = iMax;
+        yCharacter[iMax] = -1;
+    }
+    for (int i=0; i<nCharacter; i++)
+        window->draw(list[posToDraw[i]]->getSprite());
 }

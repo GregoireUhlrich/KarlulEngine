@@ -3,6 +3,7 @@
 
 #include <string>
 #include <SFML/Graphics.hpp>
+#include <vector>
 using namespace std;
 
 
@@ -27,6 +28,7 @@ class character{
     
     character();
     character(string name, string file, double x, double y);
+    character(string file, int xi, int yi, int dir);
     character(const character& c);
     ~character(){};
     
@@ -86,6 +88,28 @@ class hero: public character{
     void update(double elpasedTime);
     void updateSprite(double elapsedTime);
     
+};
+
+class ListCharacter
+{
+    private:
+    
+    int nCharacter;
+    vector<character*> list;
+    
+    sf::RenderWindow* window;
+    
+    public:
+    
+    ListCharacter();
+    ListCharacter(sf::RenderWindow* w);
+    ~ListCharacter();
+    
+    void setWindow(sf::RenderWindow* w);
+    void addCharacter(character* c);
+    void deleteCharacter(character* c);
+    
+    void draw();
 };
 
 #endif

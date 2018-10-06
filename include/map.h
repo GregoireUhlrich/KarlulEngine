@@ -46,6 +46,7 @@ class mapi
     hero* Heros; // Personnage du mode test, sprite ./Graphics/AC001.png
     int nPNJ;
     vector<character*> PNJ;
+    ListCharacter listCharacter;
     
     StateMap state; // Etat de l'éditeur.
     
@@ -186,6 +187,9 @@ class mapi
     void mouseReleased();
     void mouseWheel(int d);
     void windowResized(sf::Vector2u newSizeWindow);
+    
+    void addCharacter(character* c);
+    void deleteCharacter(character* c);
     
     void setJoueur(bool s);
     void setHerosPos(sf::Vector2i p);

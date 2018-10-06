@@ -5,6 +5,7 @@ double epsilon = 0.1;
 bool cross(hero* h, int x, int y)
 {
     sf::Vector2u sizeSprite = h->getSizeSprite();
+    return (h->isOnGrid() and round(h->getX()/sizeSprite.x) == x and round(h->getY()/sizeSprite.y) == y);
     return (abs(h->getX()/sizeSprite.x-x) < epsilon && abs(h->getY()/sizeSprite.y-y) < epsilon);
 }
 
@@ -23,6 +24,7 @@ bool boundaryMap(hero* h, int x, int y, int dir)
 bool gate(hero* h, int x, int y, int dir)
 {
     sf::Vector2u sizeSprite = h->getSizeSprite();
+    return (h->isOnGrid() and round(h->getX()/sizeSprite.x) == x and round(h->getY()/sizeSprite.y) == y and h->getDir() == dir);
     return (abs(h->getX()/sizeSprite.x-x) < epsilon && abs(h->getY()/sizeSprite.y-y) < epsilon && h->getDir() == dir);
 }
 

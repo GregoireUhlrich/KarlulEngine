@@ -15,6 +15,7 @@ mapi::mapi(sf::RenderWindow* w, hero* H, string f, int height)
     Heros = H;
     nPNJ = 0;
     PNJ = vector<character*>(0);
+    listCharacter.setWindow(window);
     sizeWindow = window->getSize();
     stringFile = f;
     state = moving;
@@ -1699,6 +1700,16 @@ void mapi::windowResized(sf::Vector2u newSizeWindow)
     sizeWindow = newSizeWindow;
 }
 
+void mapi::addCharacter(character* c)
+{
+    listCharacter.addCharacter(c);
+}
+
+void mapi::deleteCharacter(character* c)
+{
+    listCharacter.deleteCharacter(c);
+}
+
 void mapi::keyPressed(sf::Keyboard::Key k)
 {
     if (state == selecting && select2)
@@ -2327,6 +2338,7 @@ void mapi::draw()
         }
         for (int i=0; i<nPNJ; i++)
             mapWindow.draw(PNJ[i]->getSprite());
+        listCharacter.draw();
         if (state == heros)
         {
             mapWindow.draw(Heros->getSprite()); 

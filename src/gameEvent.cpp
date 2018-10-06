@@ -2,7 +2,7 @@
 #include "../include/gameEvent.h"
 using namespace std;
 
-std::string fontEvents = "Fonts/ubuntu-font-family/Ubuntu-L.ttf";
+std::string fontEvent = "Fonts/ubuntu-font-family/Ubuntu-L.ttf";
 
 gameEvent::gameEvent()
 {
@@ -98,7 +98,7 @@ textInteraction::textInteraction(int xi, int yi, int di, string f, mapi* M, sf::
     }
     text.erase(text.begin()+text.size()-1);
     
-    font.loadFromFile(fontEvents);
+    font.loadFromFile(fontEvent);
 }
 
 textInteraction::~textInteraction(){}
