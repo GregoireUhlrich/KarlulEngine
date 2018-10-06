@@ -66,6 +66,7 @@ class mapi
     vector<sf::RectangleShape> gridY;
     
     string stringFile; // Nom du fichier en cours pour la carte
+    string stringFileToLoad; // Nom du fichier à charger.
     string stringDirPNG;
     
     vector<vector<vector<sf::Sprite > > > spriteVec;// Contient tous les sprites par prio puis numéro de texture

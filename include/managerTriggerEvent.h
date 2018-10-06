@@ -27,11 +27,14 @@ class Manager{
     
     void addCharacter(character* c);
     void deleteCharacter(character* c);
+    bool testPNJ(int ix, int iy, int diri);
     
     void save(std::ofstream& f);
     void createEvents(std::ifstream& f);
     void test(double eT);
-    void draw();
+    
+    void update(double eT);
+    void draw(int p);
 };
 
 #endif

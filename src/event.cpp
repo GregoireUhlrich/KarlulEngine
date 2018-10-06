@@ -63,7 +63,6 @@ void ChangeMap::activate()
     h->releaseKey();
     
     M->setFile(nameMap);
-    M->loadMap();
     
     M->setState(heros);
 }
@@ -109,7 +108,7 @@ void TextInteraction::activate()
     }
 }
 
-void TextInteraction::update()
+void TextInteraction::update(float eT)
 {
     if (activated && text.size() > iText && h->pullAction())
     {
@@ -152,9 +151,9 @@ void TextInteraction::update()
     }
 }
 
-void TextInteraction::draw(float eT)
+void TextInteraction::draw(int p)
 {
-    if (activated)
+    if (p == 4 and activated)
     {
         int lx, ly;
         sf::Vector2u fooSize = M->getSizeTexture();
@@ -213,5 +212,6 @@ void StaticPNJ::activate()
         activated = 1;
         h->disableMove();
         PNJ->setDir(3-h->getDir());
+        PNJ->update(0);
     }
 }

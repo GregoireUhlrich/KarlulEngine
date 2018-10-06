@@ -30,8 +30,8 @@ class Event{
     
     virtual void saveEvent(std::ofstream& f){};
     virtual void activate(){};
-    virtual void update(){};
-    virtual void draw(float eT){};
+    virtual void update(float eT){};
+    virtual void draw(int p){};
 
 };
 
@@ -50,6 +50,8 @@ class ChangeMap: public Event
     
     void saveEvent(std::ofstream& f);
     void activate();
+    void update(float eT){};
+    void draw(int p){};
 };
 
 class TextInteraction: public Event
@@ -75,8 +77,8 @@ class TextInteraction: public Event
     
     virtual void saveEvent(std::ofstream& f);
     virtual void activate();
-    void update();
-    void draw(float eT);
+    void update(float eT);
+    void draw(int p);
 };
 
 class StaticPNJ: public TextInteraction

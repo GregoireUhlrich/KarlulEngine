@@ -72,7 +72,7 @@ interactiveWindow::interactiveWindow(sf::RenderWindow* wi, mapi* Mi, int lyi)
     M->setState(moving);
     D[1]->setPressed(1);
     D[4]->setPressed(1);
-    D[9]->setPressed(1);
+    D[9]->setPressed(0);
     
     backGShape.setPosition(0,0);
     backGShape.setSize(sf::Vector2f(lx,ly));
@@ -307,10 +307,6 @@ void interactiveWindow::windowEvent(sf::Event event)
             M->setJoueur(testJoueur);
             if (testJoueur)
             {
-                for (int i=0; i<nModeMap; i++)
-                {
-                    D[i]->setPressed(0);
-                }
                 son1.play();
             }
             else son1.stop();
@@ -450,10 +446,11 @@ void interactiveWindow::windowResized()
 
 void interactiveWindow::update()
 {
-    if (D[iButtonGame]->getSignal())
+    if (!testJoueur && D[iButtonGame]->getSignal())
     {
         testJoueur = 1;
         M->setJoueur(1);
+        son1.play();
     }
     for (int i=0; i<nD; i++)
         D[i]->update();

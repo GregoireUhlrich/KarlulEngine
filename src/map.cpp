@@ -16,6 +16,7 @@ mapi::mapi(sf::RenderWindow* w, hero* H, string f, int height)
     Heros = H;
     sizeWindow = window->getSize();
     stringFile = f;
+    stringFileToLoad = f;
     state = moving;
     saveState = initialized;
     
@@ -77,7 +78,7 @@ mapi::mapi(sf::RenderWindow* w, hero* H, string f, int height)
     ly0 = ly;
     
     ctrlZObject = new mapCtrlZ(this);
-    manager = new Manager(this, Heros, window);
+    manager = new Manager(this,Heros,window);
 }
 
 mapi::~mapi()
@@ -197,7 +198,7 @@ sf::RenderTexture* mapi::getMap()
 
 void mapi::setFile(string f)
 {
-    if (stringFile != f) stringFile = f;
+    stringFileToLoad = f;
 }
 
 void mapi::setDirPNG(string f)
@@ -571,7 +572,8 @@ int mapi::loadMap(string file)
     {
         if (saveState != initialized) reinitMap();
         stringFile = file;
-        saveState = saved;
+        stringFileToLoad = file;
+        saveState = loaded;
         ifstream file((dirMaps+stringFile).c_str(), ios::in);
         if (file)
         {
@@ -682,7 +684,7 @@ int mapi::loadMap()
     if (fooLoading)
     {
         if (saveState != initialized) reinitMap();
-        saveState = saved;
+        saveState = loaded;
         ifstream file((dirMaps+stringFile).c_str(), ios::in);
         if (file)
         {
@@ -789,6 +791,7 @@ int mapi::loadMap()
 
 void mapi::loadEmpty(int lxi, int lyi)
 {
+    saveState = loaded;
     lxMap = lxi;
     lyMap = lyi;
     if (lxMap < 1) lxMap = 1;
@@ -845,7 +848,6 @@ void mapi::saveMap()
 {
     ofstream file((dirMaps+stringFile).c_str(), ios::out);
     int confirmation = 0;
-    if (saveState == loaded) confirmation = saveWindow(window);
     if (confirmation == 0)
     {    
         saveState = saved;
@@ -906,14 +908,10 @@ void mapi::reinitMap()
     click = 0;
     select = select2 = 0;
     delta = 0;
-    allPrio = 0;
-    showPass = 1;
-    currentPrio = 0;
     posMouse = sf::Vector2i(0,0);
     oldPosMouse = sf::Vector2i(0,0);
     posClick = sf::Vector2i(0,0);
     ghostSprite = 0;
-    grid = 0;
     lxMap = lyMap = 0;
     
     nxCtrlC = nyCtrlC = 0;
@@ -927,7 +925,6 @@ void mapi::reinitMap()
     imL = 0;
     imR = 0;
     
-    state = moving;
     saveState = initialized;
     freeSpritesCtrlC();
     nTotTexture = 0;
@@ -958,6 +955,7 @@ void mapi::reinitMap()
     
     delete ctrlZObject;
     ctrlZObject = new mapCtrlZ(this);
+    
     delete manager;
     manager = new Manager(this, Heros, window);
 }
@@ -1010,7 +1008,18 @@ void mapi::initMap()
     boundary.setPosition(0,0);
     boundary.setSize(sf::Vector2f(lxMap*xSprites, lyMap*ySprites));
     
-    //viewMap.reset(sf::FloatRect(0,0,lx,ly));
+    if (state == heros)
+    {
+        float xView = Heros->getX()-lx/2.;
+        float yView = Heros->getY()-ly/2.;
+        if (xView < 0) xView = 0;
+        if (xView > lxMap*xSprites-lx) xView = lxMap*xSprites-lx;    
+        if (yView < 0) yView = 0;
+        if (yView > lyMap*ySprites-ly) yView = lyMap*ySprites-ly;        
+        if (lx > lxMap*xSprites) xView = -(lx-lxMap*xSprites)/2;
+        if (ly > lyMap*ySprites) yView = -(ly-lyMap*ySprites)/2;
+        viewMap.reset(sf::FloatRect(xView,yView,lx,ly));
+    }
     mapWindow.setView(viewMap);
     
     double sizeGrid = 2;
@@ -1039,7 +1048,7 @@ void mapi::addSprite(sprite s, int prio, string t)
         cout<<"Invalid priority !\n";
     else
     {
-        if (saveState != loaded) saveState = edited;
+        saveState = edited;
         bool toErase = 0;
         for (int iPrio=prio; iPrio<4; iPrio++)
         {
@@ -1100,7 +1109,7 @@ void mapi::addSprite2(sprite s, int prio, string t, int nxS, int nyS, int lxS, i
         cout<<"Outside the map!\n";
     else
     {
-        if (saveState != loaded) saveState = edited;
+        saveState = edited;
         sprite fooSprite;
         sf::IntRect fooRect;
         string fooTexture;
@@ -1199,7 +1208,7 @@ void mapi::removeSprite(int prio, int ix, int iy)
 {
     if (ix>=0 && ix<lxMap && iy>=0 && iy<lyMap)
     {
-        if (saveState != loaded) saveState = edited;
+        saveState = edited;
         int iT = indexSpriteVec[prio][ix][iy][0];
         int iS = indexSpriteVec[prio][ix][iy][1];
         if (iT!= -1 && iS != -1)
@@ -1352,7 +1361,7 @@ void mapi::ctrlC()
 
 void mapi::ctrlV()
 {
-    if (saveState != loaded) saveState = edited;
+    saveState = edited;
     sprite s;
     sf::Vector2f fooPos = selectRect.getPosition();
     sf::Vector2f fooSize = selectRect.getSize();
@@ -1475,7 +1484,7 @@ void mapi::suppr()
 {
     if (state == selecting)
     {
-        if (saveState != loaded) saveState = edited;
+        saveState = edited;
         sf::Vector2f foo = selectRect.getPosition();
         sf::Vector2f foo2 = selectRect.getSize();
     
@@ -1657,7 +1666,7 @@ void mapi::keyPressed(sf::Keyboard::Key k)
         
         if (dir != -1)
         {
-            if (saveState != loaded) saveState = edited;
+            saveState = edited;
             ctrlZObject->saveChangingPass(currentPrio, dir, xmin, ymin, xmax-xmin, ymax-ymin);
             for (int ix=xmin; ix<xmax; ix++)
             {
@@ -1774,7 +1783,7 @@ bool mapi::testDir(int dir)
         break;    
     }
     
-    return foo;
+    return (foo and manager->testPNJ(ix,iy,dir));
 }
 bool mapi::downOK()
 {
@@ -1817,7 +1826,7 @@ bool mapi::downOK()
         returnBool = returnBool && (passOrNotVec[prio][ix][iy]%(int)pow(2,dirHeros+1)-passOrNotVec[prio][ix][iy+1]%(int)pow(2,dirHeros) == 0);
     }
     
-    return returnBool;
+    return (returnBool and manager->testPNJ(ix,iy,0));
 }
 
 bool mapi::upOK()
@@ -1861,7 +1870,7 @@ bool mapi::upOK()
         returnBool = returnBool && (passOrNotVec[prio][ix][iy]%(int)pow(2,dirHeros+1)-passOrNotVec[prio][ix][iy+1]%(int)pow(2,dirHeros) == 0);
     }
     
-    return returnBool;
+    return (returnBool and manager->testPNJ(ix,iy,3));
 }
 
 bool mapi::leftOK()
@@ -1905,7 +1914,7 @@ bool mapi::leftOK()
         returnBool = returnBool && (passOrNotVec[prio][ix][iy]%(int)pow(2,dirHeros+1)-passOrNotVec[prio][ix][iy+1]%(int)pow(2,dirHeros) == 0);
     }
 
-    return returnBool;
+    return (returnBool and manager->testPNJ(ix,iy,1));
 }
 
 bool mapi::rightOK()
@@ -1949,7 +1958,7 @@ bool mapi::rightOK()
         returnBool = returnBool && (passOrNotVec[prio][ix][iy]%(int)pow(2,dirHeros+1)-passOrNotVec[prio][ix][iy+1]%(int)pow(2,dirHeros) == 0);
     }
     
-    return returnBool;
+    return (returnBool and manager->testPNJ(ix,iy,2));
 }
 
 
@@ -2212,9 +2221,13 @@ void mapi::update(double eT)
     }
     if (state == heros)
     {
-        manager->test(eT);
+        manager->update(eT);
     }
-    Heros->setAction(0);
+    if (stringFile != stringFileToLoad)
+    {
+        stringFile = stringFileToLoad;
+        loadMap();
+    }
 }
 
 void mapi::draw()
@@ -2226,6 +2239,7 @@ void mapi::draw()
         sprite s;
         for (int i=0; i<2; i++)
         {
+            manager->draw(i);
             for (int j=0; j<nTextureVec[i]; j++)
             {
                 //sf::Texture foo2;
@@ -2240,24 +2254,11 @@ void mapi::draw()
                     mapWindow.draw(spriteVec[i][j][k]);
                 }
             }
-        }
-        manager->draw();
-        
-        if (state == heros)
-        {
-            mapWindow.draw(Heros->getSprite()); 
-            float xView = Heros->getX()-lx/2.;
-            float yView = Heros->getY()-ly/2.;
-            if (xView < 0) xView = 0;
-            if (xView > lxMap*xSprites-lx) xView = lxMap*xSprites-lx;    
-            if (yView < 0) yView = 0;
-            if (yView > lyMap*ySprites-ly) yView = lyMap*ySprites-ly;        
-            if (lx > lxMap*xSprites) xView = -(lx-lxMap*xSprites)/2;
-            if (ly > lyMap*ySprites) yView = -(ly-lyMap*ySprites)/2;
-            viewMap.reset(sf::FloatRect(xView,yView,lx,ly));
-        }
+        }        
+        if (state == heros) mapWindow.draw(Heros->getSprite()); 
         for (int i=2; i<nPrio; i++)
         {
+            manager->draw(i);
             for (int j=0; j<nTextureVec[i]; j++)
             {
                 //sf::Texture foo2;
@@ -2444,6 +2445,18 @@ void mapi::draw()
         fooCircle.setRadius(xSprites/2);
         mapWindow.draw(fooCircle);
     }
+    else
+    {
+        float xView = Heros->getX()-lx/2.;
+        float yView = Heros->getY()-ly/2.;
+        if (xView < 0) xView = 0;
+        if (xView > lxMap*xSprites-lx) xView = lxMap*xSprites-lx;    
+        if (yView < 0) yView = 0;
+        if (yView > lyMap*ySprites-ly) yView = lyMap*ySprites-ly;        
+        if (lx > lxMap*xSprites) xView = -(lx-lxMap*xSprites)/2;
+        if (ly > lyMap*ySprites) yView = -(ly-lyMap*ySprites)/2;
+        viewMap.reset(sf::FloatRect(xView,yView,lx,ly));
+    }
     /*
     cout<<"map displayed : "<<stringFile<<endl;
     cout<<"x = "<<x<<", y = "<<y<<endl;
@@ -2462,6 +2475,7 @@ void mapi::draw()
     toDraw = fooSprite;
     toDraw.setPosition(x,y);
     window->draw(toDraw);
+    manager->draw(4);
     if (state != heros)
     {
         if (isImLeft)

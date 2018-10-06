@@ -96,6 +96,7 @@ class ListCharacter
     
     int nCharacter;
     vector<character*> list;
+    int xSprites, ySprites;
     
     sf::RenderTexture* window;
     
@@ -105,6 +106,7 @@ class ListCharacter
     ListCharacter(sf::RenderTexture* w);
     ~ListCharacter();
     
+    bool testPNJ(int ix, int iy, int dir);
     void setWindow(sf::RenderTexture* w);
     void addCharacter(character* c);
     void deleteCharacter(character* c);

@@ -145,7 +145,7 @@ int hero::getWantedMove() const{ return wantedMove;}
 
 void hero::setWantedMove(int wM){  if (timeKeyPressed >= thresholdMove) wantedMove = wM;}
 void hero::setAction(bool a){ action = a;}
-bool hero::pullAction() { bool foo = action; action = 0; return foo;}
+bool hero::pullAction() { return action; bool foo = action; action = 0; return foo;}
 void hero::releaseKey(){ keyPressed = -1;}
     
 ///*** set the key interpreted by the game ***///
@@ -316,6 +316,37 @@ ListCharacter::~ListCharacter()
     list.clear();
 }
 
+bool ListCharacter::testPNJ(int ix, int iy, int dir)
+{
+    switch(dir)
+    {
+        case 0:
+        for (int i=0; i<nCharacter; i++)
+            if (list[i]->getX()/xSprites == ix && list[i]->getY()/ySprites == iy+1)
+                return 0;
+        break;
+        
+        case 1:
+        for (int i=0; i<nCharacter; i++)
+            if (list[i]->getX()/xSprites == ix-1 && list[i]->getY()/ySprites == iy)
+                return 0;
+        break;
+        
+        case 2:
+        for (int i=0; i<nCharacter; i++)
+            if (list[i]->getX()/xSprites == ix+1 && list[i]->getY()/ySprites == iy)
+                return 0;
+        break;
+        
+        case 3:
+        for (int i=0; i<nCharacter; i++)
+            if (list[i]->getX()/xSprites == ix && list[i]->getY()/ySprites == iy-1)
+                return 0;
+        break;    
+    }
+    return 1;
+}
+
 void ListCharacter::setWindow(sf::RenderTexture* w)
 {   
     window = w;
@@ -325,6 +356,12 @@ void ListCharacter::addCharacter(character* c)
 {
     list.push_back(c);
     nCharacter += 1;
+    if (nCharacter == 1)
+    {
+        sf::Vector2u foo = c->getSizeSprite();
+        xSprites = foo.x;
+        ySprites = foo.y;
+    }
 }
 
 void ListCharacter::deleteCharacter(character* c)

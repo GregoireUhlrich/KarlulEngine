@@ -45,6 +45,11 @@ void Manager::deleteCharacter(character* c)
     listCharacter.deleteCharacter(c);
 }
 
+bool Manager::testPNJ(int ix, int iy, int diri)
+{
+    return listCharacter.testPNJ(ix,iy,diri);
+}
+
 void Manager::save(ofstream& f)
 {
     f<<nEvents<<" #nEvents\n\n";
@@ -114,7 +119,18 @@ void Manager::test(double eT)
     }
 }
 
-void Manager::draw()
+void Manager::update(double eT)
 {
-    listCharacter.draw();
+    test(eT);
+    for (int i=0; i<nEvents; i++)
+        events[i]->update(eT);
+    h->setAction(0);
 }
+
+void Manager::draw(int p)
+{
+    if (p == 2) listCharacter.draw();
+    for (int i=0; i<nEvents; i++)
+        events[i]->draw(p);
+}
+
