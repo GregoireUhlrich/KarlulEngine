@@ -3,8 +3,9 @@
 
 #include <SFML/Graphics.hpp>
 #include <vector>
-#include "map.h"
 using namespace std;
+
+class mapi;
 
 int quitWindow(sf::RenderWindow* w);
 int saveWindow(sf::RenderWindow* w);

@@ -2,11 +2,11 @@
 #define EVENT_H_INCLUDED
 
 #include "map.h"
-#include "character.h"
 #include <SFML/Graphics.hpp>
 #include <string>
 #include <vector>
 #include <fstream>
+#include <iostream>
 
 class Event{
 
@@ -71,10 +71,10 @@ class TextInteraction: public Event
     
     TextInteraction(mapi* Mi, hero* h, sf::RenderWindow* w, std::ifstream& f);
     TextInteraction(const TextInteraction& t);
-    ~TextInteraction(){};
+    virtual ~TextInteraction(){};
     
-    void saveEvent(std::ofstream& f);
-    void activate();
+    virtual void saveEvent(std::ofstream& f);
+    virtual void activate();
     void update();
     void draw(float eT);
 };
@@ -83,6 +83,7 @@ class StaticPNJ: public TextInteraction
 {
     private:
     
+    int x, y, dir;
     string fileCharacter;
     character* PNJ;
     

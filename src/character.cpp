@@ -48,8 +48,8 @@ character::character(string f, int xi, int yi, int dir)
     name = ""; // name of the carachter
     xSprites = ySprites = 32;
     typeSprite = 0;
-    x = xi;
-    y = yi;
+    x = xi*xSprites;
+    y = yi*ySprites;
     direction = dir; // int between 0 and 3, direction in which the sprite looks
     onGrid = 1; // bool: is the character on a square or not ?
     
@@ -92,7 +92,7 @@ character::character(const character& c)
 }
 
 ///*** get functions for private attributes ***///
-bool character::isOnGrid() const{ return onGrid;}
+bool character::isOnGrid() { return onGrid;}
 string character::getName() const{ return name;}
 string character::getFile() const{ return file;}
 double character::getX() const{ return x;}
@@ -301,7 +301,7 @@ ListCharacter::ListCharacter()
     list = vector<character*>(0);
 }
 
-ListCharacter::ListCharacter(sf::RenderWindow* w)
+ListCharacter::ListCharacter(sf::RenderTexture* w)
 {
     window = w;
     nCharacter = 0;
@@ -316,7 +316,7 @@ ListCharacter::~ListCharacter()
     list.clear();
 }
 
-void ListCharacter::setWindow(sf::RenderWindow* w)
+void ListCharacter::setWindow(sf::RenderTexture* w)
 {   
     window = w;
 }
@@ -360,7 +360,7 @@ void ListCharacter::draw()
         iMax = 0;
         for (int j=0; j<nCharacter; j++)
         {
-            if (list[j]->getY() > max)
+            if (yCharacter[j] > max)
             {
                 max = list[j]->getY();
                 iMax = j;
@@ -370,5 +370,7 @@ void ListCharacter::draw()
         yCharacter[iMax] = -1;
     }
     for (int i=0; i<nCharacter; i++)
+    {
         window->draw(list[posToDraw[i]]->getSprite());
+    }
 }

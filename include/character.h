@@ -39,7 +39,7 @@ class character{
     int getDir() const;
     double getTypeSprite() const;
     sf::Sprite getSprite() const;
-    bool isOnGrid() const;
+    bool isOnGrid();
     sf::Vector2u getSizeSprite() const;
     
     void setName(string n);
@@ -97,15 +97,15 @@ class ListCharacter
     int nCharacter;
     vector<character*> list;
     
-    sf::RenderWindow* window;
+    sf::RenderTexture* window;
     
     public:
     
     ListCharacter();
-    ListCharacter(sf::RenderWindow* w);
+    ListCharacter(sf::RenderTexture* w);
     ~ListCharacter();
     
-    void setWindow(sf::RenderWindow* w);
+    void setWindow(sf::RenderTexture* w);
     void addCharacter(character* c);
     void deleteCharacter(character* c);
     

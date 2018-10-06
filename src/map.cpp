@@ -1,4 +1,5 @@
 #include "../include/map.h"
+#include "../include/managerTriggerEvent.h"
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -13,9 +14,6 @@ mapi::mapi(sf::RenderWindow* w, hero* H, string f, int height)
     stringDirPNG = "Tileset/";
     window = w;
     Heros = H;
-    nPNJ = 0;
-    PNJ = vector<character*>(0);
-    listCharacter.setWindow(window);
     sizeWindow = window->getSize();
     stringFile = f;
     state = moving;
@@ -79,7 +77,7 @@ mapi::mapi(sf::RenderWindow* w, hero* H, string f, int height)
     ly0 = ly;
     
     ctrlZObject = new mapCtrlZ(this);
-    nEvents = 0;
+    manager = new Manager(this, Heros, window);
 }
 
 mapi::~mapi()
@@ -92,13 +90,7 @@ mapi::~mapi()
     delete ctrlZObject;
     freeSpritesCtrlC();
     
-    for (int i=0; i<nEvents; i++)
-    {
-        if (events[i] != NULL) delete events[i];
-    }
-    for (int i=0; i<nPNJ; i++)
-        delete PNJ[i];
-    PNJ.clear();
+    delete manager;
 }
 
 void mapi::initPNG(string f, char chirality)
@@ -196,6 +188,11 @@ string* mapi::getFileTextures() const
     for (int i=0; i<nTotTexture; i++)
         toReturn[i] = fileTextureVec[i];
     return toReturn;
+}
+
+sf::RenderTexture* mapi::getMap()
+{
+    return &mapWindow;
 }
 
 void mapi::setFile(string f)
@@ -668,36 +665,7 @@ int mapi::loadMap(string file)
             }
             sf::Vector2i fooSizeIm = imL->getSize();
             viewMap.reset(sf::FloatRect(-(lx-lxMap*xSprites+fooSizeIm.x)/2,-(ly-lyMap*ySprites)/2,lx,ly));
-            file>>nEvents>>foo;
-            //cout<<nEvents<<endl;
-            if (nEvents > 0) events = vector<gameEvent*>(nEvents);
-            for (int i=0; i<nEvents; i++)
-            {
-                file>>foo;
-                if (foo == "changeMap:")
-                {
-                    int fooXNew, fooYNew, fooDirNew;
-                    file>>fooX>>fooY>>fooDir>>foo>>fooXNew>>fooYNew>>fooDirNew;
-                    events[i] = new changeMap(fooX, fooY, fooDir, this, window, "gate", foo, fooXNew, fooYNew, fooDirNew);
-                    //cout<<events[i]->x<<" "<<events[i]->y<<" "<<events[i]->dir<<" "<<events[i]->nameMap<<" "<<events[i]->xNew<<" "<<events[i]->yNew<<" "<<events[i]->dirNew<<endl;
-                }
-                else if (foo == "textInteraction:")
-                {
-                    file>>fooX>>fooY>>fooDir>>foo;
-                    events[i] = new textInteraction(fooX, fooY, fooDir, foo, this, window, "action");
-                }
-                else if (foo == "staticPNJ:")
-                {
-                    string foo2;
-                    file>>fooX>>fooY>>fooDir>>foo>>foo2;
-                    PNJ.push_back(new character("None", foo, fooX,fooY));
-                    nPNJ += 1;
-                    events[i] = new staticPNJ(fooX,fooY,fooDir,foo2,this,window,"interactionStaticPNJ", PNJ[nPNJ-1]);
-                    //cout<<events[i]->x<<" "<<events[i]->y<<" "<<events[i]->dir<<" "<<events[i]->stringFile<<endl;
-                }
-                else
-                    events[i] = NULL;
-            }
+            manager->createEvents(file);
             file.close();
             initMap();
             return 1;   
@@ -808,36 +776,7 @@ int mapi::loadMap()
             }
             sf::Vector2i fooSizeIm = imL->getSize();
             viewMap.reset(sf::FloatRect(-(lx-lxMap*xSprites+fooSizeIm.x)/2,-(ly-lyMap*ySprites)/2,lx,ly));
-            file>>nEvents>>foo;
-            //cout<<nEvents<<endl;
-            if (nEvents > 0) events = vector<gameEvent*>(nEvents);
-            for (int i=0; i<nEvents; i++)
-            {
-                file>>foo;
-                if (foo == "changeMap:")
-                {
-                    int fooXNew, fooYNew, fooDirNew;
-                    file>>fooX>>fooY>>fooDir>>foo>>fooXNew>>fooYNew>>fooDirNew;
-                    events[i] = new changeMap(fooX, fooY, fooDir, this, window, "gate", foo, fooXNew, fooYNew, fooDirNew);
-                    //cout<<events[i]->x<<" "<<events[i]->y<<" "<<events[i]->dir<<" "<<events[i]->nameMap<<" "<<events[i]->xNew<<" "<<events[i]->yNew<<" "<<events[i]->dirNew<<endl;
-                }
-                else if (foo == "textInteraction:")
-                {
-                    file>>fooX>>fooY>>fooDir>>foo;
-                    events[i] = new textInteraction(fooX, fooY, fooDir, foo, this, window, "action");
-                }
-                else if (foo == "staticPNJ:")
-                {
-                    string foo2;
-                    file>>fooX>>fooY>>fooDir>>foo>>foo2;
-                    PNJ.push_back(new character("None", foo, fooX,fooY));
-                    nPNJ += 1;
-                    events[i] = new staticPNJ(fooX,fooY,fooDir,foo2,this,window,"interactionStaticPNJ", PNJ[nPNJ-1]);
-                    //cout<<events[i]->x<<" "<<events[i]->y<<" "<<events[i]->dir<<" "<<events[i]->stringFile<<endl;
-                }
-                else
-                    events[i] = NULL;
-            }
+            manager->createEvents(file);
             file.close();
             initMap();
             return 1;   
@@ -899,7 +838,6 @@ void mapi::loadEmpty(int lxi, int lyi)
     addTexture("base.png");
     sf::Vector2i fooSizeIm = imL->getSize();
     viewMap.reset(sf::FloatRect(-(lx-lxMap*xSprites+fooSizeIm.x)/2,-(ly-lyMap*ySprites)/2,lx,ly));
-    nEvents = 0;
     initMap();
 }
 
@@ -951,17 +889,7 @@ void mapi::saveMap()
             if (i == nPrio-1)
                 file<<"\n\n";
         }
-        file<<nEvents<<" #nEvents\n\n";
-        for (int i=0; i<nEvents; i++)
-        {
-            if (events[i]->type == "changeMap") file<<"changeMap: " <<events[i]->x<<" "<<events[i]->y<<" "<<events[i]->dir<<" "<<events[i]->nameMap<<" "<<events[i]->xNew<<" "<<events[i]->yNew<<" "<<events[i]->dirNew<<"\n";
-            else if (events[i]->type == "textInteraction") file<<"textInteraction: "<<events[i]->x<<" "<<events[i]->y<<" "<<events[i]->dir<<" "<<events[i]->stringFile<<"\n";
-            else if (events[i]->type == "staticPNJ")
-            {
-                file<<"staticPNJ: "<<events[i]->x<<" "<<events[i]->y<<" "<<events[i]->dir<<" "<<events[i]->getStringPNJ()<<" "<<events[i]->stringFile<<"\n";
-            }
-            else file<<"None\n";
-        }
+        manager->save(file);
         file<<endl<<endl;
         file<<"endFile";
         file.close();
@@ -1027,13 +955,11 @@ void mapi::reinitMap()
     nExceptions = 0;
     gridX.clear();
     gridY.clear();
-    events.clear();
-    PNJ.clear();
-    nEvents = 0;
-    nPNJ = 0;
     
     delete ctrlZObject;
     ctrlZObject = new mapCtrlZ(this);
+    delete manager;
+    manager = new Manager(this, Heros, window);
 }
 
 sf::Vector2f mapi::convertPos(sf::Vector2i p)
@@ -1702,12 +1628,12 @@ void mapi::windowResized(sf::Vector2u newSizeWindow)
 
 void mapi::addCharacter(character* c)
 {
-    listCharacter.addCharacter(c);
+    manager->addCharacter(c);
 }
 
 void mapi::deleteCharacter(character* c)
 {
-    listCharacter.deleteCharacter(c);
+    manager->deleteCharacter(c);
 }
 
 void mapi::keyPressed(sf::Keyboard::Key k)
@@ -1818,9 +1744,6 @@ bool mapi::testDir(int dir)
             foo = foo && (passOrNotVec[prio][ix][iy]%2 == 0);
             foo = foo && (passOrNotVec[prio][ix][iy+1]-passOrNotVec[prio][ix][iy+1]%8 == 0);
         }
-        for (int i=0; i<nPNJ; i++)
-            if (PNJ[i]->getX()/xSprites == ix && PNJ[i]->getY()/ySprites == iy+1)
-                return 0;
         break;
         
         case 1:
@@ -1830,9 +1753,6 @@ bool mapi::testDir(int dir)
             foo = foo && (passOrNotVec[prio][ix][iy]%4-passOrNotVec[prio][ix][iy]%2 == 0);
             foo = foo && (passOrNotVec[prio][ix-1][iy]%8-passOrNotVec[prio][ix-1][iy]%4 == 0);
         }
-        for (int i=0; i<nPNJ; i++)
-            if (PNJ[i]->getX()/xSprites == ix-1 && PNJ[i]->getY()/ySprites == iy)
-                return 0;
         break;
         
         case 2:
@@ -1842,9 +1762,6 @@ bool mapi::testDir(int dir)
             foo = foo && (passOrNotVec[prio][ix][iy]%8-passOrNotVec[prio][ix][iy]%4 == 0);
             foo = foo && (passOrNotVec[prio][ix+1][iy]%4-passOrNotVec[prio][ix+1][iy]%2 == 0);
         }
-        for (int i=0; i<nPNJ; i++)
-            if (PNJ[i]->getX()/xSprites == ix+1 && PNJ[i]->getY()/ySprites == iy)
-                return 0;
         break;
         
         case 3:
@@ -1854,9 +1771,6 @@ bool mapi::testDir(int dir)
             foo = foo && (passOrNotVec[prio][ix][iy]-passOrNotVec[prio][ix][iy]%8 == 0);
             foo = foo && (passOrNotVec[prio][ix][iy-1]%2 == 0);
         }
-        for (int i=0; i<nPNJ; i++)
-            if (PNJ[i]->getX()/xSprites == ix && PNJ[i]->getY()/ySprites == iy-1)
-                return 0;
         break;    
     }
     
@@ -1902,9 +1816,6 @@ bool mapi::downOK()
         returnBool = returnBool && (passOrNotVec[prio][ix][iy+1]%(int)pow(2,dirMiror+1)-passOrNotVec[prio][ix][iy+1]%(int)pow(2,dirMiror) == 0);
         returnBool = returnBool && (passOrNotVec[prio][ix][iy]%(int)pow(2,dirHeros+1)-passOrNotVec[prio][ix][iy+1]%(int)pow(2,dirHeros) == 0);
     }
-    for (int i=0; i<nPNJ; i++)
-        if (PNJ[i]->getX()/xSprites == ix && PNJ[i]->getY()/ySprites == iy+1)
-            return 0;
     
     return returnBool;
 }
@@ -1949,9 +1860,6 @@ bool mapi::upOK()
         returnBool = returnBool && (passOrNotVec[prio][ix][iy-1]%(int)pow(2,dirMiror+1)-passOrNotVec[prio][ix][iy-1]%(int)pow(2,dirMiror) == 0);
         returnBool = returnBool && (passOrNotVec[prio][ix][iy]%(int)pow(2,dirHeros+1)-passOrNotVec[prio][ix][iy+1]%(int)pow(2,dirHeros) == 0);
     }
-    for (int i=0; i<nPNJ; i++)
-        if (PNJ[i]->getX()/xSprites == ix && PNJ[i]->getY()/ySprites == iy-1)
-            return 0;
     
     return returnBool;
 }
@@ -1996,9 +1904,6 @@ bool mapi::leftOK()
         returnBool = returnBool && (passOrNotVec[prio][ix-1][iy]%(int)pow(2,dirMiror+1)-passOrNotVec[prio][ix-1][iy]%(int)pow(2,dirMiror) == 0);
         returnBool = returnBool && (passOrNotVec[prio][ix][iy]%(int)pow(2,dirHeros+1)-passOrNotVec[prio][ix][iy+1]%(int)pow(2,dirHeros) == 0);
     }
-    for (int i=0; i<nPNJ; i++)
-        if (PNJ[i]->getX()/xSprites == ix-1 && PNJ[i]->getY()/ySprites == iy)
-            return 0;
 
     return returnBool;
 }
@@ -2043,9 +1948,6 @@ bool mapi::rightOK()
         returnBool = returnBool && (passOrNotVec[prio][ix+1][iy]%(int)pow(2,dirMiror+1)-passOrNotVec[prio][ix+1][iy]%(int)pow(2,dirMiror) == 0);
         returnBool = returnBool && (passOrNotVec[prio][ix][iy]%(int)pow(2,dirHeros+1)-passOrNotVec[prio][ix][iy+1]%(int)pow(2,dirHeros) == 0);
     }
-    for (int i=0; i<nPNJ; i++)
-        if (PNJ[i]->getX()/xSprites == ix+1 && PNJ[i]->getY()/ySprites == iy)
-            return 0;
     
     return returnBool;
 }
@@ -2308,8 +2210,11 @@ void mapi::update(double eT)
             }
         }
     }
-    for (int i=0; i<nPNJ; i++)
-        PNJ[i]->update(eT);
+    if (state == heros)
+    {
+        manager->test(eT);
+    }
+    Heros->setAction(0);
 }
 
 void mapi::draw()
@@ -2336,9 +2241,8 @@ void mapi::draw()
                 }
             }
         }
-        for (int i=0; i<nPNJ; i++)
-            mapWindow.draw(PNJ[i]->getSprite());
-        listCharacter.draw();
+        manager->draw();
+        
         if (state == heros)
         {
             mapWindow.draw(Heros->getSprite()); 
@@ -2571,14 +2475,6 @@ void mapi::draw()
             imR->imagePNG::draw();
         }
     }  
-    else
-    {
-        for (int i=0; i<nEvents; i++)
-        {
-            events[i]->testHero(Heros);
-        }
-    }
-    Heros->setAction(0);
 }
 
 

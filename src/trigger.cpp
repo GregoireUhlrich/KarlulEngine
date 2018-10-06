@@ -33,7 +33,7 @@ Trigger::Trigger(const Trigger& t)
     activated = t.activated;
 }
 
-Cross::Cross(mapi* Mi, hero* hi, sf::RenderWindow* w, ifstream& f): Trigger(Mi,h,w,f)
+Cross::Cross(mapi* Mi, hero* hi, sf::RenderWindow* w, ifstream& f): Trigger(Mi,hi,w,f)
 {
     f>>x>>y;
 }
@@ -42,6 +42,11 @@ Cross::Cross(const Cross& c): Trigger(c)
 {
     x = c.x;
     y = c.y;
+}
+
+void Cross::saveTrigger(ofstream& f)
+{
+    f<<"Cross: "<<x<<" "<<y<<endl;
 }
 
 bool Cross::test(double eT)
@@ -78,7 +83,7 @@ bool Cross::test(double eT)
     }
 }
 
-Action::Action(mapi* Mi, hero* hi, sf::RenderWindow* w, ifstream& f): Trigger(Mi,h,w,f)
+Action::Action(mapi* Mi, hero* hi, sf::RenderWindow* w, ifstream& f): Trigger(Mi,hi,w,f)
 {
     f>>x>>y;
 }
@@ -87,6 +92,11 @@ Action::Action(const Action& a): Trigger(a)
 {
     x = a.x;
     y = a.y;
+}
+
+void Action::saveTrigger(ofstream& f)
+{
+    f<<"Action: "<<x<<" "<<y<<endl;
 }
 
 bool Action::test(double eT)
@@ -119,4 +129,26 @@ bool Action::test(double eT)
         default:
         return 0;
     }
+}
+
+Gate::Gate(mapi* Mi, hero* hi, sf::RenderWindow* wi, ifstream& f): Trigger(Mi, hi, wi, f)
+{
+    f>>x>>y>>dir;
+}
+
+Gate::Gate(const Gate& g): Trigger(g)
+{
+    x = g.x;
+    y = g.y;
+    dir = g.dir;
+}
+
+void Gate::saveTrigger(ofstream& f)
+{
+    f<<"Gate: "<<x<<" "<<y<<" "<<dir<<endl;
+}
+
+bool Gate::test(double eT)
+{
+    return (h->isOnGrid() and round(h->getX()/xSprites) == x and round(h->getY()/ySprites) == y and h->getDir() == dir);
 }

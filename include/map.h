@@ -4,7 +4,6 @@
 #include "drawable.h"
 #include "character.h"
 #include "support.h"
-#include "gameEvent.h"
 #include "../include/supportWindow.h"
 #include <SFML/Graphics.hpp>
 #include <string>
@@ -27,6 +26,7 @@ enum SaveStateMap { initialized, loaded, saved, edited};
 // Différentes action à inverser lors d'un Ctrl+Z //
 enum actionCtrlZ{ addCtrlZ, eraseCtrlZ, passOrNotCtrlZ};
     
+class Manager;
 class mapCtrlZ;
 // Objet qui gère l'édition de la carte //
 class mapi
@@ -44,9 +44,6 @@ class mapi
     SaveStateMap saveState; // Etat de sauvegarde de la carte
         
     hero* Heros; // Personnage du mode test, sprite ./Graphics/AC001.png
-    int nPNJ;
-    vector<character*> PNJ;
-    ListCharacter listCharacter;
     
     StateMap state; // Etat de l'éditeur.
     
@@ -114,8 +111,7 @@ class mapi
     
     mapCtrlZ* ctrlZObject;
     
-    int nEvents;
-    vector<gameEvent*> events;
+    Manager* manager;
     
     public:
     
@@ -134,6 +130,7 @@ class mapi
     SaveStateMap getSaveState() const;
     int getNTextures() const;
     string* getFileTextures() const;
+    sf::RenderTexture* getMap();
     bool isSaved() const;
     string getFile() const;
     string getImageFile() const;

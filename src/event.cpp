@@ -37,7 +37,7 @@ Event::Event(const Event& e)
 
 ChangeMap::ChangeMap(mapi* Mi, hero* hi, sf::RenderWindow* wi, ifstream& f): Event(Mi,hi,wi,f)
 {
-    f>>x>>y>>dir;
+    f>>nameMap>>x>>y>>dir;
 }
 
 ChangeMap::ChangeMap(const ChangeMap& c): Event(c)
@@ -49,7 +49,7 @@ ChangeMap::ChangeMap(const ChangeMap& c): Event(c)
 
 void ChangeMap::saveEvent(ofstream& f)
 {
-    f<<"ChangeMap: "<<x<<" "<<y<<" "<<dir<<" ";
+    f<<"ChangeMap: "<<nameMap<<" "<<x<<" "<<y<<" "<<dir<<" ";
 }
 
 void ChangeMap::activate()
@@ -183,10 +183,8 @@ void TextInteraction::draw(float eT)
 
 StaticPNJ::StaticPNJ(mapi* Mi, hero* hi, sf::RenderWindow* wi, ifstream& f): TextInteraction(Mi,hi,wi,f)
 {
-    f>>fileCharacter;
-    int fooX, fooY, fooDir;
-    f>>fooX>>fooY>>fooDir;
-    PNJ = new character(fileCharacter,fooX,fooY,fooDir);
+    f>>fileCharacter>>x>>y>>dir;
+    PNJ = new character(fileCharacter,x,y,dir);
     M->addCharacter(PNJ);
 }
 
@@ -205,7 +203,7 @@ StaticPNJ::~StaticPNJ()
 
 void StaticPNJ::saveEvent(ofstream& f)
 {
-    f<<"StaticPNJ: "<<stringFile<<" "<<fileCharacter<<" "<<PNJ->getX()<<" "<<PNJ->getY()<<" "<<PNJ->getDir()<<" ";
+    f<<"StaticPNJ: "<<stringFile<<" "<<fileCharacter<<" "<<x<<" "<<y<<" "<<dir<<" ";
 }
 
 void StaticPNJ::activate()
