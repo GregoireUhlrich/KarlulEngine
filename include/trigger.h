@@ -75,6 +75,8 @@ class Gate: public Trigger{
     protected:
     
     int x, y, dir;
+    bool activated;
+    float threshold, elapsedTime;
     
     public:
     
@@ -82,6 +84,28 @@ class Gate: public Trigger{
     Gate(mapi* Mi, hero* h, sf::RenderWindow* w, std::vector<std::string> v);
     Gate(const Gate& g);
     ~Gate(){};
+    
+    static vector<int> getParams();
+    void saveTrigger(ofstream& f);
+    bool test(double eT);
+};
+
+class TurningAround: public Trigger{
+
+    protected:
+    
+    int x, y;
+    int step;
+    int dir0;
+    bool activated;
+    float elapsedTime, threshold;
+    
+    public:
+    
+    TurningAround(mapi* M, hero* h, sf::RenderWindow* w, ifstream& f);
+    TurningAround(mapi* Mi, hero* h, sf::RenderWindow* w, std::vector<std::string> v);
+    TurningAround(const TurningAround& g);
+    ~TurningAround(){};
     
     static vector<int> getParams();
     void saveTrigger(ofstream& f);

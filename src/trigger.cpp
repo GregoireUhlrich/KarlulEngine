@@ -179,6 +179,9 @@ bool Action::test(double eT)
 Gate::Gate(mapi* Mi, hero* hi, sf::RenderWindow* wi, ifstream& f): Trigger(Mi, hi, wi, f)
 {
     f>>x>>y>>dir;
+    activated = 0;
+    elapsedTime = 0;
+    threshold = 0.1;
 }
 
 Gate::Gate(mapi* Mi, hero* hi, sf::RenderWindow* w, std::vector<std::string> v): Trigger(Mi,hi,w)
@@ -186,6 +189,9 @@ Gate::Gate(mapi* Mi, hero* hi, sf::RenderWindow* w, std::vector<std::string> v):
     x = (int)stringToUnsignedInt(v[0]);
     y = (int)stringToUnsignedInt(v[1]);
     dir = (int)stringToUnsignedInt(v[2]);
+    activated = 0;
+    elapsedTime = 0;
+    threshold = 0.1;
 }
 
 Gate::Gate(const Gate& g): Trigger(g)
@@ -193,6 +199,9 @@ Gate::Gate(const Gate& g): Trigger(g)
     x = g.x;
     y = g.y;
     dir = g.dir;
+    activated = g.activated;
+    elapsedTime = g.elapsedTime;
+    threshold = g.threshold;
 }
 
 vector<int> Gate::getParams()
@@ -212,5 +221,98 @@ void Gate::saveTrigger(ofstream& f)
 
 bool Gate::test(double eT)
 {
-    return (h->isOnGrid() and round(h->getX()/xSprites) == x and round(h->getY()/ySprites) == y and h->getDir() == dir);
+    if (!activated)
+    {
+        if (h->isOnGrid() and round(h->getX()/xSprites) == x and round(h->getY()/ySprites) == y and h->getDir() == dir) activated = 1;
+        return 0;
+    }
+    else
+    {
+        elapsedTime += eT;
+        if (elapsedTime > threshold)
+        {
+            activated = 0;
+            elapsedTime = 0;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+
+TurningAround::TurningAround(mapi* Mi, hero* hi, sf::RenderWindow* wi, ifstream& f): Trigger(Mi, hi, wi, f)
+{
+    step = 0;
+    dir0 = 0;
+    activated = 0;
+    elapsedTime = 0;
+    threshold = 0.2;
+    f>>x>>y;
+}
+
+TurningAround::TurningAround(mapi* Mi, hero* hi, sf::RenderWindow* w, std::vector<std::string> v): Trigger(Mi,hi,w)
+{
+    step = 0;
+    dir0 = 0;
+    activated = 0;
+    elapsedTime = 0;
+    threshold = 0.2;
+    x = (int)stringToUnsignedInt(v[0]);
+    y = (int)stringToUnsignedInt(v[1]);
+}
+
+TurningAround::TurningAround(const TurningAround& g): Trigger(g)
+{
+    step = g.step;
+    dir0 = g.dir0;
+    activated = g.activated;
+    elapsedTime = g.elapsedTime;
+    threshold = g.threshold;
+    x = g.x;
+    y = g.y;
+}
+
+vector<int> TurningAround::getParams()
+{
+    vector<int> foo(3);
+    foo[0] = 1;
+    foo[1] = 1;
+    foo[2] = 0;
+    
+    return foo;
+}
+
+void TurningAround::saveTrigger(ofstream& f)
+{
+    f<<"TurningAround: "<<x<<" "<<y<<endl;
+}
+
+bool TurningAround::test(double eT)
+{
+    if (!activated)
+    {
+        if (h->isOnGrid() and round(h->getX()/xSprites) == x and round(h->getY()/ySprites) == y)
+        {
+            if (h->getDir() == (step+1)%4) step += 1;
+            else if (h->getDir() != step) step = 0;
+            if (step == 4) activated = 1;
+            return 0;
+        }
+        else
+        {
+            step = 0;
+            return 0;
+        }
+    }
+    else
+    {
+        elapsedTime += eT;
+        if (elapsedTime > threshold)
+        {
+            activated = 0;
+            elapsedTime = 0;
+            return 1;
+        }
+    }
+    return 0;
 }

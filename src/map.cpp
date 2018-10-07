@@ -682,118 +682,167 @@ int mapi::loadMap(string file)
             initMap();
             return 1;   
         }
-        else cout<<"Unable to open file! "<<endl;
-        return 0;
+        else
+        {
+            cout<<"Unable to open file! Creating mapTmp!"<<endl;
+            reinitMap();
+            loadEmpty(20,20);
+            stringFileToLoad = "mapTmp.txt";
+            stringFile = "mapTmp.txt";
+            initMap();
+            return 0;
+        }
     }
     return 0;
 }
 
 int mapi::loadMap()
 {
-    bool fooLoading = 1;
-    if (fooLoading)
+    if (saveState != initialized) reinitMap();
+    saveState = loaded;
+    ifstream file((dirMaps+stringFile).c_str(), ios::in);
+    if (file)
     {
-        if (saveState != initialized) reinitMap();
-        saveState = loaded;
-        ifstream file((dirMaps+stringFile).c_str(), ios::in);
-        if (file)
+        string foo;
+        if (file.eof())
         {
-            string foo;
-            file>>lxMap>>lyMap>>foo;        
-            for (int i=0; i<nPrio; i++)
-            {
-                passOrNotVec[i] = vector<vector<int> >(lxMap);
-                for (int j=0; j<lxMap; j++)
-                {
-                    passOrNotVec[i][j] = vector<int>(lyMap);
-                    for (int k=0; k<lyMap; k++)
-                        passOrNotVec[i][j][k] = 0;
-                }
-            }
-        
-            for (int i=0; i<nPrio; i++)
-            {
-                indexSpriteVec[i] = vector<vector<vector<int > > >(lxMap);
-                for (int j=0; j<lxMap; j++)
-                {
-                    indexSpriteVec[i][j] = vector<vector<int> >(lyMap);
-                    for (int k=0; k<lyMap; k++)
-                    {
-                        indexSpriteVec[i][j][k] = vector<int>(2);
-                        indexSpriteVec[i][j][k][0] = -1;
-                        indexSpriteVec[i][j][k][1] = -1;
-                    }
-                }
-            }
-            for (int i=0; i<nPrio; i++)
-            {    
-                file>>foo>>nTextureVec[i]>>foo;
-                if (nTextureVec[i] > 0)
-                {
-                    nSpriteVec[i] = vector<int>(nTextureVec[i]);
-                    iTextureVec[i] = vector<int>(nTextureVec[i]);
-                    spriteVec[i] = vector<vector<sf::Sprite> >(nTextureVec[i]);
-                
-                    for (int j=0; j<nTextureVec[i]; j++)
-                    {
-                        file>>nSpriteVec[i][j];
-                        spriteVec[i][j] = vector<sf::Sprite>(nSpriteVec[i][j]);
-                    }
-                    file>>foo;
-                
-                    for (int j=0; j<nTextureVec[i]; j++)
-                    {
-                        file>>foo;
-                        iTextureVec[i][j] = addTexture(foo);
-                        file>>foo;
-                        if (foo[0] != '{')
-                        {    
-                            cout<<"Invalid syntax for texture "<<fileTextureVec[iTextureVec[i][j]]<<" at prio "<<i<<endl;
-                            return 0;
-                        }
-                        sprite s;
-                        for (int k=0; k<nSpriteVec[i][j]; k++)
-                        {
-                            file>>s.x>>s.y>>s.xPNG>>s.yPNG>>foo;
-                            spriteVec[i][j][k].setTexture(textureVec[iTextureVec[i][j]]);
-                            spriteVec[i][j][k].setTextureRect(sf::IntRect(s.xPNG,s.yPNG,xSprites,ySprites));
-                            spriteVec[i][j][k].setPosition(s.x,s.y);        
-                            if (s.x>=0 && s.x<lxMap*xSprites && s.y>=0 && s.y<lyMap*ySprites)
-                            {
-                                indexSpriteVec[i][s.x/xSprites][s.y/ySprites][0] = j;
-                                indexSpriteVec[i][s.x/xSprites][s.y/ySprites][1] = k;
-                            }
-                        }
-                    }
-                }
-            }
-            resetTextureSprite();
-        
-            int fooPrio = 0, fooDir = 0, fooX = 0, fooY = 0;
-            file>>foo>>nExceptions>>foo;
-            for (int i=0; i<nExceptions; i++)
-            {
-                file>>fooPrio>>fooX>>fooY>>fooDir;
-                passOrNotVec[fooPrio][fooX][fooY] = fooDir;            
-            }
-            if (nTotTexture > 0)
-            {
-                initPNG(stringDirPNG+fileTextureVec[0],'L');
-                addTexture(fileTextureVec[0]);
-            }
-            else
-            {   
-                initPNG("Tileset/base.png",'L');
-                addTexture("base.png");
-            }
-            sf::Vector2i fooSizeIm = imL->getSize();
-            viewMap.reset(sf::FloatRect(-(lx-lxMap*xSprites+fooSizeIm.x)/2,-(ly-lyMap*ySprites)/2,lx,ly));
-            manager->createEvents(file);
-            file.close();
+            cout<<"Invalid File! \n";
+            reinitMap();
+            loadEmpty(20,20);
+            stringFileToLoad = "mapTmp.txt";
+            stringFile = "mapTmp.txt";
             initMap();
-            return 1;   
+            return 0;
         }
-        else cout<<"Unable to open file! "<<endl;
+        file>>lxMap;
+        if (file.eof())
+        {
+            cout<<"Invalid File! \n";
+            reinitMap();
+            loadEmpty(20,20);
+            stringFileToLoad = "mapTmp.txt";
+            stringFile = "mapTmp.txt";
+            initMap();
+            return 0;
+        }
+        file>>lyMap>>foo;
+        if (lxMap <= 0 or lyMap <= 0)
+        {
+            cout<<"Invalid size of map! \n";
+            reinitMap();
+            loadEmpty(20,20);
+            stringFileToLoad = "mapTmp.txt";
+            stringFile = "mapTmp.txt";
+            initMap();
+            return 0;
+        }
+        for (int i=0; i<nPrio; i++)
+        {
+            passOrNotVec[i] = vector<vector<int> >(lxMap);
+            for (int j=0; j<lxMap; j++)
+            {
+                passOrNotVec[i][j] = vector<int>(lyMap);
+                for (int k=0; k<lyMap; k++)
+                    passOrNotVec[i][j][k] = 0;
+            }
+        }
+    
+        for (int i=0; i<nPrio; i++)
+        {
+            indexSpriteVec[i] = vector<vector<vector<int > > >(lxMap);
+            for (int j=0; j<lxMap; j++)
+            {
+                indexSpriteVec[i][j] = vector<vector<int> >(lyMap);
+                for (int k=0; k<lyMap; k++)
+                {
+                    indexSpriteVec[i][j][k] = vector<int>(2);
+                    indexSpriteVec[i][j][k][0] = -1;
+                    indexSpriteVec[i][j][k][1] = -1;
+                }
+            }
+        }
+        for (int i=0; i<nPrio; i++)
+        {    
+            file>>foo>>nTextureVec[i]>>foo;
+            if (nTextureVec[i] > 0)
+            {
+                nSpriteVec[i] = vector<int>(nTextureVec[i]);
+                iTextureVec[i] = vector<int>(nTextureVec[i]);
+                spriteVec[i] = vector<vector<sf::Sprite> >(nTextureVec[i]);
+            
+                for (int j=0; j<nTextureVec[i]; j++)
+                {
+                    file>>nSpriteVec[i][j];
+                    spriteVec[i][j] = vector<sf::Sprite>(nSpriteVec[i][j]);
+                }
+                file>>foo;
+            
+                for (int j=0; j<nTextureVec[i]; j++)
+                {
+                    file>>foo;
+                    iTextureVec[i][j] = addTexture(foo);
+                    file>>foo;
+                    if (foo[0] != '{')
+                    {    
+                        cout<<"Invalid syntax for texture "<<fileTextureVec[iTextureVec[i][j]]<<" at prio "<<i<<endl;
+                        reinitMap();
+                        loadEmpty(20,20);
+                        stringFileToLoad = "mapTmp.txt";
+                        stringFile = "mapTmp.txt";
+                        initMap();
+                        return 0;
+                    }
+                    sprite s;
+                    for (int k=0; k<nSpriteVec[i][j]; k++)
+                    {
+                        file>>s.x>>s.y>>s.xPNG>>s.yPNG>>foo;
+                        spriteVec[i][j][k].setTexture(textureVec[iTextureVec[i][j]]);
+                        spriteVec[i][j][k].setTextureRect(sf::IntRect(s.xPNG,s.yPNG,xSprites,ySprites));
+                        spriteVec[i][j][k].setPosition(s.x,s.y);        
+                        if (s.x>=0 && s.x<lxMap*xSprites && s.y>=0 && s.y<lyMap*ySprites)
+                        {
+                            indexSpriteVec[i][s.x/xSprites][s.y/ySprites][0] = j;
+                            indexSpriteVec[i][s.x/xSprites][s.y/ySprites][1] = k;
+                        }
+                    }
+                }
+            }
+        }
+        resetTextureSprite();
+    
+        int fooPrio = 0, fooDir = 0, fooX = 0, fooY = 0;
+        file>>foo>>nExceptions>>foo;
+        for (int i=0; i<nExceptions; i++)
+        {
+            file>>fooPrio>>fooX>>fooY>>fooDir;
+            passOrNotVec[fooPrio][fooX][fooY] = fooDir;            
+        }
+        if (nTotTexture > 0)
+        {
+            initPNG(stringDirPNG+fileTextureVec[0],'L');
+            addTexture(fileTextureVec[0]);
+        }
+        else
+        {   
+            initPNG("Tileset/base.png",'L');
+            addTexture("base.png");
+        }
+        sf::Vector2i fooSizeIm = imL->getSize();
+        viewMap.reset(sf::FloatRect(-(lx-lxMap*xSprites+fooSizeIm.x)/2,-(ly-lyMap*ySprites)/2,lx,ly));
+        manager->createEvents(file);
+        file.close();
+        initMap();
+        return 1;   
+    }
+    else
+    {
+        cout<<"Unable to open file! Creating mapTmp!"<<endl;
+        reinitMap();
+        loadEmpty(20,20);
+        stringFileToLoad = "mapTmp.txt";
+        stringFile = "mapTmp.txt";
+        initMap();
+        cout<<"0\n";
         return 0;
     }
     return 0;
@@ -836,14 +885,6 @@ void mapi::loadEmpty(int lxi, int lyi)
         nSpriteVec[i] = vector<int>(nTextureVec[i]);
         iTextureVec[i] = vector<int>(nTextureVec[i]);
         spriteVec[i] = vector<vector<sf::Sprite> >(nTextureVec[i]);
-        if (nTextureVec[i] > 0)
-        {        
-            for (int j=0; j<nTextureVec[i]; j++)
-            {
-                nSpriteVec[i][j] = 0;
-                spriteVec[i][j] = vector<sf::Sprite>(nSpriteVec[i][j]);
-            }
-        }
     }
 
     nExceptions = 0;
@@ -1658,6 +1699,13 @@ void mapi::deleteCharacter(character* c)
 void mapi::addEvent()
 {
     manager->addEvent();
+    saveState = edited;
+}
+
+void mapi::deleteEvent()
+{
+    manager->deleteEvent();
+    saveState = edited;
 }
 
 void mapi::keyPressed(sf::Keyboard::Key k)

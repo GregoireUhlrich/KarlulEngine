@@ -41,6 +41,11 @@ void Manager::addEvent()
     addEventWindow();
 }
 
+void Manager::deleteEvent()
+{
+    cout<<"Delete Event\n";
+}
+
 void Manager::addCharacter(character* c)
 {
     listCharacter.addCharacter(c);
@@ -104,6 +109,10 @@ void Manager::createEvents(ifstream& f)
         {
             triggers.push_back(new Gate(M,h,window,f));
         }
+        else if (foo == "TurningAround:")
+        {
+            triggers.push_back(new TurningAround(M,h,window,f));
+        }
         else
         {
             delete events[i];
@@ -159,6 +168,7 @@ void Manager::addEventWindow()
     wrapMenuTrigger.addChoice("Cross");
     wrapMenuTrigger.addChoice("Action");
     wrapMenuTrigger.addChoice("Gate");
+    wrapMenuTrigger.addChoice("Turning Around");
     wrapMenuTrigger.setWrapped(1);
     
     int lQS = 125;
@@ -294,6 +304,7 @@ void Manager::addEventWindow()
         if (wrapMenuTrigger.getName() == "Cross") fooInt2 = Cross::getParams();
         else if (wrapMenuTrigger.getName() == "Action") fooInt2 = Action::getParams();
         else if (wrapMenuTrigger.getName() == "Gate") fooInt2 = Gate::getParams();
+        else if (wrapMenuTrigger.getName() == "Turning Around") fooInt2 = TurningAround::getParams();
         else
         {
             fooInt2 = vector<int>(nTextBoxes-nTextBoxesEvent);
@@ -479,6 +490,10 @@ void Manager::addEventWindow()
             else if (wrapMenuTrigger.getName() == "Gate")
             {
                 triggers.push_back(new Gate(M,h,window,fooString2));
+            }
+            else if (wrapMenuTrigger.getName() == "Turning Around")
+            {
+                triggers.push_back(new TurningAround(M,h,window,fooString2));
             }
             nEvents += 1;
             windowC.close();

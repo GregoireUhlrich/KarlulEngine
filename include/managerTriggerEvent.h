@@ -26,6 +26,7 @@ class Manager{
     ~Manager();
     
     void addEvent();
+    void deleteEvent();
     
     void addCharacter(character* c);
     void deleteCharacter(character* c);

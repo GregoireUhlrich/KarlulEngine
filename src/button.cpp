@@ -1882,6 +1882,7 @@ wrapMenuEdit::wrapMenuEdit(sf::RenderWindow *w, mapi* Mi, string t, double x,dou
     windowFIX = w;
     addChoice("Change size map");
     addChoice("Add event");
+    addChoice("Delete event");
 }
 
 wrapMenuEdit::~wrapMenuEdit(){}
@@ -1929,9 +1930,13 @@ void wrapMenuEdit::update()
                     M->setLxMap(foo[0]);
                     M->setLyMap(foo[1]);
                 }
-                if (choice[foo].getString().toAnsiString() == "Add event")
+                else if (choice[foo].getString().toAnsiString() == "Add event")
                 {
                     M->addEvent();
+                }
+                else if (choice[foo].getString().toAnsiString() == "Delete event")
+                {
+                    M->deleteEvent();
                 }
             }
         }

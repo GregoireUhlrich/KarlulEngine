@@ -193,6 +193,7 @@ class mapi
     void addCharacter(character* c);
     void deleteCharacter(character* c);
     void addEvent();
+    void deleteEvent();
     
     void setJoueur(bool s);
     void setHerosPos(sf::Vector2i p);
