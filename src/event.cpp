@@ -11,6 +11,19 @@ Event::Event()
     h = NULL;
 }
 
+Event::Event(mapi* Mi, hero* hi, sf::RenderWindow* wi)
+{
+    M = Mi;
+    h = hi;
+    window = wi;
+    sf::Vector2u foo = M->getSizeSprites();
+    xSprites = foo.x;
+    ySprites = foo.y;
+    
+    elapsedTime = triggerTime = 0;
+    activated = 0;
+}
+
 Event::Event(mapi* Mi, hero* hi, sf::RenderWindow* wi, ifstream& f)
 {
     M = Mi;
@@ -40,6 +53,14 @@ ChangeMap::ChangeMap(mapi* Mi, hero* hi, sf::RenderWindow* wi, ifstream& f): Eve
     f>>nameMap>>x>>y>>dir;
 }
 
+ChangeMap::ChangeMap(mapi* Mi, hero* h, sf::RenderWindow* w, std::vector<std::string> v): Event(Mi,h,w)
+{
+    x = (int)stringToUnsignedInt(v[0]);
+    y = (int)stringToUnsignedInt(v[1]);
+    dir = (int)stringToUnsignedInt(v[2]);
+    nameMap = v[3]+".txt";
+}
+
 ChangeMap::ChangeMap(const ChangeMap& c): Event(c)
 {
     x = c.x;
@@ -54,18 +75,40 @@ void ChangeMap::saveEvent(ofstream& f)
 
 void ChangeMap::activate()
 {
-    M->drawClearWindow();
-    M->saveMap();
-    
-    h->setX(x*xSprites);
-    h->setY(y*ySprites);
-    h->setDir(dir);
-    h->releaseKey();
-    
-    M->setFile(nameMap);
-    
-    M->setState(heros);
+    int foo = 0;
+    if (M->getSaveState() == edited) foo = loadWindow(window);
+    if (foo == 1) M->saveMap();
+    if (foo == 1 or foo == 0)
+    {
+        M->drawClearWindow();
+        h->setX(x*xSprites);
+        h->setY(y*ySprites);
+        h->setDir(dir);
+        h->releaseKey();
+        
+        M->setFile(nameMap);
+        
+        M->setState(heros);
+    }
+    else
+    {
+        h->setDir(3-h->getDir());
+    }
 }
+
+vector<int> ChangeMap::getParams()
+{
+    vector<int> foo(5);
+    foo[0] = 1;
+    foo[1] = 1;
+    foo[2] = 1;
+    foo[3] = 1;
+    foo[4] = 0;
+    
+    return foo;
+}
+
+TextInteraction::TextInteraction(mapi* Mi, hero* hi, sf::RenderWindow* wi): Event(Mi,hi,wi){}
 
 TextInteraction::TextInteraction(mapi* Mi, hero* hi, sf::RenderWindow* wi, ifstream& f): Event(Mi,hi,wi,f)
 {
@@ -89,9 +132,43 @@ TextInteraction::TextInteraction(mapi* Mi, hero* hi, sf::RenderWindow* wi, ifstr
     font.loadFromFile(fontEvents);
 }
 
+TextInteraction::TextInteraction(mapi* Mi, hero* hi, sf::RenderWindow* w, std::vector<std::string> v): Event(Mi,hi,w)
+{
+    stringFile = "Texts/"+v[3]+".txt";
+    text = vector<sf::String>(0);
+    iText = 0;
+    thickness = 3;
+    characterSize = 40;
+    interline = 1.5;
+    margin = 0.1;
+    ifstream file(stringFile.c_str(), ios::in);
+    string foo = "";
+    while (foo != "endFile")
+    {
+        file>>foo;
+        text.push_back(sf::String(foo));
+    }
+    file.close();
+    text.erase(text.begin()+text.size()-1);
+    
+    font.loadFromFile(fontEvents);
+}
+
 TextInteraction::TextInteraction(const TextInteraction& t)
 {
     text = t.text;
+}
+
+vector<int> TextInteraction::getParams()
+{
+    vector<int> foo(5);
+    foo[0] = 0;
+    foo[1] = 0;
+    foo[2] = 0;
+    foo[3] = 1;
+    foo[4] = 0;
+    
+    return foo;
 }
 
 void TextInteraction::saveEvent(ofstream& f)
@@ -187,6 +264,36 @@ StaticPNJ::StaticPNJ(mapi* Mi, hero* hi, sf::RenderWindow* wi, ifstream& f): Tex
     M->addCharacter(PNJ);
 }
 
+StaticPNJ::StaticPNJ(mapi* Mi, hero* hi, sf::RenderWindow* w, std::vector<std::string> v): TextInteraction(Mi,hi,w)
+{
+    stringFile = "Texts/"+v[3]+".txt";
+    text = vector<sf::String>(0);
+    iText = 0;
+    thickness = 3;
+    characterSize = 40;
+    interline = 1.5;
+    margin = 0.1;
+    ifstream file(stringFile.c_str(), ios::in);
+    string foo = "";
+    while (foo != "endFile")
+    {
+        file>>foo;
+        text.push_back(sf::String(foo));
+    }
+    file.close();
+    text.erase(text.begin()+text.size()-1);
+    
+    font.loadFromFile(fontEvents);
+    
+    x = (int)stringToUnsignedInt(v[0]);
+    y = (int)stringToUnsignedInt(v[1]);
+    dir = (int)stringToUnsignedInt(v[2]);
+    fileCharacter = "Graphics/"+v[4]+".png";
+    PNJ = new character(fileCharacter,x,y,dir);
+    M->addCharacter(PNJ);
+}
+
+
 StaticPNJ::StaticPNJ(const StaticPNJ& s): TextInteraction(s)
 {
     fileCharacter = s.fileCharacter;
@@ -198,6 +305,18 @@ StaticPNJ::~StaticPNJ()
 {
     M->deleteCharacter(PNJ);
     delete PNJ;
+}
+
+vector<int> StaticPNJ::getParams()
+{
+    vector<int> foo(5);
+    foo[0] = 1;
+    foo[1] = 1;
+    foo[2] = 1;
+    foo[3] = 1;
+    foo[4] = 1;
+    
+    return foo;
 }
 
 void StaticPNJ::saveEvent(ofstream& f)

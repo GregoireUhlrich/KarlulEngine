@@ -809,6 +809,7 @@ void interactiveButtonUX::draw()
 textBox::textBox(sf::RenderTarget *w, mapi* Mi, char c, sf::String t, double x,double y,double lx,double ly, bool isRighti): pushButton(w,Mi,"",x,y,lx,ly,isRighti)
 {
     active = 0;
+    enabled = 1;
     chirality = c;
     len = t.getSize();
     pos = len;
@@ -837,6 +838,17 @@ textBox::textBox(sf::RenderTarget *w, mapi* Mi, char c, sf::String t, double x,d
 
 textBox::~textBox(){}
 
+void textBox::enable()
+{
+    enabled = 1;
+}
+
+void textBox::disable()
+{
+    enabled = 0;
+    isMouseHere = isMousePressed = isPressed = active = 0;
+}
+
 void textBox::setString(string s)
 {
     stringText = sf::String(s);
@@ -859,9 +871,17 @@ void textBox::windowResized(sf::Vector2u newSizeWindow)
     sizeWindow.y = newSizeWindow.y;
 }
 
+void textBox::setActive(bool s)
+{
+    isPressed = s;
+    active = s;
+}
+
+bool textBox::getEnabled() { return enabled;}
+
 void textBox::mousePressed(sf::Vector2i p)
 {
-    if (testMouse(p))
+    if (testMouse(p) and enabled)
     {
         isMousePressed = 1;
         if (!click)
@@ -966,7 +986,8 @@ void textBox::update()
 void textBox::draw()
 {
     window->draw(rect);
-    texture.clear(sf::Color::White);
+    if (enabled) texture.clear(sf::Color::White);
+    else texture.clear(sf::Color(217,217,217));
     texture.draw(textit);
     texture.draw(underline);
     texture.display();
@@ -978,7 +999,8 @@ void textBox::draw(double eT)
 {
     elapsedTime += eT;
     window->draw(rect);
-    texture.clear(sf::Color::White);
+    if (enabled) texture.clear(sf::Color::White);
+    else texture.clear(sf::Color(217,217,217));
     texture.draw(textit);
     if (elapsedTime > threshold)
     {
@@ -1475,6 +1497,11 @@ wrapMenuUX::~wrapMenuUX()
     if (sprite != 0) delete sprite;
 }
 
+string wrapMenuUX::getName()
+{
+    return text.getString().toAnsiString();
+}
+
 int wrapMenuUX::testMouse(sf::Vector2i v)
 {
     int xMouse = v.x;
@@ -1626,6 +1653,38 @@ void wrapMenuUX::update()
         rect.setFillColor(sf::Color::White);
         rect.setOutlineColor(sf::Color::Transparent);
     }
+    if (isMouseHere and isWrapped)
+    {
+        lyMenu = nChoice*heightChoice;
+        ly = min(ly0+lyMenu, ly0+sizeWrapInWindow);
+        isWrapped = 0;
+    }
+    else if (!isMouseHere and not isWrapped)
+    {
+        setWrapped(1);
+    }
+    if (isPressed && isMouseHere && !isMousePressed)
+    {
+        isPressed = 0;
+        int foo = posMouse.y- yMenu;
+        if (foo >= 0)
+        {
+            foo = foo/heightChoice;
+            if (foo < nChoice)
+            {
+                setWrapped(1);
+                text = choice[foo];
+                text.setColor(sf::Color(84,106,139));
+                sf::FloatRect foo = text.getLocalBounds();
+                double sizeString = foo.width;
+                double xText = x+(lx-sizeString)/2;
+                double yText = y+(ly-characterSize)/2;
+                text.setPosition(round(xText), round(yText));
+            }
+        }
+    }
+    if(isMouseHere && isMousePressed)
+        isPressed = 1;
 }
 
 void wrapMenuUX::draw()
@@ -1822,6 +1881,7 @@ wrapMenuEdit::wrapMenuEdit(sf::RenderWindow *w, mapi* Mi, string t, double x,dou
 {
     windowFIX = w;
     addChoice("Change size map");
+    addChoice("Add event");
 }
 
 wrapMenuEdit::~wrapMenuEdit(){}
@@ -1868,6 +1928,10 @@ void wrapMenuEdit::update()
                     foo = changeSizeMapWindow(windowFIX, M);
                     M->setLxMap(foo[0]);
                     M->setLyMap(foo[1]);
+                }
+                if (choice[foo].getString().toAnsiString() == "Add event")
+                {
+                    M->addEvent();
                 }
             }
         }

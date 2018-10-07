@@ -109,7 +109,7 @@ class pushButton: public drawable
 {
     protected:
     
-    int isPressed;
+    bool isPressed;
     bool isRight;
     unsigned int characterSize;
     mapi* M;
@@ -385,6 +385,7 @@ class textBox: public pushButton
     private:
     
     bool active;
+    bool enabled;
     char chirality;
     std::size_t len;
     std::size_t pos;
@@ -404,10 +405,15 @@ class textBox: public pushButton
     textBox(sf::RenderTarget *w, mapi* Mi, char c, sf::String t, double x,double y,double lx,double ly, bool isRighti);
     ~textBox();
     
+    void enable();
+    void disable();
+    
     void setString(string s);
     string getString() const;
     void windowResized(sf::Vector2u newSizeWindow);
     void mousePressed(sf::Vector2i p);
+    void setActive(bool s);
+    bool getEnabled();
     
     void textEntered(sf::String f);
     void backSpace();
@@ -531,6 +537,7 @@ class wrapMenuUX: public drawable
     wrapMenuUX(sf::RenderTarget *w, mapi* Mi, string t, double x,double y,double lx,double ly, bool isRighti);
     ~wrapMenuUX();
     
+    string getName();
     virtual int testMouse(sf::Vector2i v);
     virtual bool getIsMouseHere() const;
     void setWrapped(bool s);

@@ -108,7 +108,7 @@ int saveWindow(sf::RenderWindow* w)
 {
     int confirmation = 0;
     
-    sf::RenderWindow windowC(sf::VideoMode(430,70),"Erase the existing map ?");
+    sf::RenderWindow windowC(sf::VideoMode(430,70),"Confir ?");
     windowC.setPosition(sf::Vector2i(sf::VideoMode::getDesktopMode().width/2,sf::VideoMode::getDesktopMode().height/2));
     sf::Vector2i posMouse = sf::Mouse::getPosition(windowC);
     sf::Vector2u sizeWindow = windowC.getSize();

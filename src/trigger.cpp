@@ -8,6 +8,19 @@ Trigger::Trigger()
     h = NULL;
 }
 
+Trigger::Trigger(mapi* Mi, hero* hi, sf::RenderWindow* wi)
+{
+    M = Mi;
+    h = hi;
+    window = wi;
+    sf::Vector2u foo = M->getSizeSprites();
+    xSprites = foo.x;
+    ySprites = foo.y;
+    
+    elapsedTime = triggerTime = 0;
+    activated = 0;
+}
+
 Trigger::Trigger(mapi* Mi, hero* hi, sf::RenderWindow* wi, ifstream& f)
 {
     M = Mi;
@@ -38,10 +51,26 @@ Cross::Cross(mapi* Mi, hero* hi, sf::RenderWindow* w, ifstream& f): Trigger(Mi,h
     f>>x>>y;
 }
 
+Cross::Cross(mapi* Mi, hero* hi, sf::RenderWindow* w, std::vector<std::string> v): Trigger(Mi,hi,w)
+{
+    x = (int)stringToUnsignedInt(v[0]);
+    y = (int)stringToUnsignedInt(v[1]);
+}
+
 Cross::Cross(const Cross& c): Trigger(c)
 {
     x = c.x;
     y = c.y;
+}
+
+vector<int> Cross::getParams()
+{
+    vector<int> foo(3);
+    foo[0] = 1;
+    foo[1] = 1;
+    foo[2] = 0;
+    
+    return foo;
 }
 
 void Cross::saveTrigger(ofstream& f)
@@ -88,10 +117,26 @@ Action::Action(mapi* Mi, hero* hi, sf::RenderWindow* w, ifstream& f): Trigger(Mi
     f>>x>>y;
 }
 
+Action::Action(mapi* Mi, hero* hi, sf::RenderWindow* w, std::vector<std::string> v): Trigger(Mi,hi,w)
+{
+    x = (int)stringToUnsignedInt(v[0]);
+    y = (int)stringToUnsignedInt(v[1]);
+}
+
 Action::Action(const Action& a): Trigger(a)
 {
     x = a.x;
     y = a.y;
+}
+
+vector<int> Action::getParams()
+{
+    vector<int> foo(3);
+    foo[0] = 1;
+    foo[1] = 1;
+    foo[2] = 0;
+    
+    return foo;
 }
 
 void Action::saveTrigger(ofstream& f)
@@ -136,11 +181,28 @@ Gate::Gate(mapi* Mi, hero* hi, sf::RenderWindow* wi, ifstream& f): Trigger(Mi, h
     f>>x>>y>>dir;
 }
 
+Gate::Gate(mapi* Mi, hero* hi, sf::RenderWindow* w, std::vector<std::string> v): Trigger(Mi,hi,w)
+{
+    x = (int)stringToUnsignedInt(v[0]);
+    y = (int)stringToUnsignedInt(v[1]);
+    dir = (int)stringToUnsignedInt(v[2]);
+}
+
 Gate::Gate(const Gate& g): Trigger(g)
 {
     x = g.x;
     y = g.y;
     dir = g.dir;
+}
+
+vector<int> Gate::getParams()
+{
+    vector<int> foo(3);
+    foo[0] = 1;
+    foo[1] = 1;
+    foo[2] = 1;
+    
+    return foo;
 }
 
 void Gate::saveTrigger(ofstream& f)

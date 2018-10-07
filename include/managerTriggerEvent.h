@@ -25,6 +25,8 @@ class Manager{
     Manager(const Manager& m);
     ~Manager();
     
+    void addEvent();
+    
     void addCharacter(character* c);
     void deleteCharacter(character* c);
     bool testPNJ(int ix, int iy, int diri);
@@ -35,6 +37,10 @@ class Manager{
     
     void update(double eT);
     void draw(int p);
+    
+    void addEventWindow();
 };
+
+
 
 #endif

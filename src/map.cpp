@@ -8,6 +8,7 @@
 using namespace std;
 
 string dirMaps = "Maps/";
+string fontMapi = "Fonts/ubuntu-font-family/Ubuntu-L.ttf";
 
 mapi::mapi(sf::RenderWindow* w, hero* H, string f, int height)
 {
@@ -79,6 +80,15 @@ mapi::mapi(sf::RenderWindow* w, hero* H, string f, int height)
     
     ctrlZObject = new mapCtrlZ(this);
     manager = new Manager(this,Heros,window);
+    
+    font.loadFromFile(fontMapi);
+    positionText.setFont(font);
+    positionText.setCharacterSize(15);
+    positionText.setString(sf::String("x = 0, y = 0"));
+    positionText.setColor(sf::Color::Black);
+    positionText.setStyle(sf::Text::Bold);
+    positionMouse.create(150,20);
+    
 }
 
 mapi::~mapi()
@@ -1645,6 +1655,11 @@ void mapi::deleteCharacter(character* c)
     manager->deleteCharacter(c);
 }
 
+void mapi::addEvent()
+{
+    manager->addEvent();
+}
+
 void mapi::keyPressed(sf::Keyboard::Key k)
 {
     if (state == selecting && select2)
@@ -2228,6 +2243,17 @@ void mapi::update(double eT)
         stringFile = stringFileToLoad;
         loadMap();
     }
+    
+    positionText.setString(sf::String("x = "+unsignedIntToString((unsigned int)floor(effectivePosMouse.x/xSprites))+", y = "+unsignedIntToString((unsigned int)floor(effectivePosMouse.y/ySprites))));
+    sf::FloatRect foo = positionText.getLocalBounds();
+    double sizeString = foo.width;
+    int characterSize = 15;
+    double xText = (150-sizeString)/2;
+    double yText = (20-1.15*characterSize)/2;
+    positionText.setPosition(round(xText), round(yText));
+    positionMouse.clear(sf::Color::White);
+    positionMouse.draw(positionText);
+    positionMouse.display();
 }
 
 void mapi::draw()
@@ -2476,6 +2502,13 @@ void mapi::draw()
     toDraw.setPosition(x,y);
     window->draw(toDraw);
     manager->draw(4);
+    if (isMouseHere && state != heros)
+    {
+        sf::Sprite fooPosition;
+        fooPosition.setTexture(positionMouse.getTexture());
+        fooPosition.setPosition(x+lx-150-10,y+ly-20-10);
+        window->draw(fooPosition);
+    }
     if (state != heros)
     {
         if (isImLeft)
@@ -2488,7 +2521,7 @@ void mapi::draw()
             window->draw(limR);
             imR->imagePNG::draw();
         }
-    }  
+    }
 }
 
 
