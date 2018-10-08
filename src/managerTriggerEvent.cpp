@@ -36,14 +36,22 @@ Manager::~Manager()
     triggers.clear();
 }
 
+vector<string> Manager::getNames()
+{
+    vector<string> foo(nEvents);
+    for (int i=0; i<nEvents; i++)
+        foo[i] = events[i]->getName();
+    return foo;
+}
+
 void Manager::addEvent()
 {
     addEventWindow();
 }
 
-void Manager::deleteEvent()
+void Manager::deleteEvent(string c)
 {
-    cout<<"Delete Event\n";
+    cout<<"Delete Event: "<<c<<endl;
 }
 
 void Manager::addCharacter(character* c)
@@ -152,7 +160,7 @@ void Manager::draw(int p)
 void Manager::addEventWindow()
 {
     int sizeX = 700;
-    int sizeY = 500;
+    int sizeY = 600;
     sf::RenderWindow windowC(sf::VideoMode(sizeX,sizeY),"Event creator");
     windowC.setPosition(sf::Vector2i(sf::VideoMode::getDesktopMode().width/2,sf::VideoMode::getDesktopMode().height/2));
     sf::Vector2i posMouse = sf::Mouse::getPosition(windowC);
@@ -180,19 +188,20 @@ void Manager::addEventWindow()
     double xText, yText, sizeString;
     int characterSize = 20;
     
-    int nTexts = 8;
+    int nTexts = 9;
     vector<sf::Text> text(nTexts);
-    int nTextBoxes = 8;
-    int nTextBoxesEvent = 5;
+    int nTextBoxes = 9;
+    int nTextBoxesEvent = 6;
     vector <textBox*> textBoxes(nTextBoxes);
-    text[0].setString(sf::String("x = "));
-    text[1].setString(sf::String("y = "));
-    text[2].setString(sf::String("dir = "));
-    text[3].setString(sf::String("File : "));
-    text[4].setString(sf::String("File picture: "));
-    text[5].setString(sf::String("x = "));
-    text[6].setString(sf::String("y = "));
-    text[7].setString(sf::String("dir = "));
+    text[0].setString(sf::String("Name: "));
+    text[1].setString(sf::String("x = "));
+    text[2].setString(sf::String("y = "));
+    text[3].setString(sf::String("dir = "));
+    text[4].setString(sf::String("File: "));
+    text[5].setString(sf::String("File picture: "));
+    text[6].setString(sf::String("x = "));
+    text[7].setString(sf::String("y = "));
+    text[8].setString(sf::String("dir = "));
     sf::FloatRect foo;
     sf::Font font;
     font.loadFromFile(fontManager);
@@ -210,52 +219,22 @@ void Manager::addEventWindow()
     sizeString = foo.width;
     xText = x0;
     yText = y0;
-    text[0].setPosition(round(xText), round(yText));
-    textBoxes[0] = new textBox(&windowC, M, 'X', "", round(xText+dx),round(yText-characterSize/2),lenBox,sizeB,1);
-    
-    foo = text[1].getLocalBounds();
-    sizeString = foo.width;
-    yText += 1.5*sizeB;
-    text[1].setPosition(round(xText), round(yText));
-    textBoxes[1] = new textBox(&windowC, M, 'Y', "", round(xText+dx),round(yText-characterSize/2),lenBox,sizeB,1);
-    
-    foo = text[2].getLocalBounds();
-    sizeString = foo.width;
-    yText += 1.5*sizeB;
-    text[2].setPosition(round(xText), round(yText));
-    textBoxes[2] = new textBox(&windowC, M, 'Y', "", round(xText+dx),round(yText-characterSize/2),lenBox,sizeB,1);
-    
-    foo = text[3].getLocalBounds();
-    sizeString = foo.width;
-    yText += 1.5*sizeB;
-    text[3].setPosition(round(xText), round(yText));
-    textBoxes[3] = new textBox(&windowC, M, 'N', "", round(xText+dx),round(yText-characterSize/2),lenBox,sizeB,1);
-    
-    foo = text[4].getLocalBounds();
-    sizeString = foo.width;
-    yText += 1.5*sizeB;
-    text[4].setPosition(round(xText), round(yText));
-    textBoxes[4] = new textBox(&windowC, M, 'N', "", round(xText+dx),round(yText-characterSize/2),lenBox,sizeB,1);
-    
-    foo = text[5].getLocalBounds();
-    sizeString = foo.width;
-    xText += sizeX/2;
-    yText = y0;
-    text[5].setPosition(round(xText), round(yText));
-    textBoxes[5] = new textBox(&windowC, M, 'X', "", round(xText+dx),round(yText-characterSize/2),lenBox,sizeB,1);
-    
-    foo = text[6].getLocalBounds();
-    sizeString = foo.width;
-    yText += 1.5*sizeB;
-    text[6].setPosition(round(xText), round(yText));
-    textBoxes[6] = new textBox(&windowC, M, 'Y', "", round(xText+dx),round(yText-characterSize/2),lenBox,sizeB,1);
-    
-    foo = text[7].getLocalBounds();
-    sizeString = foo.width;
-    yText += 1.5*sizeB;
-    text[7].setPosition(round(xText), round(yText));
-    textBoxes[7] = new textBox(&windowC, M, 'Y', "", round(xText+dx),round(yText-characterSize/2),lenBox,sizeB,1);
-    
+    for (int i=0; i<nTextBoxes; i++)
+    {
+        foo = text[i].getLocalBounds();
+        sizeString = foo.width;
+        text[i].setPosition(xText+dx-(sizeString+sizeB/2),yText);
+        if (text[i].getString().toAnsiString() == "Name: " or text[i].getString().toAnsiString() == "File picture: " or text[i].getString().toAnsiString() == "File: ") 
+            textBoxes[i] = new textBox(&windowC, M, 'N', "", round(xText+dx),round(yText-characterSize/2),lenBox,sizeB,1);
+        else 
+            textBoxes[i] = new textBox(&windowC, M, 'X', "", round(xText+dx),round(yText-characterSize/2),lenBox,sizeB,1);
+        yText += 1.5*sizeB;
+        if (i == nTextBoxesEvent-1)
+        {
+            xText += sizeX/2;
+            yText = y0;
+        }
+    }
     int nSignalButtons = 2;
     vector<signalButton*> signal(nSignalButtons);
     signal[0] = new signalButton(&windowC,"Validate",sf::Color(97,184,114),posX,posY,lQS,sizeB,0);
@@ -287,9 +266,9 @@ void Manager::addEventWindow()
             for (int i=0; i<nTextBoxesEvent; i++) fooInt1[i] = 0;
             enableValidation = 0;
         }
-        for (int i=0; i<nTextBoxesEvent; i++)
+        for (int i=1; i<nTextBoxesEvent; i++)
         {
-            if (fooInt1[i])
+            if (fooInt1[i-1])
             {
                 textBoxes[i]->enable();
                 text[i].setColor(sf::Color::Black);

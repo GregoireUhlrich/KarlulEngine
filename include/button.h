@@ -572,18 +572,27 @@ class wrapMenuFile: public wrapMenuUX
     void draw();
 };
 
+class wrapMenuSideEvent;
+
 class wrapMenuEdit: public wrapMenuUX
 {
     protected:
     
     sf::RenderWindow* windowFIX;
+    wrapMenuSideEvent* mLoad;
     
     public:
     
     wrapMenuEdit(sf::RenderWindow *w, mapi* Mi, string t, double x,double y,double lx,double ly, bool isRighti);
     ~wrapMenuEdit();
     
+    int testMouse(sf::Vector2i v);
+    virtual bool getIsMouseHere() const;
+    void mousePressed(sf::Vector2i posMouse);
+    void mouseReleased();
+    
     void update();
+    void draw();
 };
 
 class wrapMenuSide: public wrapMenuUX
@@ -641,6 +650,22 @@ class wrapMenuSideLoad: public wrapMenuSide
     wrapMenuSideLoad(sf::RenderTarget *w, mapi* Mi, string t, double x,double y,double lx,double ly, bool isRighti);
     ~wrapMenuSideLoad();
     
+    void draw();
+};
+
+class wrapMenuSideEvent: public wrapMenuSide
+{
+    private:
+    
+    sf::Texture textureArrow2;
+    sf::Sprite spriteArrow2;
+    
+    public: 
+    
+    wrapMenuSideEvent(sf::RenderTarget *w, mapi* Mi, string t, double x,double y,double lx,double ly, bool isRighti);
+    ~wrapMenuSideEvent();
+    
+    void update();
     void draw();
 };
 

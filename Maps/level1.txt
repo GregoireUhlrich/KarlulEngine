@@ -58,9 +58,9 @@ passOrNotVec
 
 3 #nEvents
 
-ChangeMap: maptmp.txt 14 14 3 Gate: 11 32 3
-StaticPNJ: Texts/text3.txt Graphics/Chara_101.png 93 77 0 Action: 93 77
-ChangeMap: maptmp.txt 0 6 0 TurningAround: 94 77
+ChangeMap: toMyInterior maptmp.txt 14 14 3 Gate: 11 32 3
+StaticPNJ: PNJTropFort Texts/text3.txt Graphics/Chara_101.png 93 77 0 Action: 93 77
+ChangeMap: Teleport maptmp.txt 0 6 0 TurningAround: 94 77
 
 
 endFile

@@ -36,11 +36,11 @@ passOrNotVec
 
 5 #nEvents
 
-ChangeMap: level1.txt 11 32 0 Gate: 14 14 0
-ChangeMap: level1.txt 11 32 0 Gate: 15 14 0
-StaticPNJ: Texts/text1.txt Graphics/Avatar-Sister.png 21 3 3 Action: 21 3
-StaticPNJ: Texts/text2.txt Graphics/025_0.png 13 9 1 Action: 13 9
-ChangeMap: level1.txt 94 77 0 Gate: 0 6 3
+ChangeMap: toLevel1 level1.txt 11 32 0 Gate: 14 14 0
+ChangeMap: toLevel1Bis level1.txt 11 32 0 Gate: 15 14 0
+StaticPNJ: Bilbio Texts/text1.txt Graphics/Avatar-Sister.png 21 3 3 Action: 21 3
+StaticPNJ: Pikachu Texts/text2.txt Graphics/025_0.png 13 9 1 Action: 13 9
+ChangeMap: SecretGate level1.txt 94 77 0 Gate: 0 6 3
 
 
 endFile

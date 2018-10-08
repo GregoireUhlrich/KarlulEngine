@@ -35,6 +35,7 @@ Event::Event(mapi* Mi, hero* hi, sf::RenderWindow* wi, ifstream& f)
     
     elapsedTime = triggerTime = 0;
     activated = 0;
+    f>>name;
 }
 
 Event::Event(const Event& e)
@@ -46,6 +47,11 @@ Event::Event(const Event& e)
     ySprites = e.ySprites;
     elapsedTime = e.elapsedTime;
     activated = e.activated;
+}
+
+string Event::getName()
+{
+    return name;
 }
 
 ChangeMap::ChangeMap(mapi* Mi, hero* hi, sf::RenderWindow* wi, ifstream& f): Event(Mi,hi,wi,f)
@@ -69,8 +75,8 @@ ChangeMap::ChangeMap(const ChangeMap& c): Event(c)
 }
 
 void ChangeMap::saveEvent(ofstream& f)
-{
-    f<<"ChangeMap: "<<nameMap<<" "<<x<<" "<<y<<" "<<dir<<" ";
+{   
+    f<<"ChangeMap: "<<name<<" "<<nameMap<<" "<<x<<" "<<y<<" "<<dir<<" ";
 }
 
 void ChangeMap::activate()
@@ -173,7 +179,7 @@ vector<int> TextInteraction::getParams()
 
 void TextInteraction::saveEvent(ofstream& f)
 {
-    f<<"TextInteraction: "<<stringFile<<" ";
+    f<<"TextInteraction: "<<name<<" "<<stringFile<<" ";
 }
 
 void TextInteraction::activate()
@@ -321,7 +327,7 @@ vector<int> StaticPNJ::getParams()
 
 void StaticPNJ::saveEvent(ofstream& f)
 {
-    f<<"StaticPNJ: "<<stringFile<<" "<<fileCharacter<<" "<<x<<" "<<y<<" "<<dir<<" ";
+    f<<"StaticPNJ: "<<name<<" "<<stringFile<<" "<<fileCharacter<<" "<<x<<" "<<y<<" "<<dir<<" ";
 }
 
 void StaticPNJ::activate()

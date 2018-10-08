@@ -33,7 +33,7 @@ class mapi
 {
     private:
     
-    int x, y, lx, ly, ly0; // Position et taille de la carte dans la fenêtre SFML
+    int x, y, lx, ly, ly0, y0; // Position et taille de la carte dans la fenêtre SFML
     int lxMap, lyMap; // Taille de la carte en nombre de sprites
     int sizeWrapMenuTexture;
     int xSprites, ySprites; // Taille des sprites en pixel
@@ -190,10 +190,11 @@ class mapi
     void mouseWheel(int d);
     void windowResized(sf::Vector2u newSizeWindow);
     
+    vector<string> getNameEvents();
     void addCharacter(character* c);
     void deleteCharacter(character* c);
     void addEvent();
-    void deleteEvent();
+    void deleteEvent(string c);
     
     void setJoueur(bool s);
     void setHerosPos(sf::Vector2i p);

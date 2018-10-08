@@ -74,6 +74,7 @@ mapi::mapi(sf::RenderWindow* w, hero* H, string f, int height)
     mapWindow.create(sizeWindow.x, height);
     x = 0;
     y = sizeWindow.y - height;
+    y0 = y;
     lx = sizeWindow.x;
     ly = height;
     ly0 = ly;
@@ -238,7 +239,7 @@ void mapi::setState(StateMap s)
         if (yView > lyMap*ySprites-ly) yView = lyMap*ySprites-ly;        
         if (lx > lxMap*xSprites) xView = -(lx-lxMap*xSprites)/2;
         if (ly > lyMap*ySprites) yView = -(ly-lyMap*ySprites)/2;
-        viewMap.reset(sf::FloatRect(xView,yView,lx,ly));
+        viewMap.reset(sf::FloatRect(round(xView),round(yView),lx,ly));
         mapWindow.setView(viewMap);
     }
 }
@@ -327,10 +328,9 @@ void mapi::setJoueur(bool s)
     else
     {
         state = nothing;
-        ly = ly0;
-        y = sizeWindow.y-ly;
+        y = y0;
         sf::Vector2i fooSizeIm = imL->getSize();
-        viewMap.reset(sf::FloatRect(-(lx-lxMap*xSprites+fooSizeIm.x)/2,-(ly-lyMap*ySprites)/2,lx,ly));
+        viewMap.reset(sf::FloatRect(round(-(lx-lxMap*xSprites+fooSizeIm.x)/2),round(-(ly-lyMap*ySprites)/2),lx,ly));
     }
     mapWindow.create(lx,ly);
     mapWindow.setView(viewMap);
@@ -676,7 +676,7 @@ int mapi::loadMap(string file)
                 addTexture("Tileset/base.png");
             }
             sf::Vector2i fooSizeIm = imL->getSize();
-            viewMap.reset(sf::FloatRect(-(lx-lxMap*xSprites+fooSizeIm.x)/2,-(ly-lyMap*ySprites)/2,lx,ly));
+            viewMap.reset(sf::FloatRect(round(-(lx-lxMap*xSprites+fooSizeIm.x)/2),round(-(ly-lyMap*ySprites)/2),lx,ly));
             manager->createEvents(file);
             file.close();
             initMap();
@@ -828,7 +828,7 @@ int mapi::loadMap()
             addTexture("base.png");
         }
         sf::Vector2i fooSizeIm = imL->getSize();
-        viewMap.reset(sf::FloatRect(-(lx-lxMap*xSprites+fooSizeIm.x)/2,-(ly-lyMap*ySprites)/2,lx,ly));
+        viewMap.reset(sf::FloatRect(round(-(lx-lxMap*xSprites+fooSizeIm.x)/2),round(-(ly-lyMap*ySprites)/2),lx,ly));
         manager->createEvents(file);
         file.close();
         initMap();
@@ -891,7 +891,7 @@ void mapi::loadEmpty(int lxi, int lyi)
     initPNG("Tileset/base.png",'L');
     addTexture("base.png");
     sf::Vector2i fooSizeIm = imL->getSize();
-    viewMap.reset(sf::FloatRect(-(lx-lxMap*xSprites+fooSizeIm.x)/2,-(ly-lyMap*ySprites)/2,lx,ly));
+    viewMap.reset(sf::FloatRect(round(-(lx-lxMap*xSprites+fooSizeIm.x)/2),round(-(ly-lyMap*ySprites)/2),lx,ly));
     initMap();
 }
 
@@ -1069,7 +1069,7 @@ void mapi::initMap()
         if (yView > lyMap*ySprites-ly) yView = lyMap*ySprites-ly;        
         if (lx > lxMap*xSprites) xView = -(lx-lxMap*xSprites)/2;
         if (ly > lyMap*ySprites) yView = -(ly-lyMap*ySprites)/2;
-        viewMap.reset(sf::FloatRect(xView,yView,lx,ly));
+        viewMap.reset(sf::FloatRect(round(xView),round(yView),lx,ly));
     }
     mapWindow.setView(viewMap);
     
@@ -1686,6 +1686,11 @@ void mapi::windowResized(sf::Vector2u newSizeWindow)
     sizeWindow = newSizeWindow;
 }
 
+vector<string> mapi::getNameEvents()
+{
+    return manager->getNames();
+}
+
 void mapi::addCharacter(character* c)
 {
     manager->addCharacter(c);
@@ -1702,9 +1707,9 @@ void mapi::addEvent()
     saveState = edited;
 }
 
-void mapi::deleteEvent()
+void mapi::deleteEvent(string c)
 {
-    manager->deleteEvent();
+    manager->deleteEvent(c);
     saveState = edited;
 }
 
@@ -2027,6 +2032,7 @@ bool mapi::rightOK()
 
 void mapi::update(double eT)
 {
+    if (window->getSize() != sizeWindow) windowResized(window->getSize());
     ctrlZObject->addElapsedTime(eT);
     if (isImLeft)
         imL->imagePNG::update();
@@ -2529,7 +2535,6 @@ void mapi::draw()
         if (yView > lyMap*ySprites-ly) yView = lyMap*ySprites-ly;        
         if (lx > lxMap*xSprites) xView = -(lx-lxMap*xSprites)/2;
         if (ly > lyMap*ySprites) yView = -(ly-lyMap*ySprites)/2;
-        viewMap.reset(sf::FloatRect(xView,yView,lx,ly));
     }
     /*
     cout<<"map displayed : "<<stringFile<<endl;
@@ -2547,7 +2552,7 @@ void mapi::draw()
     sf::Sprite fooSprite;
     fooSprite.setTexture(mapWindow.getTexture());
     toDraw = fooSprite;
-    toDraw.setPosition(x,y);
+    toDraw.setPosition(round(x),round(y));
     window->draw(toDraw);
     manager->draw(4);
     if (isMouseHere && state != heros)

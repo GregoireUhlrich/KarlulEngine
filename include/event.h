@@ -14,6 +14,7 @@ class Event{
 
     protected:
     
+    std::string name;
     mapi* M;
     hero* h;
     sf::RenderWindow* window;
@@ -30,6 +31,8 @@ class Event{
     Event(mapi* Mi, hero* h, sf::RenderWindow* w, ifstream& f);
     Event(const Event& g);
     virtual ~Event(){};
+    
+    std::string getName();
     
     virtual void saveEvent(std::ofstream& f){};
     virtual void activate(){};

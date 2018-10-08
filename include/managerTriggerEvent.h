@@ -25,8 +25,10 @@ class Manager{
     Manager(const Manager& m);
     ~Manager();
     
+    std::vector<std::string> getNames();
+    
     void addEvent();
-    void deleteEvent();
+    void deleteEvent(string c);
     
     void addCharacter(character* c);
     void deleteCharacter(character* c);

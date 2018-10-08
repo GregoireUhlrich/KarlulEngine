@@ -20,6 +20,7 @@ int main()
     int yWindow = xWindow*9/16;
     int yMap = yWindow-100;
     sf::RenderWindow window(sf::VideoMode(xWindow,yWindow), "Plagiat-mon project");
+    //window.setVerticalSyncEnabled(1);
     
     sf::SoundBuffer buffer1;
     buffer1.loadFromFile("Audio/Projet1Arch.ogg");
