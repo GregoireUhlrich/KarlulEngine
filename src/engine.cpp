@@ -38,7 +38,7 @@ int main()
     if (file) file>>map;
     else map = "map1.txt";
     file.close();
-    hero Heros("Paul", "Graphics/AC001.png", 0, 0);
+    hero Heros("Paul", "Graphics/Teddychou.png", 0, 0);
     mapi* M = new mapi(&window, &Heros, map, yMap);
     int tmp = M->loadMap();
     sf::Vector2u sizeMap = M->getSizeMap();

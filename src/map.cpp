@@ -329,6 +329,7 @@ void mapi::setJoueur(bool s)
     {
         state = nothing;
         y = y0;
+        ly = sizeWindow.y - y;
         sf::Vector2i fooSizeIm = imL->getSize();
         viewMap.reset(sf::FloatRect(round(-(lx-lxMap*xSprites+fooSizeIm.x)/2),round(-(ly-lyMap*ySprites)/2),lx,ly));
     }
@@ -2535,6 +2536,7 @@ void mapi::draw()
         if (yView > lyMap*ySprites-ly) yView = lyMap*ySprites-ly;        
         if (lx > lxMap*xSprites) xView = -(lx-lxMap*xSprites)/2;
         if (ly > lyMap*ySprites) yView = -(ly-lyMap*ySprites)/2;
+        viewMap.reset(sf::FloatRect(round(xView), round(yView),(double)lx,(double)ly));
     }
     /*
     cout<<"map displayed : "<<stringFile<<endl;

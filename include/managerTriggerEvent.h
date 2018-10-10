@@ -42,6 +42,7 @@ class Manager{
     void draw(int p);
     
     void addEventWindow();
+    void modifyEventWindow(int indexEvent);
 };
 
 

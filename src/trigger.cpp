@@ -46,21 +46,26 @@ Trigger::Trigger(const Trigger& t)
     activated = t.activated;
 }
 
+std::string Trigger::getName() { return name;}
+
 Cross::Cross(mapi* Mi, hero* hi, sf::RenderWindow* w, ifstream& f): Trigger(Mi,hi,w,f)
 {
     f>>x>>y;
+    name = "Cross";
 }
 
 Cross::Cross(mapi* Mi, hero* hi, sf::RenderWindow* w, std::vector<std::string> v): Trigger(Mi,hi,w)
 {
     x = (int)stringToUnsignedInt(v[0]);
     y = (int)stringToUnsignedInt(v[1]);
+    name = "Cross";
 }
 
 Cross::Cross(const Cross& c): Trigger(c)
 {
     x = c.x;
     y = c.y;
+    name = "Cross";
 }
 
 vector<int> Cross::getParams()
@@ -115,18 +120,21 @@ bool Cross::test(double eT)
 Action::Action(mapi* Mi, hero* hi, sf::RenderWindow* w, ifstream& f): Trigger(Mi,hi,w,f)
 {
     f>>x>>y;
+    name = "Action";
 }
 
 Action::Action(mapi* Mi, hero* hi, sf::RenderWindow* w, std::vector<std::string> v): Trigger(Mi,hi,w)
 {
     x = (int)stringToUnsignedInt(v[0]);
     y = (int)stringToUnsignedInt(v[1]);
+    name = "Action";
 }
 
 Action::Action(const Action& a): Trigger(a)
 {
     x = a.x;
     y = a.y;
+    name = "Action";
 }
 
 vector<int> Action::getParams()
@@ -182,6 +190,7 @@ Gate::Gate(mapi* Mi, hero* hi, sf::RenderWindow* wi, ifstream& f): Trigger(Mi, h
     activated = 0;
     elapsedTime = 0;
     threshold = 0.1;
+    name = "Gate";
 }
 
 Gate::Gate(mapi* Mi, hero* hi, sf::RenderWindow* w, std::vector<std::string> v): Trigger(Mi,hi,w)
@@ -192,6 +201,7 @@ Gate::Gate(mapi* Mi, hero* hi, sf::RenderWindow* w, std::vector<std::string> v):
     activated = 0;
     elapsedTime = 0;
     threshold = 0.1;
+    name = "Gate";
 }
 
 Gate::Gate(const Gate& g): Trigger(g)
@@ -202,6 +212,7 @@ Gate::Gate(const Gate& g): Trigger(g)
     activated = g.activated;
     elapsedTime = g.elapsedTime;
     threshold = g.threshold;
+    name = "Gate";
 }
 
 vector<int> Gate::getParams()
@@ -248,6 +259,7 @@ TurningAround::TurningAround(mapi* Mi, hero* hi, sf::RenderWindow* wi, ifstream&
     elapsedTime = 0;
     threshold = 0.2;
     f>>x>>y;
+    name = "Turning Around";
 }
 
 TurningAround::TurningAround(mapi* Mi, hero* hi, sf::RenderWindow* w, std::vector<std::string> v): Trigger(Mi,hi,w)
@@ -259,6 +271,7 @@ TurningAround::TurningAround(mapi* Mi, hero* hi, sf::RenderWindow* w, std::vecto
     threshold = 0.2;
     x = (int)stringToUnsignedInt(v[0]);
     y = (int)stringToUnsignedInt(v[1]);
+    name = "Turning Around";
 }
 
 TurningAround::TurningAround(const TurningAround& g): Trigger(g)
@@ -270,6 +283,7 @@ TurningAround::TurningAround(const TurningAround& g): Trigger(g)
     threshold = g.threshold;
     x = g.x;
     y = g.y;
+    name = "Turning Around";
 }
 
 vector<int> TurningAround::getParams()

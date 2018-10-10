@@ -16,6 +16,7 @@ class Trigger{
     mapi* M;
     hero* h;
     sf::RenderWindow* window;
+    std::string name;
     
     bool activated;
     int xSprites, ySprites;
@@ -30,6 +31,7 @@ class Trigger{
     Trigger(const Trigger& t);
     virtual ~Trigger(){};
     
+    std::string getName();
     virtual void saveTrigger(ofstream& f){};
     virtual bool test(double eT){return 0;};
 };
