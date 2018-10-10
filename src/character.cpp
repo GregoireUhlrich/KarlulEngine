@@ -21,7 +21,7 @@ character::character(string n, string f, double xi, double yi)
     file = f; // file of the texture
     name = n; // name of the carachter
     xSprites = ySprites = 32;
-    typeSprite = 0;
+    typeSprite = 1;
     x = xi*xSprites;
     y = yi*ySprites;
     direction = 0; // int between 0 and 3, direction in which the sprite looks
@@ -47,7 +47,7 @@ character::character(string f, int xi, int yi, int dir)
     file = f; // file of the texture
     name = ""; // name of the carachter
     xSprites = ySprites = 32;
-    typeSprite = 0;
+    typeSprite = 1;
     x = xi*xSprites;
     y = yi*ySprites;
     direction = dir; // int between 0 and 3, direction in which the sprite looks
@@ -135,7 +135,6 @@ hero::hero(string n, string f, double xi, double yi): character(n,f,xi,yi)
     speed = 6; // speed of the character in square/sec
     walk = 0.5; // number of times the total animation of walk is played in one square distance 
     walk *= 3*speed; // normalize to the right unit
-    
 }
 
 void hero::enableMove(){ moveEnabled = 1;}
@@ -266,7 +265,7 @@ void hero::updateSprite(double elapsedTime)
         typeSprite += walk*elapsedTime;
         if (typeSprite > 3) typeSprite -= 4;
     }
-    else typeSprite = 0;
+    else typeSprite = 1;
     sprite.setTextureRect(sf::IntRect(sx*ceil(typeSprite),sy*direction,sx,sy));
     sprite.setPosition(sf::Vector2f(x+dx,y+dy));
 }
@@ -310,7 +309,7 @@ ListCharacter::ListCharacter(sf::RenderTexture* w)
 
 ListCharacter::~ListCharacter()
 {
-    for (int i=0; i<nCharacter; i++)
+    for (int i=1; i<nCharacter; i++) // we don't delete the hero and start the loop at i=1
         delete list[i];
     nCharacter = 0;
     list.clear();
@@ -389,22 +388,22 @@ void ListCharacter::draw()
         yCharacter[i] = list[i]->getY();
         posToDraw[i] = 0;
     }
-    float max;
-    int iMax;
+    float min;
+    int iMin;
     for (int i=0; i<nCharacter; i++)
     {   
-        max = 0;
-        iMax = 0;
+        min = 1e5;
+        iMin = 0;
         for (int j=0; j<nCharacter; j++)
         {
-            if (yCharacter[j] > max)
+            if (yCharacter[j] < min)
             {
-                max = list[j]->getY();
-                iMax = j;
+                min = list[j]->getY();
+                iMin = j;
             }
         }
-        posToDraw[i] = iMax;
-        yCharacter[iMax] = -1;
+        posToDraw[i] = iMin;
+        yCharacter[iMin] = 1e5;
     }
     for (int i=0; i<nCharacter; i++)
     {

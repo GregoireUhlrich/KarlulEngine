@@ -12,6 +12,7 @@ Manager::Manager(mapi* Mi, hero* hi, sf::RenderWindow* w)
     events = vector<Event* >(0);
     triggers = vector<Trigger* >(0);
     listCharacter.setWindow(M->getMap());
+    listCharacter.addCharacter(h);
 }
 
 Manager::Manager(const Manager& m)

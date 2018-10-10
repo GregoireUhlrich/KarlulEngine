@@ -2336,7 +2336,7 @@ void mapi::draw()
                 }
             }
         }        
-        if (state == heros) mapWindow.draw(Heros->getSprite()); 
+        //if (state == heros) mapWindow.draw(Heros->getSprite()); 
         for (int i=2; i<nPrio; i++)
         {
             manager->draw(i);
