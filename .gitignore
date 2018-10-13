@@ -2,5 +2,9 @@ Backup
 data
 lib
 SFML
-test.*
+test*
 open.sh
+MGE*
+MyGames*
+*.py
+.gitignore
