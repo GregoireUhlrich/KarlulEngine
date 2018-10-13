@@ -573,6 +573,7 @@ class wrapMenuFile: public wrapMenuUX
 };
 
 class wrapMenuSideEvent;
+class wrapMenuSideScenario;
 
 class wrapMenuEdit: public wrapMenuUX
 {
@@ -580,6 +581,7 @@ class wrapMenuEdit: public wrapMenuUX
     
     sf::RenderWindow* windowFIX;
     wrapMenuSideEvent* mLoad;
+    wrapMenuSideScenario* mScenario;
     
     public:
     
@@ -664,6 +666,22 @@ class wrapMenuSideEvent: public wrapMenuSide
     
     wrapMenuSideEvent(sf::RenderTarget *w, mapi* Mi, string t, double x,double y,double lx,double ly, bool isRighti);
     ~wrapMenuSideEvent();
+    
+    void update();
+    void draw();
+};
+
+class wrapMenuSideScenario: public wrapMenuSide
+{
+    private:
+    
+    sf::Texture textureArrow2;
+    sf::Sprite spriteArrow2;
+    
+    public: 
+    
+    wrapMenuSideScenario(sf::RenderTarget *w, mapi* Mi, string t, double x,double y,double lx,double ly, bool isRighti);
+    ~wrapMenuSideScenario();
     
     void update();
     void draw();

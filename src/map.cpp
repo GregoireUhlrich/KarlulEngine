@@ -2609,5 +2609,6 @@ void mapi::draw(sf::Drawable* d)
 
 void mapi::closeWindow()
 {
+    if (window != 0) window->close();
     window = 0;
 }

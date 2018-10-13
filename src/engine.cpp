@@ -11,6 +11,7 @@
 #include <string>
 #include <sstream>
 #include <fstream>
+#include <unistd.h>
 
 using namespace std;
 
@@ -20,6 +21,8 @@ int main()
     int yWindow = xWindow*9/16;
     int yMap = yWindow-100;
     sf::RenderWindow window(sf::VideoMode(xWindow,yWindow), "Plagiat-mon project");
+    char* projectDirectory = "Plagiat-mon/";
+    chdir(projectDirectory);
     //window.setVerticalSyncEnabled(1);
     
     sf::SoundBuffer buffer1;
@@ -55,11 +58,11 @@ int main()
     bool verbose = 0;
     while (window.isOpen())
     {
-        posMouse = sf::Mouse::getPosition(window);
+        if (window.isOpen()) posMouse = sf::Mouse::getPosition(window);
         M->testMouse(posMouse);
         IWindow.testMouse(posMouse);
         sf::Event event;
-        while (window.pollEvent(event))
+        while (window.pollEvent(event) and window.isOpen())
         {
             IWindow.windowEvent(event);
             if (event.type == sf::Event::Closed)

@@ -294,7 +294,7 @@ pushButtonUX::pushButtonUX(sf::RenderTarget* w, mapi* Mi, double xi, double yi, 
     M = Mi;
     isPressed = 0;
     
-    textureOutline.loadFromFile("Icons/outline.png");
+    textureOutline.loadFromFile("../Icons//outline.png");
     outline.setTexture(textureOutline);
     outline.setPosition(x,y);
     sf::Vector2u foo = textureOutline.getSize();
@@ -370,8 +370,8 @@ void buttonGrid::update()
 buttonGridUX::buttonGridUX(sf::RenderTarget* w, mapi* Mi, double xi, double yi, double lxi, double lyi, bool isRighti): pushButtonUX(w,Mi,xi,yi,lxi,lyi,isRighti)
 {
     grid=0;
-    textureA.loadFromFile("Icons/grid-grey.png");
-    textureB.loadFromFile("Icons/grid-blue.png");
+    textureA.loadFromFile("../Icons//grid-grey.png");
+    textureB.loadFromFile("../Icons//grid-blue.png");
     spriteA.setTexture(textureA);
     spriteB.setTexture(textureB);
     xScaleIcon = yScaleIcon = 0.8;
@@ -439,23 +439,23 @@ buttonMapUX::buttonMapUX(sf::RenderTarget* w, mapi* Mi, StateMap si, double xi, 
     active = 0;
     if (s == adding)
     {
-        textureA.loadFromFile("Icons/add-grey.png");
-        textureB.loadFromFile("Icons/add-green.png");
+        textureA.loadFromFile("../Icons//add-grey.png");
+        textureB.loadFromFile("../Icons//add-green.png");
     }
     else if (s == erasing)
     {
-        textureA.loadFromFile("Icons/erase-grey.png");
-        textureB.loadFromFile("Icons/erase-red.png");    
+        textureA.loadFromFile("../Icons//erase-grey.png");
+        textureB.loadFromFile("../Icons//erase-red.png");    
     }
     else if (s == selecting)
     {
-        textureA.loadFromFile("Icons/select-grey.png");
-        textureB.loadFromFile("Icons/select-yellow.png");    
+        textureA.loadFromFile("../Icons//select-grey.png");
+        textureB.loadFromFile("../Icons//select-yellow.png");    
     }
     else if (s == moving)
     {
-        textureA.loadFromFile("Icons/move-grey.png");
-        textureB.loadFromFile("Icons/move-blue.png");    
+        textureA.loadFromFile("../Icons//move-grey.png");
+        textureB.loadFromFile("../Icons//move-blue.png");    
     }
     spriteA.setTexture(textureA);
     spriteB.setTexture(textureB);
@@ -602,8 +602,8 @@ void buttonPrioUX::draw()
 buttonAllPrioUX::buttonAllPrioUX(sf::RenderTarget* w, mapi* Mi, double xi, double yi, double lxi, double lyi, bool isRighti): pushButtonUX(w,Mi,xi,yi,lxi,lyi,isRighti)
 {
     allPrio=0;
-    textureA.loadFromFile("Icons/layers-grey.png");
-    textureB.loadFromFile("Icons/layers-blue.png");
+    textureA.loadFromFile("../Icons//layers-grey.png");
+    textureB.loadFromFile("../Icons//layers-blue.png");
     spriteA.setTexture(textureA);
     spriteB.setTexture(textureB);
     xScaleIcon = yScaleIcon = 0.8;
@@ -666,8 +666,8 @@ void buttonShowPass::update()
 buttonShowPassUX::buttonShowPassUX(sf::RenderTarget* w, mapi* Mi, double xi, double yi, double lxi, double lyi, bool isRighti): pushButtonUX(w,Mi,xi,yi,lxi,lyi,isRighti)
 {
     showPass = 1;
-    textureA.loadFromFile("Icons/forbidden-grey.png");
-    textureB.loadFromFile("Icons/forbidden-red.png");
+    textureA.loadFromFile("../Icons//forbidden-grey.png");
+    textureB.loadFromFile("../Icons//forbidden-red.png");
     spriteA.setTexture(textureA);
     spriteB.setTexture(textureB);
     xScaleIcon = yScaleIcon = 0.8;
@@ -724,7 +724,7 @@ interactiveButtonUX::interactiveButtonUX(sf::RenderTarget* w, mapi* Mi, double x
     text.setColor(sf::Color(97,184,114));
     renderTexture.create(lx,ly);
     
-    textureIcon1.loadFromFile("Icons/run-green.png");
+    textureIcon1.loadFromFile("../Icons//run-green.png");
     icon1.setTexture(textureIcon1);
     icon1.setPosition(x,y);
     sf::Vector2u foo = textureIcon1.getSize();
@@ -1738,6 +1738,7 @@ wrapMenuFile::wrapMenuFile(sf::RenderTarget *w, mapi* Mi, string t, double x,dou
     addChoice("New map");
     addChoice("Load map");
     addChoice("Save");
+    addChoice("Quit");
     mLoad = new wrapMenuSideLoad(w,Mi,"",x,y+ly+heightChoice,round(max((double)lx, maxSizeChoice*4./3+30)),ly,isRighti);
     //addChoice("Save as");
 }
@@ -1829,6 +1830,7 @@ void wrapMenuFile::update()
                 setWrapped(1);
                 if (choice[foo].getString().toAnsiString() == "New map") M->newMap();
                 else if (choice[foo].getString().toAnsiString() == "Save") M->saveMap();
+                else if (choice[foo].getString().toAnsiString() == "Quit") { M->closeWindow();}
             }
         }
     }
@@ -1887,11 +1889,17 @@ wrapMenuEdit::wrapMenuEdit(sf::RenderWindow *w, mapi* Mi, string t, double x,dou
     windowFIX = w;
     addChoice("Change size map");
     addChoice("Add event");
-    addChoice("Modify event");
+    addChoice("Edit event");
+    addChoice("Edit scenario");
     mLoad = new wrapMenuSideEvent(w,Mi,"",x,y+ly+2*heightChoice,round(max((double)lx, maxSizeChoice*4./3+30)),ly,isRighti);
+    mScenario = new wrapMenuSideScenario(w,Mi,"",x,y+ly+3*heightChoice,round(max((double)lx, maxSizeChoice*4./3+30)),ly,isRighti);
 }
 
-wrapMenuEdit::~wrapMenuEdit(){}
+wrapMenuEdit::~wrapMenuEdit()
+{
+    delete mLoad;
+    delete mScenario;
+}
 
 int wrapMenuEdit::testMouse(sf::Vector2i v)
 {
@@ -1900,6 +1908,8 @@ int wrapMenuEdit::testMouse(sf::Vector2i v)
     posMouse = sf::Vector2i(xMouse,yMouse);
     if (isMouseHere or not mLoad->getWrapped()) mLoad->testMouse(v);
     else mLoad->setWrapped(1);
+    if (isMouseHere or not mScenario->getWrapped()) mScenario->testMouse(v);
+    else mScenario->setWrapped(1);
     
     if ((xMouse>x && xMouse<x+lx && yMouse>y && yMouse<=y+ly0) || (!isWrapped && (xMouse>x && xMouse<x+max((double)lx, maxSizeChoice*4./3+30) && yMouse>=y+ly0 && yMouse<y+ly0+min(lyMenu,sizeWrapInWindow))))
         isMouseHere = 1;
@@ -1911,7 +1921,7 @@ int wrapMenuEdit::testMouse(sf::Vector2i v)
 
 bool wrapMenuEdit::getIsMouseHere() const
 {
-    return (isMouseHere or mLoad->getIsMouseHere());
+    return (isMouseHere or mLoad->getIsMouseHere() or mScenario->getIsMouseHere());
 }
 
 void wrapMenuEdit::mousePressed(sf::Vector2i posMouse)
@@ -1926,6 +1936,7 @@ void wrapMenuEdit::mousePressed(sf::Vector2i posMouse)
         }
     }
     else if (mLoad->getIsMouseHere()) mLoad->mousePressed(posMouse);
+    else if (mScenario->getIsMouseHere()) mScenario->mousePressed(posMouse);
 }
 
 void wrapMenuEdit::mouseReleased()
@@ -1933,6 +1944,7 @@ void wrapMenuEdit::mouseReleased()
     isMousePressed = 0;
     click = 0;
     if (mLoad->getIsMouseHere()) mLoad->mouseReleased();
+    else if (mScenario->getIsMouseHere()) mScenario->mouseReleased();
 }
 
 void wrapMenuEdit::draw()
@@ -1943,7 +1955,7 @@ void wrapMenuEdit::draw()
     {
         texture->clear(sf::Color::White);
         int foo = posMouse.y-yMenu;
-        if (foo >= 0 && mLoad->getWrapped())
+        if (foo >= 0 && mLoad->getWrapped() && mScenario->getWrapped())
         {
             foo = foo/heightChoice;
             if (foo < nChoice)
@@ -1955,6 +1967,12 @@ void wrapMenuEdit::draw()
         else if (not mLoad->getWrapped())
         {
             foo = 2;
+            selectShape.setPosition(0,foo*heightChoice);
+            texture->draw(selectShape);
+        }
+        else if (not mScenario->getWrapped())
+        {
+            foo = 3;
             selectShape.setPosition(0,foo*heightChoice);
             texture->draw(selectShape);
         }
@@ -1979,14 +1997,16 @@ void wrapMenuEdit::draw()
         window->draw(*sprite);
         window->draw(contourShape);
         mLoad->draw();
+        mScenario->draw();
     }
 }
 void wrapMenuEdit::update()
 {
     mLoad->update();
+    mScenario->update();
     selectShape.setSize(sf::Vector2f(max((double)lx, maxSizeChoice*4./3+30),heightChoice));
     contourShape.setSize(sf::Vector2f(max((double)lx, maxSizeChoice*4./3+30),nChoice*heightChoice));
-    if (isMouseHere or mLoad->getIsMouseHere())
+    if (isMouseHere or mLoad->getIsMouseHere() or mScenario->getIsMouseHere())
     {
         rect.setFillColor(sf::Color(232,232,232));
         rect.setOutlineColor(sf::Color(232,232,232));
@@ -2004,7 +2024,7 @@ void wrapMenuEdit::update()
         ly = min(ly0+lyMenu, ly0+sizeWrapInWindow);
         isWrapped = 0;
     }
-    else if (!isMouseHere and not isWrapped and mLoad->getWrapped())
+    else if (!isMouseHere and not isWrapped and mLoad->getWrapped() and mScenario->getWrapped())
     {
         setWrapped(1);
     }
@@ -2043,7 +2063,7 @@ wrapMenuSide::wrapMenuSide(sf::RenderTarget *w, mapi* Mi, string t, double x,dou
     isWrapped = 1;
     isMouseHere = 0;
     
-    textureArrow.loadFromFile("Icons/arrow-right-blue.png");
+    textureArrow.loadFromFile("../Icons//arrow-right-blue.png");
     sf::Vector2u fooSize = textureArrow.getSize();
     spriteArrow.setTexture(textureArrow);
     ratio = 0.5;
@@ -2503,7 +2523,7 @@ wrapMenuSideLoad::wrapMenuSideLoad(sf::RenderTarget *w, mapi* Mi, string t, doub
     ratio = 0.5;
     spriteArrow.setPosition(x+lx-ratio*ly-3,y+(1-ratio)*ly/2);
     
-    textureArrow2.loadFromFile("Icons/arrow-right-white.png");
+    textureArrow2.loadFromFile("../Icons//arrow-right-white.png");
     sf::Vector2u fooSize = textureArrow2.getSize();
     spriteArrow2.setTexture(textureArrow2);
     spriteArrow2.setScale(ratio*ly/fooSize.y,ratio*ly/fooSize.y);
@@ -2564,7 +2584,7 @@ wrapMenuSideEvent::wrapMenuSideEvent(sf::RenderTarget *w, mapi* Mi, string t, do
     ratio = 0.5;
     spriteArrow.setPosition(x+lx-ratio*ly-3,y+(1-ratio)*ly/2);
     
-    textureArrow2.loadFromFile("Icons/arrow-right-white.png");
+    textureArrow2.loadFromFile("../Icons//arrow-right-white.png");
     sf::Vector2u fooSize = textureArrow2.getSize();
     spriteArrow2.setTexture(textureArrow2);
     spriteArrow2.setScale(ratio*ly/fooSize.y,ratio*ly/fooSize.y);
@@ -2648,6 +2668,118 @@ void wrapMenuSideEvent::draw()
             scrollBar.setPosition(fooPos);
             texture->draw(scrollBar);
         }   
+        texture->display();
+        sprite->setTexture(texture->getTexture());
+        sprite->setPosition(x+lx,y);
+        window->draw(*sprite);
+        window->draw(contourShape);
+    }
+    if (!isMouseHere) window->draw(spriteArrow);
+    else window->draw(spriteArrow2);
+}
+wrapMenuSideScenario::wrapMenuSideScenario(sf::RenderTarget *w, mapi* Mi, string t, double x,double y,double lx,double ly, bool isRighti): wrapMenuSide(w,Mi,t,x,y,lx,ly,isRighti)
+{
+    isMouseHere = 0;
+    DIR * rep = opendir("./Scenario/"); 
+    addChoice("New chapter");
+    if (rep != NULL) 
+    { 
+        struct dirent * ent; 
+  
+        while ((ent = readdir(rep)) != NULL) 
+        { 
+            if (string(ent->d_name) != "." && string(ent->d_name) != "..") addChoice(string(ent->d_name));
+        } 
+  
+        closedir(rep); 
+    }
+    ratio = 0.5;
+    spriteArrow.setPosition(x+lx-ratio*ly-3,y+(1-ratio)*ly/2);
+    
+    textureArrow2.loadFromFile("../Icons//arrow-right-white.png");
+    sf::Vector2u fooSize = textureArrow2.getSize();
+    spriteArrow2.setTexture(textureArrow2);
+    spriteArrow2.setScale(ratio*ly/fooSize.y,ratio*ly/fooSize.y);
+    spriteArrow2.setPosition(x+lx-ratio*ly-3,y+(1-ratio)*ly/2);
+}
+
+wrapMenuSideScenario::~wrapMenuSideScenario(){}
+
+void wrapMenuSideScenario::update()
+{
+    bool foo = M->pullEventUpdated();
+    if (foo)
+    {
+        int fooInt = nChoice;
+        for (int i=0; i<fooInt; i++)
+            deleteChoice(0);
+        vector<string> foo = M->getNameEvents();
+        for (int i=0; i<foo.size(); i++)
+        {
+            addChoice(foo[i]);
+        }
+    }
+    selectShape.setSize(sf::Vector2f(lxMenu,heightChoice));
+    contourShape.setSize(sf::Vector2f(lxMenu,heightChoice*nChoice));
+    if (isMouseHere and isWrapped)
+    {
+        lyMenu = nChoice*heightChoice;
+        ly = min(lyMenu, sizeWrapInWindow);
+        isWrapped = 0;
+    }
+    else if (!isMouseHere and not isWrapped)
+    {
+        setWrapped(1);
+    }
+    if (isPressed && isMouseHere && !isMousePressed)
+    {
+        isPressed = 0;
+        int foo = posMouse.y - y;
+        if (foo >= 0)
+        {
+            foo = foo/heightChoice;
+            if (foo < nChoice)
+            {
+                cout<<"Edit Scenario! \n";
+                setWrapped(1);
+            }
+        }
+    }
+    if(isMouseHere && isMousePressed)
+        isPressed = 1;
+}
+
+void wrapMenuSideScenario::draw()
+{
+    if (not isWrapped)
+    {
+        texture->clear(sf::Color::White);
+        int foo = posMouse.y-y;
+        if (foo >= 0 and (posMouse.x>=x+lx && posMouse.x<x+lx+lxMenu && posMouse.y>=y && posMouse.y<y+lyMenu))
+        {
+            foo = foo/heightChoice;
+            if (foo < nChoice)
+            {
+                selectShape.setPosition(0,foo*heightChoice);
+                texture->draw(selectShape);
+            }
+        }
+        else foo = -1;
+        for (int i=0; i<nChoice; i++)
+        {
+            if (i == foo) choice[i].setColor(sf::Color::White);
+            else choice[i].setColor(sf::Color(132,148,159));
+            texture->draw(choice[i]);
+        }
+        if (lyMenu > sizeWrapInWindow)
+        {
+            sizeScrollBar.y = sizeWrapInWindow*sizeWrapInWindow/lyMenu;
+            scrollBar.setSize(sizeScrollBar);
+            sf::Vector2f fooPos = scrollBar.getPosition();
+            fooPos.y = (sizeWrapInWindow-sizeScrollBar.y)*(y+ly0-yMenu)/(lyMenu-sizeWrapInWindow) + (y+ly0-yMenu);
+            scrollBar.setPosition(fooPos);
+            texture->draw(scrollBar);
+        }
         texture->display();
         sprite->setTexture(texture->getTexture());
         sprite->setPosition(x+lx,y);
