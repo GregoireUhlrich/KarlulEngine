@@ -39,7 +39,7 @@ int main()
     string map;
     ifstream file("Maps/dataMap.txt", ios::in);
     if (file) file>>map;
-    else map = "map1.txt";
+    else map = "level1.txt";
     file.close();
     hero Heros("Paul", "Graphics/heros1.png", 0, 0);
     mapi* M = new mapi(&window, &Heros, map, yMap);
