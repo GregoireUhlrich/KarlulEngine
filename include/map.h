@@ -112,6 +112,7 @@ class mapi
     
     mapCtrlZ* ctrlZObject;
     
+    bool eventUpdated;
     Manager* manager;
     sf::Font font;
     sf::Text positionText;
@@ -195,6 +196,7 @@ class mapi
     void deleteCharacter(character* c);
     void addEvent();
     void deleteEvent(string c);
+    bool pullEventUpdated();
     
     void setJoueur(bool s);
     void setHerosPos(sf::Vector2i p);

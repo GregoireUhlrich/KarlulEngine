@@ -78,6 +78,16 @@ vector<int> Cross::getParams()
     return foo;
 }
 
+std::vector<std::string> Cross::getStrings()
+{
+    vector<string> foo(3);
+    foo[0] = unsignedIntToString((unsigned int)x);
+    foo[1] = unsignedIntToString((unsigned int)y);
+    foo[2] = "";
+    
+    return foo;
+}
+
 void Cross::saveTrigger(ofstream& f)
 {
     f<<"Cross: "<<x<<" "<<y<<endl;
@@ -146,6 +156,17 @@ vector<int> Action::getParams()
     
     return foo;
 }
+
+std::vector<std::string> Action::getStrings()
+{
+    vector<string> foo(3);
+    foo[0] = unsignedIntToString((unsigned int)x);
+    foo[1] = unsignedIntToString((unsigned int)y);
+    foo[2] = "";
+    
+    return foo;
+}
+
 
 void Action::saveTrigger(ofstream& f)
 {
@@ -225,6 +246,16 @@ vector<int> Gate::getParams()
     return foo;
 }
 
+std::vector<std::string> Gate::getStrings()
+{
+    vector<string> foo(3);
+    foo[0] = unsignedIntToString((unsigned int)x);
+    foo[1] = unsignedIntToString((unsigned int)y);
+    foo[2] = unsignedIntToString((unsigned int)dir);
+    
+    return foo;
+}
+
 void Gate::saveTrigger(ofstream& f)
 {
     f<<"Gate: "<<x<<" "<<y<<" "<<dir<<endl;
@@ -292,6 +323,16 @@ vector<int> TurningAround::getParams()
     foo[0] = 1;
     foo[1] = 1;
     foo[2] = 0;
+    
+    return foo;
+}
+
+std::vector<std::string> TurningAround::getStrings()
+{
+    vector<string> foo(3);
+    foo[0] = unsignedIntToString((unsigned int)x);
+    foo[1] = unsignedIntToString((unsigned int)y);
+    foo[2] = "";
     
     return foo;
 }

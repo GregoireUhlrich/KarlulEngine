@@ -852,6 +852,8 @@ void textBox::disable()
 void textBox::setString(string s)
 {
     stringText = sf::String(s);
+    len = s.length();
+    pos = len-1;
 }
 
 string textBox::getString() const { return stringText.toAnsiString();}
@@ -1885,7 +1887,7 @@ wrapMenuEdit::wrapMenuEdit(sf::RenderWindow *w, mapi* Mi, string t, double x,dou
     windowFIX = w;
     addChoice("Change size map");
     addChoice("Add event");
-    addChoice("Delete event");
+    addChoice("Modify event");
     mLoad = new wrapMenuSideEvent(w,Mi,"",x,y+ly+2*heightChoice,round(max((double)lx, maxSizeChoice*4./3+30)),ly,isRighti);
 }
 
@@ -2573,6 +2575,18 @@ wrapMenuSideEvent::~wrapMenuSideEvent(){}
 
 void wrapMenuSideEvent::update()
 {
+    bool foo = M->pullEventUpdated();
+    if (foo)
+    {
+        int fooInt = nChoice;
+        for (int i=0; i<fooInt; i++)
+            deleteChoice(0);
+        vector<string> foo = M->getNameEvents();
+        for (int i=0; i<foo.size(); i++)
+        {
+            addChoice(foo[i]);
+        }
+    }
     selectShape.setSize(sf::Vector2f(lxMenu,heightChoice));
     contourShape.setSize(sf::Vector2f(lxMenu,heightChoice*nChoice));
     if (isMouseHere and isWrapped)

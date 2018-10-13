@@ -190,8 +190,8 @@ int main()
                     }
                 }
                 elapsedTime = clock.restart();
-                Heros.update(elapsedTime.asSeconds());
             }
+            Heros.update(elapsedTime.asSeconds());
         }
         
         window.display();

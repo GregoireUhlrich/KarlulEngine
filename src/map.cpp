@@ -80,6 +80,7 @@ mapi::mapi(sf::RenderWindow* w, hero* H, string f, int height)
     ly0 = ly;
     
     ctrlZObject = new mapCtrlZ(this);
+    eventUpdated = 0;
     manager = new Manager(this,Heros,window);
     
     font.loadFromFile(fontMapi);
@@ -331,7 +332,8 @@ void mapi::setJoueur(bool s)
         y = y0;
         ly = sizeWindow.y - y;
         sf::Vector2i fooSizeIm = imL->getSize();
-        viewMap.reset(sf::FloatRect(round(-(lx-lxMap*xSprites+fooSizeIm.x)/2),round(-(ly-lyMap*ySprites)/2),lx,ly));
+        viewMap.setSize(lx,ly);
+        //viewMap.reset(sf::FloatRect(round(-(lx-lxMap*xSprites+fooSizeIm.x)/2),round(-(ly-lyMap*ySprites)/2),lx,ly));
     }
     mapWindow.create(lx,ly);
     mapWindow.setView(viewMap);
@@ -1010,6 +1012,7 @@ void mapi::reinitMap()
     
     delete manager;
     manager = new Manager(this, Heros, window);
+    eventUpdated = 1;
 }
 
 sf::Vector2f mapi::convertPos(sf::Vector2i p)
@@ -1706,12 +1709,21 @@ void mapi::addEvent()
 {
     manager->addEvent();
     saveState = edited;
+    eventUpdated = 1;
 }
 
 void mapi::deleteEvent(string c)
 {
     manager->deleteEvent(c);
     saveState = edited;
+    eventUpdated = 1;
+}
+
+bool mapi::pullEventUpdated()
+{
+    bool foo = eventUpdated;
+    eventUpdated = 0;
+    return foo;
 }
 
 void mapi::keyPressed(sf::Keyboard::Key k)
@@ -2518,15 +2530,15 @@ void mapi::draw()
             }
         }
     }
-    if (state != heros)
+    /*if (state != heros)
     {
         sf::CircleShape fooCircle;
         fooCircle.setFillColor(sf::Color::Blue);
         fooCircle.setPosition(Heros->getX(),Heros->getY());
         fooCircle.setRadius(xSprites/2);
         mapWindow.draw(fooCircle);
-    }
-    else
+    }*/
+    if (state == heros)
     {
         float xView = Heros->getX()-lx/2.;
         float yView = Heros->getY()-ly/2.;

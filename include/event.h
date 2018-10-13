@@ -15,6 +15,7 @@ class Event{
     protected:
     
     std::string name;
+    std::string type;
     mapi* M;
     hero* h;
     sf::RenderWindow* window;
@@ -33,7 +34,9 @@ class Event{
     virtual ~Event(){};
     
     std::string getName();
+    std::string getType();
     
+    virtual vector<string> getStrings() {return vector<string>(0);}; 
     virtual void saveEvent(std::ofstream& f){};
     virtual void activate(){};
     virtual void update(float eT){};
@@ -56,6 +59,7 @@ class ChangeMap: public Event
     ~ChangeMap(){};
     
     static vector<int> getParams();
+    vector<string> getStrings(); 
     void saveEvent(std::ofstream& f);
     void activate();
     void update(float eT){};
@@ -86,6 +90,7 @@ class TextInteraction: public Event
     virtual ~TextInteraction(){};
     
     static vector<int> getParams();
+    vector<string> getStrings(); 
     virtual void saveEvent(std::ofstream& f);
     virtual void activate();
     void update(float eT);
@@ -108,6 +113,7 @@ class StaticPNJ: public TextInteraction
     ~StaticPNJ();
     
     static vector<int> getParams();
+    vector<string> getStrings(); 
     void activate();
     void saveEvent(std::ofstream& f);
 };

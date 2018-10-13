@@ -54,17 +54,25 @@ string Event::getName()
     return name;
 }
 
+string Event::getType()
+{
+    return type;
+}
+
 ChangeMap::ChangeMap(mapi* Mi, hero* hi, sf::RenderWindow* wi, ifstream& f): Event(Mi,hi,wi,f)
 {
     f>>nameMap>>x>>y>>dir;
+    type = "Change Map";
 }
 
 ChangeMap::ChangeMap(mapi* Mi, hero* h, sf::RenderWindow* w, std::vector<std::string> v): Event(Mi,h,w)
 {
-    x = (int)stringToUnsignedInt(v[0]);
-    y = (int)stringToUnsignedInt(v[1]);
-    dir = (int)stringToUnsignedInt(v[2]);
-    nameMap = v[3]+".txt";
+    name = v[0];
+    x = (int)stringToUnsignedInt(v[1]);
+    y = (int)stringToUnsignedInt(v[2]);
+    dir = (int)stringToUnsignedInt(v[3]);
+    nameMap = v[4]+".txt";
+    type = "Change Map";
 }
 
 ChangeMap::ChangeMap(const ChangeMap& c): Event(c)
@@ -72,6 +80,7 @@ ChangeMap::ChangeMap(const ChangeMap& c): Event(c)
     x = c.x;
     y = c.y;
     dir = c.dir;
+    type = "Change Map";
 }
 
 void ChangeMap::saveEvent(ofstream& f)
@@ -114,7 +123,25 @@ vector<int> ChangeMap::getParams()
     return foo;
 }
 
-TextInteraction::TextInteraction(mapi* Mi, hero* hi, sf::RenderWindow* wi): Event(Mi,hi,wi){}
+vector<string> ChangeMap::getStrings()
+{
+    vector<string> foo(6);
+    foo[0] = name;
+    foo[1] = unsignedIntToString((unsigned int)x);
+    foo[2] = unsignedIntToString((unsigned int)y);
+    foo[3] = unsignedIntToString((unsigned int)dir);
+    string foo2 = nameMap.substr(nameMap.find('/')+1,nameMap.length()-(nameMap.find('/')+1));
+    foo2 = foo2.substr(0,foo2.find('.'));
+    foo[4] = foo2;
+    foo[5] = "";
+    
+    return foo;
+} 
+
+TextInteraction::TextInteraction(mapi* Mi, hero* hi, sf::RenderWindow* wi): Event(Mi,hi,wi)
+{
+    type = "Text Interaction";
+}
 
 TextInteraction::TextInteraction(mapi* Mi, hero* hi, sf::RenderWindow* wi, ifstream& f): Event(Mi,hi,wi,f)
 {
@@ -136,11 +163,13 @@ TextInteraction::TextInteraction(mapi* Mi, hero* hi, sf::RenderWindow* wi, ifstr
     text.erase(text.begin()+text.size()-1);
     
     font.loadFromFile(fontEvents);
+    type = "Text Interaction";
 }
 
 TextInteraction::TextInteraction(mapi* Mi, hero* hi, sf::RenderWindow* w, std::vector<std::string> v): Event(Mi,hi,w)
 {
-    stringFile = "Texts/"+v[3]+".txt";
+    name = v[0];
+    stringFile = "Texts/"+v[4]+".txt";
     text = vector<sf::String>(0);
     iText = 0;
     thickness = 3;
@@ -158,11 +187,13 @@ TextInteraction::TextInteraction(mapi* Mi, hero* hi, sf::RenderWindow* w, std::v
     text.erase(text.begin()+text.size()-1);
     
     font.loadFromFile(fontEvents);
+    type = "Text Interaction";
 }
 
 TextInteraction::TextInteraction(const TextInteraction& t)
 {
     text = t.text;
+    type = "Text Interaction";
 }
 
 vector<int> TextInteraction::getParams()
@@ -176,6 +207,21 @@ vector<int> TextInteraction::getParams()
     
     return foo;
 }
+
+vector<string> TextInteraction::getStrings()
+{
+    vector<string> foo(6);
+    foo[0] = name;
+    foo[1] = "";
+    foo[2] = "";
+    foo[3] = "";
+    string foo2 = stringFile.substr(stringFile.find('/')+1,stringFile.length()-(stringFile.find('/')+1));
+    foo2 = foo2.substr(0,foo2.find('.'));
+    foo[4] = foo2;
+    foo[5] = "";
+    
+    return foo;
+} 
 
 void TextInteraction::saveEvent(ofstream& f)
 {
@@ -268,11 +314,12 @@ StaticPNJ::StaticPNJ(mapi* Mi, hero* hi, sf::RenderWindow* wi, ifstream& f): Tex
     f>>fileCharacter>>x>>y>>dir;
     PNJ = new character(fileCharacter,x,y,dir);
     M->addCharacter(PNJ);
+    type = "Static PNJ";
 }
 
 StaticPNJ::StaticPNJ(mapi* Mi, hero* hi, sf::RenderWindow* w, std::vector<std::string> v): TextInteraction(Mi,hi,w)
 {
-    stringFile = "Texts/"+v[3]+".txt";
+    stringFile = "Texts/"+v[4]+".txt";
     text = vector<sf::String>(0);
     iText = 0;
     thickness = 3;
@@ -291,12 +338,14 @@ StaticPNJ::StaticPNJ(mapi* Mi, hero* hi, sf::RenderWindow* w, std::vector<std::s
     
     font.loadFromFile(fontEvents);
     
-    x = (int)stringToUnsignedInt(v[0]);
-    y = (int)stringToUnsignedInt(v[1]);
-    dir = (int)stringToUnsignedInt(v[2]);
-    fileCharacter = "Graphics/"+v[4]+".png";
+    name = v[0];
+    x = (int)stringToUnsignedInt(v[1]);
+    y = (int)stringToUnsignedInt(v[2]);
+    dir = (int)stringToUnsignedInt(v[3]);
+    fileCharacter = "Graphics/"+v[5]+".png";
     PNJ = new character(fileCharacter,x,y,dir);
     M->addCharacter(PNJ);
+    type = "Static PNJ";
 }
 
 
@@ -305,6 +354,7 @@ StaticPNJ::StaticPNJ(const StaticPNJ& s): TextInteraction(s)
     fileCharacter = s.fileCharacter;
     PNJ = new character(*s.PNJ);
     M->addCharacter(PNJ);
+    type = "Static PNJ";
 }
 
 StaticPNJ::~StaticPNJ()
@@ -324,6 +374,23 @@ vector<int> StaticPNJ::getParams()
     
     return foo;
 }
+
+vector<string> StaticPNJ::getStrings()
+{
+    vector<string> foo(6);
+    foo[0] = name;
+    foo[1] = unsignedIntToString((unsigned int)x);
+    foo[2] = unsignedIntToString((unsigned int)y);
+    foo[3] = unsignedIntToString((unsigned int)dir);
+    string foo2 = stringFile.substr(stringFile.find('/')+1,stringFile.length()-(stringFile.find('/')+1));
+    foo2 = foo2.substr(0,foo2.find('.'));
+    foo[4] = foo2;
+    foo2 = fileCharacter.substr(fileCharacter.find('/')+1,fileCharacter.length()-(fileCharacter.find('/')+1));
+    foo2 = foo2.substr(0,foo2.find('.'));
+    foo[5] = foo2;
+    
+    return foo;
+} 
 
 void StaticPNJ::saveEvent(ofstream& f)
 {
