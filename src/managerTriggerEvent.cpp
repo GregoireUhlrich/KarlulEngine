@@ -265,7 +265,7 @@ void Manager::addEventWindow()
     sf::Time elapsedTime = clock.restart();
     while (windowC.isOpen())
     {   
-        bool enableValidation = 1;
+        bool enableValidation = (textBoxes[0]->getString().length() > 0);
         vector<int> fooInt1, fooInt2;
         if (wrapMenuEvent.getName() == "Change Map") fooInt1 = ChangeMap::getParams();
         else if (wrapMenuEvent.getName() == "Text Interaction") fooInt1 = TextInteraction::getParams();
@@ -313,8 +313,8 @@ void Manager::addEventWindow()
                 text[i].setColor(sf::Color(217,217,217));
             }
         }
-        for (int i=0; i<nTextBoxesEvent; i++)
-            enableValidation = enableValidation && (!fooInt1[i] || textBoxes[i]->getString().length() > 0);
+        for (int i=1; i<nTextBoxesEvent; i++)
+            enableValidation = enableValidation && (!fooInt1[i-1] || textBoxes[i]->getString().length() > 0);
         for (int i=nTextBoxesEvent; i<nTextBoxes; i++)
             enableValidation = enableValidation && (!fooInt2[i-nTextBoxesEvent] || textBoxes[i]->getString().length() > 0);
             
