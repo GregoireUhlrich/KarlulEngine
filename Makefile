@@ -15,7 +15,7 @@ clean-all:
 	$(CC) -c $(SRC) -DSFML_STATIC -static
 engine.x: $(OBJ) 
 	$(CC) $(OBJ) $(SFML) -o $@
-	rm -f ./src/*.o
+	rm -f src/*.o
 
 UnixEditor.exe: $(OBJ) UnixEditor.o
 	$(CC) $(OBJ) UnixEditor.o -o $@ $(SFML)

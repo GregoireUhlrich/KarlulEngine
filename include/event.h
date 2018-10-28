@@ -4,6 +4,7 @@
 #include "map.h"
 #include "supportWindow.h"
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <string>
 #include <vector>
 #include <fstream>
@@ -114,6 +115,27 @@ class StaticPNJ: public TextInteraction
     
     static vector<int> getParams();
     vector<string> getStrings(); 
+    void activate();
+    void saveEvent(std::ofstream& f);
+};
+
+class MiniJeuDamier: public Event{
+
+    private:
+    
+    int n;
+    bool modulo;
+    
+    public:
+    
+    MiniJeuDamier(mapi* Mi, hero* h, sf::RenderWindow* w, std::ifstream& f);
+    MiniJeuDamier(mapi* Mi, hero* h, sf::RenderWindow* w, std::vector<std::string> v);
+    MiniJeuDamier(const MiniJeuDamier& m);
+    ~MiniJeuDamier(){};
+    
+    static vector<int> getParams();
+    vector<string> getStrings(); 
+    bool testFin(std::vector<std::vector<bool> > d);
     void activate();
     void saveEvent(std::ofstream& f);
 };

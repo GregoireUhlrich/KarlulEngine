@@ -407,3 +407,181 @@ void StaticPNJ::activate()
         PNJ->update(0);
     }
 }
+
+MiniJeuDamier::MiniJeuDamier(mapi* Mi, hero* hi, sf::RenderWindow* wi, ifstream& f): Event(Mi,hi,wi,f)
+{
+    f>>n>>modulo;
+    type = "Mini Jeu Damier";
+}
+
+MiniJeuDamier::MiniJeuDamier(mapi* Mi, hero* hi, sf::RenderWindow* wi, vector<string> v): Event(Mi,hi,wi)
+{
+    name = v[0];
+    type = "Mini Jeu Damier";
+    n = stringToUnsignedInt(v[1]);
+    int foo = stringToUnsignedInt(v[2]);
+    modulo = 0;
+    if (foo == 1) modulo = 1;
+}
+
+MiniJeuDamier::MiniJeuDamier(const MiniJeuDamier& m): Event(m)
+{
+    n = m.n;
+    modulo = m.modulo;
+}
+
+vector<int> MiniJeuDamier::getParams()
+{
+    vector<int> foo(5);
+    foo[0] = 1;
+    foo[1] = 1;
+    foo[2] = 0;
+    foo[3] = 0;
+    foo[4] = 0;
+    
+    return foo;
+}
+
+vector<string> MiniJeuDamier::getStrings()
+{
+    vector<string> foo(6);
+    foo[0] = name;
+    foo[1] = unsignedIntToString((unsigned int)n);
+    foo[2] = unsignedIntToString((unsigned int)modulo);
+    foo[3] = "";
+    foo[4] = "";
+    foo[5] = "";
+    
+    return foo;
+} 
+
+void MiniJeuDamier::saveEvent(ofstream& f)
+{
+    f<<"MiniJeuDamier: "<<name<<" "<<n<<" "<<modulo<<" ";
+}
+
+bool MiniJeuDamier::testFin(vector<vector<bool > > d)
+{
+    for (int i=0; i<n; i++)
+        for (int j=0; j<n; j++)
+            if (!d[i][j])
+                return 0;
+    return 1;
+}
+
+void MiniJeuDamier::activate()
+{
+    int mode = 0;
+    int tailleCase = 100;
+    vector<vector<bool> > damier(n);
+    for (int i=0; i<n; i++)
+    {
+        damier[i] = vector<bool>(n);
+        for (int j=0; j<n; j++)
+            damier[i][j] = 0;
+    }
+    vector<sf::Color> color(2);
+    color[0] = sf::Color::Blue;
+    color[1] = sf::Color::Red;
+    sf::Color colorFin = sf::Color::Yellow;
+    
+    vector<vector<sf::RectangleShape> > shapes(n);
+    for (int i=0; i<n; i++)
+    {
+        shapes[i] = vector<sf::RectangleShape>(n);
+        for (int j=0; j<n; j++)
+        {
+            shapes[i][j].setFillColor(color[0]);
+            shapes[i][j].setSize(sf::Vector2f(tailleCase,tailleCase));
+            shapes[i][j].setPosition(i*tailleCase,j*tailleCase);
+            shapes[i][j].setOutlineThickness(2);
+            shapes[i][j].setOutlineColor(sf::Color::Black);
+        }
+    }
+    
+    sf::RenderWindow windowJeu(sf::VideoMode(n*tailleCase,n*tailleCase), "Damier");
+    sf::SoundBuffer buffer;
+    buffer.loadFromFile("Audio/lowDown.ogg");
+    sf::Sound son;
+    son.setBuffer(buffer);
+    sf::Vector2i posMouse;
+    sf::Event event;
+    sf::Clock clock;
+    sf::Time time = clock.restart();
+    double timeFromWin = 0;
+    
+    while (windowJeu.isOpen())
+    {
+        posMouse = sf::Mouse::getPosition(windowJeu);
+        posMouse.x = min(posMouse.x/tailleCase,n-1);
+        posMouse.y = min(posMouse.y/tailleCase,n-1);
+        if (window->hasFocus()) windowJeu.requestFocus();
+        while(window->pollEvent(event));
+        while(windowJeu.pollEvent(event))
+        {
+            if (event.type == sf::Event::MouseButtonPressed)
+            {
+                if (event.mouseButton.button == sf::Mouse::Left and mode == 0)
+                {
+                    int ix = posMouse.x;
+                    int iy = posMouse.y;
+                    if (modulo)
+                    {
+                        damier[ix][iy] = !damier[ix][iy];
+                        damier[(ix+1)%n][iy] = !damier[(ix+1)%n][iy];
+                        damier[ix][(iy+1)%n] = !damier[ix][(iy+1)%n];
+                        damier[ix][(iy+2)%n] = !damier[ix][(iy+2)%n];
+                        damier[(ix+2)%n][iy] = !damier[(ix+2)%n][iy];
+                    }
+                    else
+                    {
+                        damier[ix][iy] = !damier[ix][iy];
+                        if (ix+1 < n) damier[ix+1][iy] = !damier[ix+1][iy];
+                        if (ix-1 >= 0) damier[ix-1][iy] = !damier[ix-1][iy];
+                        if (iy+1 < n) damier[ix][iy+1] = !damier[ix][iy+1];
+                        if (iy-1 >= 0) damier[ix][iy-1] = !damier[ix][iy-1];
+                    }
+                }
+                else if (event.mouseButton.button == sf::Mouse::Right and mode == 0)
+                {
+                    for (int i=0; i<n; i++)
+                        for (int j=0; j<n; j++)
+                            damier[i][j] = 0;
+                }
+            }
+            
+        }
+        time = clock.restart();
+        if (mode == 0)
+        {
+            for (int i=0; i<n; i++)
+                for (int j=0; j<n; j++)
+                    shapes[i][j].setFillColor(color[damier[i][j]]);
+        }
+        if (mode == 0 and testFin(damier)) mode = 1;
+        if (mode == 1)
+        {
+            timeFromWin += time.asSeconds();
+            if (timeFromWin > 0.5)
+            {
+                son.play();
+                for (int i=0; i<n; i++)
+                    for (int j=0; j<n; j++)
+                        shapes[i][j].setFillColor(colorFin);
+                timeFromWin = 0;
+                mode = 2;
+            }
+        }
+        windowJeu.clear();
+        for (int i=0; i<n; i++)
+            for (int j=0; j<n; j++)
+                windowJeu.draw(shapes[i][j]);
+        windowJeu.display();
+        
+        if (mode == 2)
+        {
+            timeFromWin += time.asSeconds();
+            if (timeFromWin > 1) windowJeu.close();
+        }
+    }
+}

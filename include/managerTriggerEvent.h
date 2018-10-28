@@ -5,6 +5,7 @@
 #include <vector>
 #include "event.h"
 #include "trigger.h"
+#include "scenario.h"
 
 class Manager{
     

@@ -106,6 +106,10 @@ void Manager::createEvents(ifstream& f)
         {
             events.push_back(new StaticPNJ(M,h,window,f));
         }
+        else if (foo == "MiniJeuDamier:")
+        {
+            events.push_back(new MiniJeuDamier(M,h,window,f));
+        }
         else
         {
             events.push_back(NULL);
@@ -181,6 +185,7 @@ void Manager::addEventWindow()
     wrapMenuEvent.addChoice("Change Map");
     wrapMenuEvent.addChoice("Text Interaction");
     wrapMenuEvent.addChoice("Static PNJ");
+    wrapMenuEvent.addChoice("Mini Jeu Damier");
     wrapMenuEvent.setWrapped(1);
     wrapMenuUX wrapMenuTrigger(&windowC,M,"Select trigger",sizeX/2+ (sizeX/2-sizeX/3)/2,sizeButtons/2,sizeX/3,sizeButtons, 0);
     wrapMenuTrigger.addChoice("Cross");
@@ -270,6 +275,7 @@ void Manager::addEventWindow()
         if (wrapMenuEvent.getName() == "Change Map") fooInt1 = ChangeMap::getParams();
         else if (wrapMenuEvent.getName() == "Text Interaction") fooInt1 = TextInteraction::getParams();
         else if (wrapMenuEvent.getName() == "Static PNJ") fooInt1 = StaticPNJ::getParams();
+        else if (wrapMenuEvent.getName() == "Mini Jeu Damier") fooInt1 = MiniJeuDamier::getParams();
         else
         {
             fooInt1 = vector<int>(nTextBoxesEvent);
@@ -467,6 +473,10 @@ void Manager::addEventWindow()
             {
                 events.push_back(new StaticPNJ(M,h,window,fooString1));            
             }
+            else if (wrapMenuEvent.getName() == "Mini Jeu Damier")
+            {
+                events.push_back(new MiniJeuDamier(M,h,window,fooString1));            
+            }
             
             if (wrapMenuTrigger.getName() == "Cross")
             {
@@ -525,6 +535,7 @@ void Manager::modifyEventWindow(int indexEvent)
     wrapMenuEvent.addChoice("Change Map");
     wrapMenuEvent.addChoice("Text Interaction");
     wrapMenuEvent.addChoice("Static PNJ");
+    wrapMenuEvent.addChoice("Mini Jeu Damier");
     wrapMenuEvent.setWrapped(1);
     wrapMenuUX wrapMenuTrigger(&windowC,M,triggers[indexEvent]->getName(),sizeX/2+ (sizeX/2-sizeX/3)/2,sizeButtons/2,sizeX/3,sizeButtons, 0);
     wrapMenuTrigger.addChoice("Cross");
@@ -628,6 +639,7 @@ void Manager::modifyEventWindow(int indexEvent)
         if (wrapMenuEvent.getName() == "Change Map") fooInt1 = ChangeMap::getParams();
         else if (wrapMenuEvent.getName() == "Text Interaction") fooInt1 = TextInteraction::getParams();
         else if (wrapMenuEvent.getName() == "Static PNJ") fooInt1 = StaticPNJ::getParams();
+        else if (wrapMenuEvent.getName() == "Mini Jeu Damier") fooInt1 = MiniJeuDamier::getParams();
         else
         {
             fooInt1 = vector<int>(nTextBoxesEvent);
@@ -837,6 +849,10 @@ void Manager::modifyEventWindow(int indexEvent)
             else if (wrapMenuEvent.getName() == "Static PNJ")
             {
                 events.push_back(new StaticPNJ(M,h,window,fooString1));            
+            }
+            else if (wrapMenuEvent.getName() == "Mini Jeu Damier")
+            {
+                events.push_back(new MiniJeuDamier(M,h,window,fooString1));            
             }
             
             if (wrapMenuTrigger.getName() == "Cross")
