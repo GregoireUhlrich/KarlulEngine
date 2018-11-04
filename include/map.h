@@ -37,7 +37,7 @@ class mapi
     int lxMap, lyMap; // Taille de la carte en nombre de sprites
     int sizeWrapMenuTexture;
     int xSprites, ySprites; // Taille des sprites en pixel
-    double thickness; //thickness of the boundary
+    float thickness; //thickness of the boundary
     int thicknessBorderImage;
     sf::Color backGColor; // backGround color
     
@@ -55,8 +55,8 @@ class mapi
     sf::Vector2i oldPosMouse; // Ancienne position de la souris 
     sf::Vector2i posClick; // position du click 
     int delta; // Nombre de crans de la molette de la souris
-    double iZoom; // Ratio de zoom pour un cran passé de la molette
-    double minZoom, maxZoom; // 2chelles min et max pour le zoom
+    float iZoom; // Ratio de zoom pour un cran passé de la molette
+    float minZoom, maxZoom; // 2chelles min et max pour le zoom
     bool allPrio; // si vrai: une seule priorité est affichée à l'écran (c'est mal fait oui)
     bool showPass; // si vrai: on montre les ordres de passages
     int currentPrio; // priorité de travail 
@@ -208,7 +208,7 @@ class mapi
     
     void keyPressed(sf::Keyboard::Key k);
     
-    void update(double eT);
+    void update(float eT);
     void draw();
     void drawClearWindow();
     void draw(sf::Drawable* d);
@@ -232,8 +232,8 @@ class mapCtrlZ
     vector<vector<int> > posAddCtrlZ;
     vector<int> prioAddCtrlZ;
     
-    double thresholdTime;
-    double elapsedTime;
+    float thresholdTime;
+    float elapsedTime;
     int nEraseCtrlZ;
     vector<int> nSpriteErase;
     vector<vector<int> > prioSpriteEraseCtrlZ;
@@ -252,7 +252,7 @@ class mapCtrlZ
     mapCtrlZ(mapi* Mi);
     ~mapCtrlZ();
     
-    void addElapsedTime(double eT);
+    void addElapsedTime(float eT);
     
     void saveAdding(sprite s, int prio, int lxS, int lyS);
     void clearAdding();

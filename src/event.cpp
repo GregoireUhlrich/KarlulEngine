@@ -237,7 +237,7 @@ void TextInteraction::activate()
     }
 }
 
-void TextInteraction::update(double eT)
+void TextInteraction::update(float eT)
 {
     if (activated && text.size() > iText && h->pullAction())
     {
@@ -508,7 +508,7 @@ void MiniJeuDamier::activate()
     sf::Event event;
     sf::Clock clock;
     sf::Time time = clock.restart();
-    double timeFromWin = 0;
+    float timeFromWin = 0;
     
     while (windowJeu.isOpen())
     {

@@ -16,7 +16,7 @@ character::character()
     sx = sy = dx = dy = 0;
 }
 
-character::character(string n, string f, double xi, double yi)
+character::character(string n, string f, float xi, float yi)
 {
     file = f; // file of the texture
     name = n; // name of the carachter
@@ -95,21 +95,21 @@ character::character(const character& c)
 bool character::isOnGrid() { return onGrid;}
 string character::getName() const{ return name;}
 string character::getFile() const{ return file;}
-double character::getX() const{ return x;}
-double character::getY() const{ return y;}
+float character::getX() const{ return x;}
+float character::getY() const{ return y;}
 int character::getDir() const{ return direction;}
-double character::getTypeSprite() const{ return typeSprite;}
+float character::getTypeSprite() const{ return typeSprite;}
 sf::Sprite character::getSprite() const{ return sprite;}
 sf::Vector2u character::getSizeSprite() const{ return sf::Vector2u(xSprites, ySprites);}
 
 ///*** set fucntions for private variables ***///
 void character::setName(string n){ name = n;}
 void character::setFile(string f){ file = f;}
-void character::setX(double xNew){ x = xNew;}
-void character::setY(double yNew){ y = yNew;}
+void character::setX(float xNew){ x = xNew;}
+void character::setY(float yNew){ y = yNew;}
 void character::setDir(int d){ if (onGrid) direction = d;}
 
-void character::update(double elapsedTime)
+void character::update(float elapsedTime)
 {
     sprite.setTextureRect(sf::IntRect(sx*ceil(typeSprite),sy*direction,sx,sy));
     sprite.setPosition(sf::Vector2f(x+dx,y+dy));
@@ -124,7 +124,7 @@ void character::print() const
     cout<<"Direction: "<<direction<<endl;
 }
 
-hero::hero(string n, string f, double xi, double yi): character(n,f,xi,yi)
+hero::hero(string n, string f, float xi, float yi): character(n,f,xi,yi)
 {
     action = 0; // if the player is pressing action
     wantedMove = -1;
@@ -171,7 +171,7 @@ void hero::setKeyPressed(int key)
 }
 
 ///*** Update position and sprite for a given elapsed time ***///
-void hero::update(double elapsedTime)
+void hero::update(float elapsedTime)
 {
     if (moveEnabled)
     {
@@ -196,7 +196,7 @@ void hero::update(double elapsedTime)
 }
 
 ///*** Move the caracter, d = v*t ***///
-void hero::move(double elapsedTime)
+void hero::move(float elapsedTime)
 {
     int dir = -1;
     if (keyPressed != -1)
@@ -224,10 +224,10 @@ void hero::move(double elapsedTime)
 }
 
 ///*** Finish a movement when the character is between 2 squares ***///
-void hero::moveCarefully(double elapsedTime)
+void hero::moveCarefully(float elapsedTime)
 {
-    double deltaX, deltaY; // distance before the next square
-    double d = speed*elapsedTime; //distance the character would walk normally
+    float deltaX, deltaY; // distance before the next square
+    float d = speed*elapsedTime; //distance the character would walk normally
     switch(direction)
     {
         case 0:
@@ -258,7 +258,7 @@ void hero::moveCarefully(double elapsedTime)
 
 /*///*** Update of the sprite with new positions x(t), y(t),
 direction and type of the sprite ***///*/
-void hero::updateSprite(double elapsedTime)
+void hero::updateSprite(float elapsedTime)
 {
     if (!onGrid) // if not on the grid, we must animate the character 
     {
@@ -381,14 +381,14 @@ void ListCharacter::deleteCharacter(character* c)
 
 void ListCharacter::draw()
 {
-    vector<double> yCharacter(nCharacter);
+    vector<float> yCharacter(nCharacter);
     vector<int> posToDraw(nCharacter);
     for (int i=0; i<nCharacter; i++)
     {
         yCharacter[i] = list[i]->getY();
         posToDraw[i] = 0;
     }
-    double min;
+    float min;
     int iMin;
     for (int i=0; i<nCharacter; i++)
     {   

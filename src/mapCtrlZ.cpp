@@ -38,7 +38,7 @@ mapCtrlZ::~mapCtrlZ()
     }
 }
 
-void mapCtrlZ::addElapsedTime(double eT)
+void mapCtrlZ::addElapsedTime(float eT)
 {
     elapsedTime += eT;
 }

@@ -143,7 +143,7 @@ void Manager::createEvents(ifstream& f)
     }
 }
 
-void Manager::test(double eT)
+void Manager::test(float eT)
 {
     for (int i=0; i<nEvents; i++)
     {
@@ -154,7 +154,7 @@ void Manager::test(double eT)
     }
 }
 
-void Manager::update(double eT)
+void Manager::update(float eT)
 {
     test(eT);
     for (int i=0; i<nEvents; i++)
@@ -200,7 +200,7 @@ void Manager::addEventWindow()
     int posX = sizeX-2.25*sizeB-lQS-lC;
     int posY = sizeY-1.75*sizeB;
     int lenBox = 150;
-    double xText, yText, sizeString;
+    float xText, yText, sizeString;
     int characterSize = 20;
     
     int nTexts = 9;
@@ -551,7 +551,7 @@ void Manager::modifyEventWindow(int indexEvent)
     int posX = sizeX-3.25*sizeB-lQS-lC-lQ;
     int posY = sizeY-1.75*sizeB;
     int lenBox = 150;
-    double xText, yText, sizeString;
+    float xText, yText, sizeString;
     int characterSize = 20;
     
     int nTexts = 9;

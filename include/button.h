@@ -11,7 +11,7 @@ class button: public drawable
 {
     protected:
     
-    double ratioPressed;
+    float ratioPressed;
     unsigned int characterSize;
     bool isPressed;
     bool isRight;
@@ -22,13 +22,13 @@ class button: public drawable
     
     public:
     
-    button(sf::RenderTarget *w, string t, double x,double y,double lx,double ly,bool isRighti);
+    button(sf::RenderTarget *w, string t, float x,float y,float lx,float ly,bool isRighti);
     virtual ~button();
     
     sf::RectangleShape getRect() const;
     sf::Text getText() const;
     sf::Font getFont() const;
-    double getRatioPressed() const;
+    float getRatioPressed() const;
     unsigned int getCharacterSize() const;
     bool getIsRight() const;
     
@@ -48,7 +48,7 @@ class signalButton: public button
     bool enabled;
     
     public:
-    signalButton(sf::RenderTarget *w, string t, sf::Color c, double x,double y,double lx,double ly,bool isRighti);
+    signalButton(sf::RenderTarget *w, string t, sf::Color c, float x,float y,float lx,float ly,bool isRighti);
     ~signalButton();
     bool updateSignal();
     
@@ -65,7 +65,7 @@ class buttonIm: public button
     
     public:
     
-    buttonIm(sf::RenderTarget *w, mapi* M, char c, string t, double x, double y, double lx, double ly0,bool isRighti);
+    buttonIm(sf::RenderTarget *w, mapi* M, char c, string t, float x, float y, float lx, float ly0,bool isRighti);
     ~buttonIm();
     
     virtual void update();
@@ -81,7 +81,7 @@ class buttonMapp: public button
     
     public:
     
-    buttonMapp(sf::RenderTarget *w, mapi* M, StateMap sMi, string t, double x, double y, double lx, double ly0,bool isRighti);
+    buttonMapp(sf::RenderTarget *w, mapi* M, StateMap sMi, string t, float x, float y, float lx, float ly0,bool isRighti);
     ~buttonMapp();
     
     virtual void update();
@@ -98,7 +98,7 @@ class buttonSave: public button
     
     public:
     
-    buttonSave(sf::RenderTarget *w, mapi* M, char m, string t, double x, double y, double lx, double ly0,bool isRighti);
+    buttonSave(sf::RenderTarget *w, mapi* M, char m, string t, float x, float y, float lx, float ly0,bool isRighti);
     ~buttonSave();
     
     virtual void update();
@@ -120,7 +120,7 @@ class pushButton: public drawable
     
     public:
     
-    pushButton(sf::RenderTarget *w, mapi* Mi, string t, double x,double y,double lx,double ly, bool isRighti);
+    pushButton(sf::RenderTarget *w, mapi* Mi, string t, float x,float y,float lx,float ly, bool isRighti);
     pushButton(const pushButton& b);
     virtual ~pushButton();
     
@@ -151,7 +151,7 @@ class pushButtonUX: public drawable
     
     public:
     
-    pushButtonUX(sf::RenderTarget *w, mapi* Mi, double x,double y,double lx,double ly, bool isRighti);
+    pushButtonUX(sf::RenderTarget *w, mapi* Mi, float x,float y,float lx,float ly, bool isRighti);
     pushButtonUX(const pushButtonUX& b);
     virtual ~pushButtonUX();
     
@@ -175,7 +175,7 @@ class buttonGrid: public pushButton
     
     public:
     
-    buttonGrid(sf::RenderTarget *w, mapi* Mi, string t, double x,double y,double lx,double ly, bool isRighti);
+    buttonGrid(sf::RenderTarget *w, mapi* Mi, string t, float x,float y,float lx,float ly, bool isRighti);
     virtual ~buttonGrid();
     
     void update();
@@ -186,7 +186,7 @@ class buttonGridUX: public pushButtonUX
     private:
     
     int grid;
-    double xScaleIcon, yScaleIcon;
+    float xScaleIcon, yScaleIcon;
     sf::Texture textureA;
     sf::Texture textureB;
     sf::Sprite spriteA;
@@ -194,7 +194,7 @@ class buttonGridUX: public pushButtonUX
     
     public:
     
-    buttonGridUX(sf::RenderTarget *w, mapi* Mi, double x,double y,double lx,double ly, bool isRighti);
+    buttonGridUX(sf::RenderTarget *w, mapi* Mi, float x,float y,float lx,float ly, bool isRighti);
     virtual ~buttonGridUX();
     
     void update();
@@ -210,7 +210,7 @@ class buttonMap: public pushButton
     
     public:
     
-    buttonMap(sf::RenderTarget *w, mapi* Mi, StateMap si, string t, double x,double y,double lx,double ly, bool isRighti);
+    buttonMap(sf::RenderTarget *w, mapi* Mi, StateMap si, string t, float x,float y,float lx,float ly, bool isRighti);
     virtual ~buttonMap();
     
     void setPressed(bool s);    
@@ -223,7 +223,7 @@ class buttonMapUX: public pushButtonUX
     
     bool active;
     StateMap s;
-    double xScaleIcon, yScaleIcon;
+    float xScaleIcon, yScaleIcon;
     sf::Texture textureA;
     sf::Texture textureB;
     sf::Sprite spriteA;
@@ -231,7 +231,7 @@ class buttonMapUX: public pushButtonUX
     
     public:
     
-    buttonMapUX(sf::RenderTarget *w, mapi* Mi, StateMap si, double x,double y,double lx,double ly, bool isRighti);
+    buttonMapUX(sf::RenderTarget *w, mapi* Mi, StateMap si, float x,float y,float lx,float ly, bool isRighti);
     virtual ~buttonMapUX();
     
     void setPressed(bool s);    
@@ -248,7 +248,7 @@ class buttonPrio: public pushButton
     
     public:
     
-    buttonPrio(sf::RenderTarget *w, mapi* Mi, int p, string t, double x,double y,double lx,double ly, bool isRighti);
+    buttonPrio(sf::RenderTarget *w, mapi* Mi, int p, string t, float x,float y,float lx,float ly, bool isRighti);
     virtual ~buttonPrio();
     
     void setPressed(bool s);    
@@ -264,7 +264,7 @@ class buttonAllPrio: public pushButton
     
     public:
     
-    buttonAllPrio(sf::RenderTarget *w, mapi* Mi, string t, double x,double y,double lx,double ly, bool isRighti);
+    buttonAllPrio(sf::RenderTarget *w, mapi* Mi, string t, float x,float y,float lx,float ly, bool isRighti);
     virtual ~buttonAllPrio();
     
     void update();
@@ -283,7 +283,7 @@ class buttonPrioUX: public pushButtonUX
     
     public:
     
-    buttonPrioUX(sf::RenderTarget *w, mapi* Mi, int p, double x,double y,double lx,double ly, bool isRighti);
+    buttonPrioUX(sf::RenderTarget *w, mapi* Mi, int p, float x,float y,float lx,float ly, bool isRighti);
     virtual ~buttonPrioUX();
     
     void setPressed(bool s);    
@@ -297,7 +297,7 @@ class buttonAllPrioUX: public pushButtonUX
     private:
     
     int allPrio;
-    double xScaleIcon, yScaleIcon;
+    float xScaleIcon, yScaleIcon;
     sf::Texture textureA;
     sf::Texture textureB;
     sf::Sprite spriteA;
@@ -305,7 +305,7 @@ class buttonAllPrioUX: public pushButtonUX
     
     public:
     
-    buttonAllPrioUX(sf::RenderTarget *w, mapi* Mi, double x,double y,double lx,double ly, bool isRighti);
+    buttonAllPrioUX(sf::RenderTarget *w, mapi* Mi, float x,float y,float lx,float ly, bool isRighti);
     virtual ~buttonAllPrioUX();
     
     void update();
@@ -321,7 +321,7 @@ class buttonShowPass: public pushButton
     
     public:
     
-    buttonShowPass(sf::RenderTarget *w, mapi* Mi, string t, double x,double y,double lx,double ly, bool isRighti);
+    buttonShowPass(sf::RenderTarget *w, mapi* Mi, string t, float x,float y,float lx,float ly, bool isRighti);
     virtual ~buttonShowPass();
     
     void update();
@@ -333,7 +333,7 @@ class buttonShowPassUX: public pushButtonUX
     private:
     
     bool showPass;
-    double xScaleIcon, yScaleIcon;
+    float xScaleIcon, yScaleIcon;
     sf::Texture textureA;
     sf::Texture textureB;
     sf::Sprite spriteA;
@@ -341,7 +341,7 @@ class buttonShowPassUX: public pushButtonUX
     
     public:
     
-    buttonShowPassUX(sf::RenderTarget *w, mapi* Mi, double x,double y,double lx,double ly, bool isRighti);
+    buttonShowPassUX(sf::RenderTarget *w, mapi* Mi, float x,float y,float lx,float ly, bool isRighti);
     virtual ~buttonShowPassUX();
     
     void update();
@@ -354,7 +354,7 @@ class interactiveButtonUX: public drawable
     
     bool isRight;
     bool isPressed;
-    double ratioPressed;
+    float ratioPressed;
     unsigned int characterSize;
     mapi* M;
     sf::Font font;
@@ -368,7 +368,7 @@ class interactiveButtonUX: public drawable
     
     public:
     
-    interactiveButtonUX(sf::RenderTarget *w, mapi* Mi, double x,double y,double lx,double ly, bool isRighti);
+    interactiveButtonUX(sf::RenderTarget *w, mapi* Mi, float x,float y,float lx,float ly, bool isRighti);
     interactiveButtonUX(const interactiveButtonUX& b);
     ~interactiveButtonUX();
     
@@ -396,13 +396,13 @@ class textBox: public pushButton
     sf::Sprite sprite;
     sf::RectangleShape underline;
     
-    double elapsedTime;
-    double threshold;
+    float elapsedTime;
+    float threshold;
     bool stateUnderline;
     
     public:
     
-    textBox(sf::RenderTarget *w, mapi* Mi, char c, sf::String t, double x,double y,double lx,double ly, bool isRighti);
+    textBox(sf::RenderTarget *w, mapi* Mi, char c, sf::String t, float x,float y,float lx,float ly, bool isRighti);
     ~textBox();
     
     void enable();
@@ -422,7 +422,7 @@ class textBox: public pushButton
     void moveRight();
     
     void update();
-    void draw(double elapsedTime);
+    void draw(float elapsedTime);
     void draw();
 };
 
@@ -462,7 +462,7 @@ class wrapMenu: public drawable
     sf::Vector2f sizeScrollBar;
     
     public:
-    wrapMenu(sf::RenderTarget *w, mapi* Mi, string t, double x,double y,double lx,double ly, bool isRighti);
+    wrapMenu(sf::RenderTarget *w, mapi* Mi, string t, float x,float y,float lx,float ly, bool isRighti);
     ~wrapMenu();
     
     void setWrapped(bool s);
@@ -478,7 +478,7 @@ class wrapMenuLoad: public wrapMenu
 {
     public:
     
-    wrapMenuLoad(sf::RenderTarget *w, mapi* Mi, string t, double x,double y,double lx,double ly, bool isRighti);
+    wrapMenuLoad(sf::RenderTarget *w, mapi* Mi, string t, float x,float y,float lx,float ly, bool isRighti);
     ~wrapMenuLoad();
     
     void update();
@@ -492,7 +492,7 @@ class wrapMenuTexture: public wrapMenu
     
     public:
     
-    wrapMenuTexture(sf::RenderTarget *w, mapi* Mi, string t, double x,double y,double lx,double ly, bool isRighti);
+    wrapMenuTexture(sf::RenderTarget *w, mapi* Mi, string t, float x,float y,float lx,float ly, bool isRighti);
     ~wrapMenuTexture();
     
     void update();
@@ -508,7 +508,7 @@ class wrapMenuUX: public drawable
     int yScroll;
     int sizeWrapInWindow;
     int offsetTexture;
-    double maxSizeChoice;
+    float maxSizeChoice;
     
     bool isWrapped;
     bool isPressed;
@@ -534,7 +534,7 @@ class wrapMenuUX: public drawable
     sf::Vector2f sizeScrollBar;
     
     public:
-    wrapMenuUX(sf::RenderTarget *w, mapi* Mi, string t, double x,double y,double lx,double ly, bool isRighti);
+    wrapMenuUX(sf::RenderTarget *w, mapi* Mi, string t, float x,float y,float lx,float ly, bool isRighti);
     ~wrapMenuUX();
     
     string getName();
@@ -560,7 +560,7 @@ class wrapMenuFile: public wrapMenuUX
     
     public:
     
-    wrapMenuFile(sf::RenderTarget *w, mapi* Mi, string t, double x,double y,double lx,double ly, bool isRighti);
+    wrapMenuFile(sf::RenderTarget *w, mapi* Mi, string t, float x,float y,float lx,float ly, bool isRighti);
     ~wrapMenuFile();
     
     int testMouse(sf::Vector2i v);
@@ -585,7 +585,7 @@ class wrapMenuEdit: public wrapMenuUX
     
     public:
     
-    wrapMenuEdit(sf::RenderWindow *w, mapi* Mi, string t, double x,double y,double lx,double ly, bool isRighti);
+    wrapMenuEdit(sf::RenderWindow *w, mapi* Mi, string t, float x,float y,float lx,float ly, bool isRighti);
     ~wrapMenuEdit();
     
     int testMouse(sf::Vector2i v);
@@ -602,13 +602,13 @@ class wrapMenuSide: public wrapMenuUX
     protected:
     
     int lxMenu;
-    double ratio; 
+    float ratio; 
     sf::Texture textureArrow;
     sf::Sprite spriteArrow;
     
     public:
 
-    wrapMenuSide(sf::RenderTarget *w, mapi* Mi, string t, double x,double y,double lx,double ly, bool isRighti);
+    wrapMenuSide(sf::RenderTarget *w, mapi* Mi, string t, float x,float y,float lx,float ly, bool isRighti);
     ~wrapMenuSide();
     
     void setWrapped(bool s);
@@ -631,7 +631,7 @@ class wrapMenuTextureUX: public wrapMenuSide
     
     public:
     
-    wrapMenuTextureUX(sf::RenderTarget *w, mapi* Mi, string t, double x,double y,double lx,double ly, bool isRighti, int mode);
+    wrapMenuTextureUX(sf::RenderTarget *w, mapi* Mi, string t, float x,float y,float lx,float ly, bool isRighti, int mode);
     ~wrapMenuTextureUX();
     
     void addChoice(string c);
@@ -649,7 +649,7 @@ class wrapMenuSideLoad: public wrapMenuSide
     
     public: 
     
-    wrapMenuSideLoad(sf::RenderTarget *w, mapi* Mi, string t, double x,double y,double lx,double ly, bool isRighti);
+    wrapMenuSideLoad(sf::RenderTarget *w, mapi* Mi, string t, float x,float y,float lx,float ly, bool isRighti);
     ~wrapMenuSideLoad();
     
     void draw();
@@ -664,7 +664,7 @@ class wrapMenuSideEvent: public wrapMenuSide
     
     public: 
     
-    wrapMenuSideEvent(sf::RenderTarget *w, mapi* Mi, string t, double x,double y,double lx,double ly, bool isRighti);
+    wrapMenuSideEvent(sf::RenderTarget *w, mapi* Mi, string t, float x,float y,float lx,float ly, bool isRighti);
     ~wrapMenuSideEvent();
     
     void update();
@@ -680,7 +680,7 @@ class wrapMenuSideScenario: public wrapMenuSide
     
     public: 
     
-    wrapMenuSideScenario(sf::RenderTarget *w, mapi* Mi, string t, double x,double y,double lx,double ly, bool isRighti);
+    wrapMenuSideScenario(sf::RenderTarget *w, mapi* Mi, string t, float x,float y,float lx,float ly, bool isRighti);
     ~wrapMenuSideScenario();
     
     void update();

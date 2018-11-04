@@ -37,9 +37,9 @@ class Manager{
     
     void save(std::ofstream& f);
     void createEvents(std::ifstream& f);
-    void test(double eT);
+    void test(float eT);
     
-    void update(double eT);
+    void update(float eT);
     void draw(int p);
     
     void addEventWindow();

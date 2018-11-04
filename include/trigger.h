@@ -34,7 +34,7 @@ class Trigger{
     std::string getName();
     virtual std::vector<std::string> getStrings(){ return std::vector<std::string>(0);};
     virtual void saveTrigger(ofstream& f){};
-    virtual bool test(double eT){return 0;};
+    virtual bool test(float eT){return 0;};
 };
 
 class Cross: public Trigger{
@@ -53,7 +53,7 @@ class Cross: public Trigger{
     static vector<int> getParams();
     std::vector<std::string> getStrings();
     void saveTrigger(ofstream& f);
-    bool test(double eT);
+    bool test(float eT);
 };
 
 class Action: public Trigger{
@@ -72,7 +72,7 @@ class Action: public Trigger{
     static vector<int> getParams();
     std::vector<std::string> getStrings();
     void saveTrigger(ofstream& f);
-    bool test(double eT);
+    bool test(float eT);
 };
 
 class Gate: public Trigger{
@@ -93,7 +93,7 @@ class Gate: public Trigger{
     static vector<int> getParams();
     std::vector<std::string> getStrings();
     void saveTrigger(ofstream& f);
-    bool test(double eT);
+    bool test(float eT);
 };
 
 class TurningAround: public Trigger{
@@ -116,7 +116,7 @@ class TurningAround: public Trigger{
     static vector<int> getParams();
     std::vector<std::string> getStrings();
     void saveTrigger(ofstream& f);
-    bool test(double eT);
+    bool test(float eT);
 };
 
 #endif

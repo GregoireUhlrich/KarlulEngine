@@ -35,9 +35,9 @@ int quitWindow(sf::RenderWindow* w)
     text.setFont(font);
     text.setColor(sf::Color::Black);
     sf::FloatRect foo = text.getLocalBounds();
-    double sizeString = foo.width;
-    double xText = (sizeX-sizeString)/2;
-    double yText = (sizeY-2.5*sizeB-1.15*characterSize)/2;
+    float sizeString = foo.width;
+    float xText = (sizeX-sizeString)/2;
+    float yText = (sizeY-2.5*sizeB-1.15*characterSize)/2;
     text.setPosition(round(xText), round(yText));
     
     while (windowC.isOpen())
@@ -198,9 +198,9 @@ int loadWindow(sf::RenderWindow* w)
     text.setFont(font);
     text.setColor(sf::Color::Black);
     sf::FloatRect foo = text.getLocalBounds();
-    double sizeString = foo.width;
-    double xText = (sizeX-sizeString)/2;
-    double yText = (sizeY-2.5*sizeB-1.15*characterSize)/2;
+    float sizeString = foo.width;
+    float xText = (sizeX-sizeString)/2;
+    float yText = (sizeY-2.5*sizeB-1.15*characterSize)/2;
     text.setPosition(round(xText), round(yText));
     
     while (windowC.isOpen())
@@ -378,9 +378,9 @@ void newMapWindow(sf::RenderWindow* w, mapi* M)
     text.setFont(font);
     text.setColor(sf::Color::Black);
     sf::FloatRect foo = text.getLocalBounds();
-    double sizeString = foo.width;
-    double xText = (sizeX-(sizeString+lenBox))/2-leftOffset;
-    double yText = (sizeY-2.5*sizeB)/2-(1.15*characterSize)/2;
+    float sizeString = foo.width;
+    float xText = (sizeX-(sizeString+lenBox))/2-leftOffset;
+    float yText = (sizeY-2.5*sizeB)/2-(1.15*characterSize)/2;
     text.setPosition(round(xText), round(yText));
     
     sf::Text textMap;
@@ -692,9 +692,9 @@ vector<int> changeSizeMapWindow(sf::RenderWindow* w, mapi* M)
     text.setFont(font);
     text.setColor(sf::Color::Black);
     sf::FloatRect foo = text.getLocalBounds();
-    double sizeString = foo.width;
-    double xText = (sizeX-(sizeString+lenBox))/2-leftOffset;
-    double yText = (sizeY-2.5*sizeB)/3-(1.15*characterSize)/2;
+    float sizeString = foo.width;
+    float xText = (sizeX-(sizeString+lenBox))/2-leftOffset;
+    float yText = (sizeY-2.5*sizeB)/3-(1.15*characterSize)/2;
     text.setPosition(round(xText), round(yText));
     
     

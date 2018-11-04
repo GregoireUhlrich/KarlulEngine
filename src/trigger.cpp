@@ -93,9 +93,9 @@ void Cross::saveTrigger(ofstream& f)
     f<<"Cross: "<<x<<" "<<y<<endl;
 }
 
-bool Cross::test(double eT)
+bool Cross::test(float eT)
 {
-    double xH, yH;
+    float xH, yH;
     int dirH;
     xH = h->getX()/xSprites;
     yH = h->getY()/ySprites;
@@ -173,10 +173,10 @@ void Action::saveTrigger(ofstream& f)
     f<<"Action: "<<x<<" "<<y<<endl;
 }
 
-bool Action::test(double eT)
+bool Action::test(float eT)
 {
     if (!h->isOnGrid()) return 0;
-    double xH, yH;
+    float xH, yH;
     int dirH;
     xH = round(h->getX()/xSprites);
     yH = round(h->getY()/ySprites);
@@ -261,7 +261,7 @@ void Gate::saveTrigger(ofstream& f)
     f<<"Gate: "<<x<<" "<<y<<" "<<dir<<endl;
 }
 
-bool Gate::test(double eT)
+bool Gate::test(float eT)
 {
     if (!activated)
     {
@@ -342,7 +342,7 @@ void TurningAround::saveTrigger(ofstream& f)
     f<<"TurningAround: "<<x<<" "<<y<<endl;
 }
 
-bool TurningAround::test(double eT)
+bool TurningAround::test(float eT)
 {
     if (!activated)
     {

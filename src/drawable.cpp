@@ -19,7 +19,7 @@ drawable::drawable(sf::RenderTarget* w)
 drawable::~drawable()
 {}
 
-void drawable::setPosition(double xNew, double yNew)
+void drawable::setPosition(float xNew, float yNew)
 {
     x = xNew;
     y = yNew;
@@ -108,7 +108,7 @@ void drawable::closeWindow()
     window = 0;
 }
 
-movingCircle::movingCircle(sf::RenderTarget *w, const sf::Color& c, double xi, double yi, double ri): drawable(w)
+movingCircle::movingCircle(sf::RenderTarget *w, const sf::Color& c, float xi, float yi, float ri): drawable(w)
 {
     x=xi; y=yi; r=ri;
     posMouse = sf::Vector2i(0,0);
@@ -126,7 +126,7 @@ void movingCircle::setShape(sf::CircleShape& s)
     shape = s;
 }
 
-void movingCircle::setRadius(double ri)
+void movingCircle::setRadius(float ri)
 {
     r = ri;
     shape.setRadius(r);
@@ -139,7 +139,7 @@ void movingCircle::setColor(const sf::Color& c)
 
 int movingCircle::testMouse(sf::Vector2i v)
 {
-    double distance = sqrt(pow(v.x-x-r,2)+pow(v.y-y-r,2));
+    float distance = sqrt(pow(v.x-x-r,2)+pow(v.y-y-r,2));
     posMouse = v;
     if (distance < r)
     {
@@ -373,7 +373,7 @@ void imagePNG::update()
                     ymin = max(ymin, ySprites/2);
                     ymax = min(ymax, ly-ySprites/2);
                 }
-        
+
                 selectRect.setPosition(xmin, ymin);
                 selectRect.setSize(sf::Vector2f(xmax-xmin, ymax-ymin));
             }
@@ -385,30 +385,30 @@ void imagePNG::update()
             sf::Vector2f foo2;
             foo = selectRect.getPosition();
             foo2 = selectRect.getSize();
-            double xmin, ymin, xmax, ymax;
+            float xmin, ymin, xmax, ymax;
             if (!takeMidX)
             {
-                xmin = min(floor((double)(foo.x)/xSprites)*xSprites,(double)lx-xSprites);
-                xmax = max(xmin+xSprites,round(((double)foo.x+(double)foo2.x)/xSprites)*xSprites);
-                xmax = min(xmax,(double)lx);
+                xmin = min(floor((float)(foo.x)/xSprites)*xSprites,(float)lx-xSprites);
+                xmax = max(xmin+xSprites,(float)round((foo.x+foo2.x)/xSprites)*xSprites);
+                xmax = min(xmax,(float)lx);
             }
             else
             {
-                xmin = min(floor((foo.x)*2./xSprites)*xSprites/2.,(double)lx-1.5*xSprites);
-                xmax = max(xmin+xSprites,round(((double)foo.x+(double)foo2.x-xSprites/2)/xSprites)*xSprites+xSprites/2);    
-                xmax = min(xmax, (double)lx-xSprites/2.);
+                xmin = min(floor((foo.x)*(float)2./xSprites)*(float)xSprites/2.,(float)lx-1.5*xSprites);
+                xmax = max(xmin+xSprites,(float)round((foo.x+foo2.x-xSprites/2)/xSprites)*xSprites+xSprites/2);    
+                xmax = min(xmax, (float)(lx-xSprites/2.));
             }
             if (!takeMidY)
             {
-                ymin = min(floor(((double)foo.y)/ySprites)*ySprites,(double)ly-ySprites);
-                ymax = max(ymin+ySprites,round(((double)foo.y+(double)foo2.y)/ySprites)*ySprites);
-                ymax = min(ymax,(double)ly);
+                ymin = min(floor(((float)foo.y)/ySprites)*ySprites,(float)ly-ySprites);
+                ymax = max(ymin+ySprites,(float)round((foo.y+foo2.y)/ySprites)*ySprites);
+                ymax = min(ymax,(float)ly);
             }
             else
             {
-                ymin = min(floor(((double)foo.y)*2./ySprites)*ySprites/2.,(double)ly-1.5*ySprites);
-                ymax = max(ymin+ySprites,round(((double)foo.y+(double)foo2.y-ySprites/2)/ySprites)*ySprites+ySprites/2);    
-                ymax = min(ymax, (double)ly-ySprites/2.);        
+                ymin = min(floor(((float)foo.y)*2./ySprites)*(float)ySprites/2.,(float)ly-1.5*ySprites);
+                ymax = max(ymin+ySprites,(float)round((foo.y+foo2.y-ySprites/2)/ySprites)*ySprites+ySprites/2);    
+                ymax = min(ymax, (float)(ly-ySprites/2));        
             }
             selectRect.setPosition(xmin,ymin);
             selectRect.setSize(sf::Vector2f(xmax-xmin, ymax-ymin));

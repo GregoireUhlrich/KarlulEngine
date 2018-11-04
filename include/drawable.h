@@ -28,7 +28,7 @@ class drawable
     drawable(sf::RenderTarget *w);
     virtual ~drawable();
     
-    void setPosition(double xNew, double yNew);
+    void setPosition(float xNew, float yNew);
     void setPosition (sf::Vector2f vNew);
     sf::Vector2i getPosition() const;
     sf::Vector2i getSize() const;
@@ -77,16 +77,16 @@ class movingCircle: public drawable
     sf::Vector2i posMouse;
     sf::CircleShape shape;
     sf::Color color;
-    double r;
+    float r;
     
     public:
     
-    movingCircle(sf::RenderTarget* w, const sf::Color& c, double xi, double yi, double ri);
+    movingCircle(sf::RenderTarget* w, const sf::Color& c, float xi, float yi, float ri);
     virtual ~movingCircle();
     
     sf::CircleShape getShape() const;
     void setShape(sf::CircleShape& s);
-    void setRadius(double ri);
+    void setRadius(float ri);
     virtual void setColor(const sf::Color& c);
     
     virtual int testMouse (sf::Vector2i v);

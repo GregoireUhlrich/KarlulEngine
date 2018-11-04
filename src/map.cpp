@@ -232,8 +232,8 @@ void mapi::setState(StateMap s)
     state = s;
     if (state == heros) 
     {
-        double xView = Heros->getX()-lx/2.;
-        double yView = Heros->getY()-ly/2.;
+        float xView = Heros->getX()-lx/2.;
+        float yView = Heros->getY()-ly/2.;
         if (xView < 0) xView = 0;
         if (xView > lxMap*xSprites-lx) xView = lxMap*xSprites-lx;    
         if (yView < 0) yView = 0;
@@ -472,7 +472,7 @@ void mapi::setSizeMap(sf::Vector2u s)
     boundary.setPosition(0,0);
     boundary.setSize(sf::Vector2f(lxMap*xSprites, lyMap*ySprites));
     
-    double sizeGrid = 2;
+    float sizeGrid = 2;
     gridX = vector<sf::RectangleShape>(lxMap-1);
     gridY = vector<sf::RectangleShape>(lyMap-1);
     
@@ -1020,11 +1020,11 @@ sf::Vector2f mapi::convertPos(sf::Vector2i p)
     sf::Vector2f foo = viewMap.getCenter();
     sf::Vector2f foo2 = viewMap.getSize();
     
-    double xTranslate = foo.x - sizeWindow.x/2;
-    double yTranslate = foo.y - (sizeWindow.y - ly/2);
+    float xTranslate = foo.x - sizeWindow.x/2;
+    float yTranslate = foo.y - (sizeWindow.y - ly/2);
     
-    double ratioX = foo2.x/lx;
-    double ratioY = foo2.y/ly;
+    float ratioX = foo2.x/lx;
+    float ratioY = foo2.y/ly;
     
     foo2.x = p.x + xTranslate;
     foo2.y = p.y + yTranslate;
@@ -1041,8 +1041,8 @@ sf::Vector2i mapi::invConvertPos(sf::Vector2f p)
     sf::Vector2f foo2 = viewMap.getSize();
     sf::Vector2i foo3;
     
-    double ratioX = lx/foo2.x;
-    double ratioY = ly/foo2.y;
+    float ratioX = lx/foo2.x;
+    float ratioY = ly/foo2.y;
     
     foo3.x = p.x - foo.x;
     foo3.y = p.y - foo.y;
@@ -1065,8 +1065,8 @@ void mapi::initMap()
     
     if (state == heros)
     {
-        double xView = Heros->getX()-lx/2.;
-        double yView = Heros->getY()-ly/2.;
+        float xView = Heros->getX()-lx/2.;
+        float yView = Heros->getY()-ly/2.;
         if (xView < 0) xView = 0;
         if (xView > lxMap*xSprites-lx) xView = lxMap*xSprites-lx;    
         if (yView < 0) yView = 0;
@@ -1077,7 +1077,7 @@ void mapi::initMap()
     }
     mapWindow.setView(viewMap);
     
-    double sizeGrid = 2;
+    float sizeGrid = 2;
     gridX.clear();
     gridY.clear();
     gridX = vector<sf::RectangleShape>(lxMap-1);
@@ -1676,8 +1676,8 @@ void mapi::windowResized(sf::Vector2u newSizeWindow)
         limL.setSize(sf::Vector2f(v.x+2*thicknessBorderImage,ly+2*thicknessBorderImage));
     }
         
-    double ratioX = newSizeWindow.x*1./sizeWindow.x;
-    double ratioY = (newSizeWindow.y*1.-y)/((int)sizeWindow.y-y);
+    float ratioX = newSizeWindow.x*1./sizeWindow.x;
+    float ratioY = (newSizeWindow.y*1.-y)/((int)sizeWindow.y-y);
     
     
     sf::Vector2f foo = viewMap.getSize();
@@ -1794,8 +1794,8 @@ void mapi::setHerosPos(sf::Vector2i p)
 //Down Left Right Up
 bool mapi::testDir(int dir)
 {
-    double xHeros = Heros->getX()/xSprites;
-    double yHeros = Heros->getY()/ySprites;
+    float xHeros = Heros->getX()/xSprites;
+    float yHeros = Heros->getY()/ySprites;
     if (!Heros->isOnGrid())
     {
         int dirHeros = Heros->getDir();
@@ -1869,8 +1869,8 @@ bool mapi::testDir(int dir)
 bool mapi::downOK()
 {
     int ix, iy;
-    double xHeros = Heros->getX();
-    double yHeros = Heros->getY();
+    float xHeros = Heros->getX();
+    float yHeros = Heros->getY();
     int dirHeros = Heros->getDir();
     
     if (dirHeros == 0)
@@ -1913,8 +1913,8 @@ bool mapi::downOK()
 bool mapi::upOK()
 {
     int ix, iy;
-    double xHeros = Heros->getX();
-    double yHeros = Heros->getY();
+    float xHeros = Heros->getX();
+    float yHeros = Heros->getY();
     int dirHeros = Heros->getDir();
     
     if (dirHeros == 0)
@@ -1957,8 +1957,8 @@ bool mapi::upOK()
 bool mapi::leftOK()
 {
     int ix, iy;
-    double xHeros = Heros->getX();
-    double yHeros = Heros->getY();
+    float xHeros = Heros->getX();
+    float yHeros = Heros->getY();
     int dirHeros = Heros->getDir();
     
     if (dirHeros == 0)
@@ -2001,8 +2001,8 @@ bool mapi::leftOK()
 bool mapi::rightOK()
 {
     int ix, iy;
-    double xHeros = Heros->getX();
-    double yHeros = Heros->getY();
+    float xHeros = Heros->getX();
+    float yHeros = Heros->getY();
     int dirHeros = Heros->getDir();
     
     if (dirHeros == 0)
@@ -2043,7 +2043,7 @@ bool mapi::rightOK()
 }
 
 
-void mapi::update(double eT)
+void mapi::update(float eT)
 {
     if (window->getSize() != sizeWindow) windowResized(window->getSize());
     ctrlZObject->addElapsedTime(eT);
@@ -2177,7 +2177,7 @@ void mapi::update(double eT)
         sf::Vector2f center = viewMap.getCenter();
         sf::Vector2f size = viewMap.getSize();
         
-        double ratioZoom = pow(iZoom,delta);
+        float ratioZoom = pow(iZoom,delta);
         if (size.x/lx*ratioZoom > maxZoom)
             ratioZoom = maxZoom*lx/size.x;
         else if (size.x/lx*ratioZoom < minZoom)
@@ -2243,10 +2243,10 @@ void mapi::update(double eT)
         sf::Vector2f foo2;
         foo = selectRect.getPosition();
         foo2 = selectRect.getSize();
-        double xmin = round(foo.x/xSprites)*xSprites;
-        double ymin = round(foo.y/ySprites)*ySprites;
-        double xmax = max(xmin+xSprites,round((foo.x+foo2.x)/xSprites)*xSprites);
-        double ymax = max(ymin+ySprites,round((foo.y+foo2.y)/ySprites)*ySprites);
+        float xmin = round(foo.x/xSprites)*xSprites;
+        float ymin = round(foo.y/ySprites)*ySprites;
+        float xmax = max(xmin+xSprites,(float)round((foo.x+foo2.x)/xSprites)*xSprites);
+        float ymax = max(ymin+ySprites,(float)round((foo.y+foo2.y)/ySprites)*ySprites);
         if (xmin < 0) xmin = 0;
         if (xmax > lxMap*xSprites)  xmax = lxMap*xSprites;
         if (ymin < 0) ymin = 0;
@@ -2313,10 +2313,10 @@ void mapi::update(double eT)
     
     positionText.setString(sf::String("x = "+unsignedIntToString((unsigned int)floor(effectivePosMouse.x/xSprites))+", y = "+unsignedIntToString((unsigned int)floor(effectivePosMouse.y/ySprites))));
     sf::FloatRect foo = positionText.getLocalBounds();
-    double sizeString = foo.width;
+    float sizeString = foo.width;
     int characterSize = 15;
-    double xText = (150-sizeString)/2;
-    double yText = (20-1.15*characterSize)/2;
+    float xText = (150-sizeString)/2;
+    float yText = (20-1.15*characterSize)/2;
     positionText.setPosition(round(xText), round(yText));
     positionMouse.clear(sf::Color::White);
     positionMouse.draw(positionText);
@@ -2540,15 +2540,15 @@ void mapi::draw()
     }*/
     if (state == heros)
     {
-        double xView = Heros->getX()-lx/2.;
-        double yView = Heros->getY()-ly/2.;
+        float xView = Heros->getX()-lx/2.;
+        float yView = Heros->getY()-ly/2.;
         if (xView < 0) xView = 0;
         if (xView > lxMap*xSprites-lx) xView = lxMap*xSprites-lx;    
         if (yView < 0) yView = 0;
         if (yView > lyMap*ySprites-ly) yView = lyMap*ySprites-ly;        
         if (lx > lxMap*xSprites) xView = -(lx-lxMap*xSprites)/2;
         if (ly > lyMap*ySprites) yView = -(ly-lyMap*ySprites)/2;
-        viewMap.reset(sf::FloatRect(round(xView), round(yView),(double)lx,(double)ly));
+        viewMap.reset(sf::FloatRect(round(xView), round(yView),(float)lx,(float)ly));
     }
     /*
     cout<<"map displayed : "<<stringFile<<endl;
