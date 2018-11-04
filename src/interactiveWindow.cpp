@@ -225,7 +225,6 @@ void interactiveWindow::windowEvent(sf::Event event)
                 D[i]->buttonPressed(posMouse);
             }
             if (isWrapped) M->mousePressed(posMouse);
-            sf::Vector2u foo = M->getSizeMap();
         }
         else if (event.mouseButton.button == sf::Mouse::Left)
         {

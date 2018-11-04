@@ -2062,7 +2062,7 @@ wrapMenuSide::wrapMenuSide(sf::RenderTarget *w, mapi* Mi, string t, float x,floa
     contourShape.setPosition(x+lx, y);
     isWrapped = 1;
     isMouseHere = 0;
-    
+    texture = 0;
     textureArrow.loadFromFile("../Icons//arrow-right-blue.png");
     sf::Vector2u fooSize = textureArrow.getSize();
     spriteArrow.setTexture(textureArrow);
@@ -2075,14 +2075,18 @@ wrapMenuSide::~wrapMenuSide(){}
 
 int wrapMenuSide::testMouse(sf::Vector2i v)
 {
-    int xMouse = v.x;
-    int yMouse = v.y;
-    posMouse = sf::Vector2i(xMouse,yMouse);
-    
-    if ((xMouse>x && xMouse<=x+lx && yMouse>y && yMouse<=y+ly0) || (!isWrapped && (xMouse>=x+lx && xMouse<x+lx+lxMenu && yMouse>=y && yMouse<y+min(lyMenu,sizeWrapInWindow))))
-        isMouseHere = 1;
-    else
-        isMouseHere = 0;
+    if (nChoice > 0)
+    {
+        int xMouse = v.x;
+        int yMouse = v.y;
+        posMouse = sf::Vector2i(xMouse,yMouse);
+        
+        if ((xMouse>x && xMouse<=x+lx && yMouse>y && yMouse<=y+ly0) || (!isWrapped && (xMouse>=x+lx && xMouse<x+lx+lxMenu && yMouse>=y && yMouse<y+min(lyMenu,sizeWrapInWindow))))
+            isMouseHere = 1;
+        else
+            isMouseHere = 0;
+    }
+    else isMouseHere = 0;
         
     return isMouseHere;
 }
@@ -2094,8 +2098,12 @@ void wrapMenuSide::setWrapped(bool s)
     {
         ly = ly0;
         yMenu = y+ly;
-        view.reset(sf::FloatRect(0,0,lxMenu,min(lyMenu,sizeWrapInWindow)));
-        texture->setView(view);
+        int foo = min(lyMenu,sizeWrapInWindow);
+        if (foo > 0)
+        {
+            view.reset(sf::FloatRect(0,0,lxMenu,foo));
+            texture->setView(view);
+        }
         isWrapped = 1;
     }
 }
@@ -2144,24 +2152,27 @@ void wrapMenuSide::addChoice(string c)
 
 void wrapMenuSide::windowResized(sf::Vector2u newSizeWindow)
 {
-    float rx = newSizeWindow.x * 1./sizeWindow.x;
-    float ry = newSizeWindow.y * 1./sizeWindow.y;
-    sizeWrapInWindow = round((int)newSizeWindow.y/(2*heightChoice))*heightChoice;
-    rect.setSize(sf::Vector2f(lx/rx,ly/ry));
-    delete texture;    
-    texture = new sf::RenderTexture;
-    texture->create(lxMenu,min(lyMenu,sizeWrapInWindow));
-    if (sprite != 0) delete sprite;
-    sprite = new sf::Sprite;
-    contourShape.setSize(sf::Vector2f(lxMenu,min(lyMenu,sizeWrapInWindow)));
-    view.reset(sf::FloatRect(0,0,lxMenu,min(lyMenu,sizeWrapInWindow)));
-    texture->setView(view);
-    if (isRight)
+    if (nChoice > 0)
     {
-        x += (int)newSizeWindow.x - sizeWindow.x;
-        contourShape.setPosition(x+lx,y+offsetTexture);
-        sf::Vector2f foo = text.getPosition();
-        foo.x += (int)newSizeWindow.x - (int)sizeWindow.x;
+        float rx = newSizeWindow.x * 1./sizeWindow.x;
+        float ry = newSizeWindow.y * 1./sizeWindow.y;
+        sizeWrapInWindow = round((int)newSizeWindow.y/(2*heightChoice))*heightChoice;
+        rect.setSize(sf::Vector2f(lx/rx,ly/ry));
+        delete texture;
+        texture = new sf::RenderTexture;
+        texture->create(lxMenu,min(lyMenu,sizeWrapInWindow));
+        if (sprite != 0) delete sprite;
+        sprite = new sf::Sprite;
+        contourShape.setSize(sf::Vector2f(lxMenu,min(lyMenu,sizeWrapInWindow)));
+        view.reset(sf::FloatRect(0,0,lxMenu,min(lyMenu,sizeWrapInWindow)));
+        texture->setView(view);
+        if (isRight)
+        {
+            x += (int)newSizeWindow.x - sizeWindow.x;
+            contourShape.setPosition(x+lx,y+offsetTexture);
+            sf::Vector2f foo = text.getPosition();
+            foo.x += (int)newSizeWindow.x - (int)sizeWindow.x;
+        }
     }
     sizeWindow = newSizeWindow;
 }
@@ -2639,7 +2650,7 @@ void wrapMenuSideEvent::update()
 
 void wrapMenuSideEvent::draw()
 {
-    if (not isWrapped)
+    if (not isWrapped and texture != 0)
     {
         texture->clear(sf::Color::White);
         int foo = posMouse.y-y;

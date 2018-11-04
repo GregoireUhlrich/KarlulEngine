@@ -129,8 +129,6 @@ void mapi::initPNG(string f, char chirality)
             limL.setPosition(0,sizeWindow.y-ly+2*sizeWrapMenuTexture+2);
             limL.setOutlineThickness(1);
             limL.setOutlineColor(sf::Color(217,217,217));
-            
-            sf::Vector2i foo = imL->imagePNG::getPosition();
         }
         else if (chirality == 'R')
         {
@@ -150,9 +148,6 @@ void mapi::initPNG(string f, char chirality)
             limR.setPosition(sizeWindow.x-v.x-2*thicknessBorderImage,sizeWindow.y-ly);
             limR.setOutlineThickness(1);
             limR.setOutlineColor(sf::Color(217,217,217));
-            
-            sf::Vector2i foo = imR->imagePNG::getPosition();
-            
             file.close();
         }
     }
@@ -845,7 +840,7 @@ int mapi::loadMap()
         stringFileToLoad = "mapTmp.txt";
         stringFile = "mapTmp.txt";
         initMap();
-        cout<<"0\n";
+        
         return 0;
     }
     return 0;
@@ -854,6 +849,7 @@ int mapi::loadMap()
 void mapi::loadEmpty(int lxi, int lyi)
 {
     saveState = loaded;
+    stringFile = stringFileToLoad;
     lxMap = lxi;
     lyMap = lyi;
     if (lxMap < 1) lxMap = 1;
@@ -885,9 +881,9 @@ void mapi::loadEmpty(int lxi, int lyi)
     for (int i=0; i<nPrio; i++)
     {    
         nTextureVec[i] = 0;
-        nSpriteVec[i] = vector<int>(nTextureVec[i]);
-        iTextureVec[i] = vector<int>(nTextureVec[i]);
-        spriteVec[i] = vector<vector<sf::Sprite> >(nTextureVec[i]);
+        nSpriteVec[i] = vector<int>(0);
+        iTextureVec[i] = vector<int>(0);
+        spriteVec[i] = vector<vector<sf::Sprite> >(0);
     }
 
     nExceptions = 0;
@@ -1600,7 +1596,7 @@ void mapi::suppr()
                     }
                     removeSprite(currentPrio, ix, iy);
                 }
-            }                    
+            }
         }
     }
 }
@@ -2310,7 +2306,6 @@ void mapi::update(float eT)
         stringFile = stringFileToLoad;
         loadMap();
     }
-    
     positionText.setString(sf::String("x = "+unsignedIntToString((unsigned int)floor(effectivePosMouse.x/xSprites))+", y = "+unsignedIntToString((unsigned int)floor(effectivePosMouse.y/ySprites))));
     sf::FloatRect foo = positionText.getLocalBounds();
     float sizeString = foo.width;
