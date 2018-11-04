@@ -42,7 +42,7 @@ StaticPNJ: Bilbio Texts/text1.txt Graphics/vieille1.png 21 3 3 Action: 21 3
 StaticPNJ: Pikachu Texts/text2.txt Graphics/Teddychou.png 13 9 1 Action: 13 9
 StaticPNJ: Test Texts/text2.txt Graphics/fille1.png 0 6 3 Action: 1 6
 ChangeMap: SecretGate level1.txt 94 77 0 Gate: 0 7 3
-MiniJeuDamier: Balec 3 1 Action: 29 14
+MiniJeuDamier: Balec 3 0 Action: 29 14
 
 
 endFile
