@@ -95,7 +95,7 @@ void Cross::saveTrigger(ofstream& f)
 
 bool Cross::test(double eT)
 {
-    float xH, yH;
+    double xH, yH;
     int dirH;
     xH = h->getX()/xSprites;
     yH = h->getY()/ySprites;
@@ -176,7 +176,7 @@ void Action::saveTrigger(ofstream& f)
 bool Action::test(double eT)
 {
     if (!h->isOnGrid()) return 0;
-    float xH, yH;
+    double xH, yH;
     int dirH;
     xH = round(h->getX()/xSprites);
     yH = round(h->getY()/ySprites);

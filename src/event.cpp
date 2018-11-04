@@ -237,7 +237,7 @@ void TextInteraction::activate()
     }
 }
 
-void TextInteraction::update(float eT)
+void TextInteraction::update(double eT)
 {
     if (activated && text.size() > iText && h->pullAction())
     {

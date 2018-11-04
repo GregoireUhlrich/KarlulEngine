@@ -186,7 +186,7 @@ class buttonGridUX: public pushButtonUX
     private:
     
     int grid;
-    float xScaleIcon, yScaleIcon;
+    double xScaleIcon, yScaleIcon;
     sf::Texture textureA;
     sf::Texture textureB;
     sf::Sprite spriteA;
@@ -223,7 +223,7 @@ class buttonMapUX: public pushButtonUX
     
     bool active;
     StateMap s;
-    float xScaleIcon, yScaleIcon;
+    double xScaleIcon, yScaleIcon;
     sf::Texture textureA;
     sf::Texture textureB;
     sf::Sprite spriteA;
@@ -297,7 +297,7 @@ class buttonAllPrioUX: public pushButtonUX
     private:
     
     int allPrio;
-    float xScaleIcon, yScaleIcon;
+    double xScaleIcon, yScaleIcon;
     sf::Texture textureA;
     sf::Texture textureB;
     sf::Sprite spriteA;
@@ -333,7 +333,7 @@ class buttonShowPassUX: public pushButtonUX
     private:
     
     bool showPass;
-    float xScaleIcon, yScaleIcon;
+    double xScaleIcon, yScaleIcon;
     sf::Texture textureA;
     sf::Texture textureB;
     sf::Sprite spriteA;
@@ -354,7 +354,7 @@ class interactiveButtonUX: public drawable
     
     bool isRight;
     bool isPressed;
-    float ratioPressed;
+    double ratioPressed;
     unsigned int characterSize;
     mapi* M;
     sf::Font font;
@@ -508,7 +508,7 @@ class wrapMenuUX: public drawable
     int yScroll;
     int sizeWrapInWindow;
     int offsetTexture;
-    float maxSizeChoice;
+    double maxSizeChoice;
     
     bool isWrapped;
     bool isPressed;
@@ -602,7 +602,7 @@ class wrapMenuSide: public wrapMenuUX
     protected:
     
     int lxMenu;
-    float ratio; 
+    double ratio; 
     sf::Texture textureArrow;
     sf::Sprite spriteArrow;
     

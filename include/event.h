@@ -23,8 +23,8 @@ class Event{
     
     bool activated;
     int xSprites, ySprites;
-    float elapsedTime;
-    float triggerTime;
+    double elapsedTime;
+    double triggerTime;
     
     public:
     
@@ -40,7 +40,7 @@ class Event{
     virtual vector<string> getStrings() {return vector<string>(0);}; 
     virtual void saveEvent(std::ofstream& f){};
     virtual void activate(){};
-    virtual void update(float eT){};
+    virtual void update(double eT){};
     virtual void draw(int p){};
 
 };
@@ -63,7 +63,7 @@ class ChangeMap: public Event
     vector<string> getStrings(); 
     void saveEvent(std::ofstream& f);
     void activate();
-    void update(float eT){};
+    void update(double eT){};
     void draw(int p){};
 };
 
@@ -76,8 +76,8 @@ class TextInteraction: public Event
     unsigned int characterSize;
     int thickness;
     int iText;
-    float margin;
-    float interline;
+    double margin;
+    double interline;
     std::vector<sf::String> text;
     std::vector<sf::Text> textToDraw;
     sf::Font font;
@@ -94,7 +94,7 @@ class TextInteraction: public Event
     vector<string> getStrings(); 
     virtual void saveEvent(std::ofstream& f);
     virtual void activate();
-    void update(float eT);
+    void update(double eT);
     void draw(int p);
 };
 

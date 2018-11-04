@@ -381,14 +381,14 @@ void ListCharacter::deleteCharacter(character* c)
 
 void ListCharacter::draw()
 {
-    vector<float> yCharacter(nCharacter);
+    vector<double> yCharacter(nCharacter);
     vector<int> posToDraw(nCharacter);
     for (int i=0; i<nCharacter; i++)
     {
         yCharacter[i] = list[i]->getY();
         posToDraw[i] = 0;
     }
-    float min;
+    double min;
     int iMin;
     for (int i=0; i<nCharacter; i++)
     {   

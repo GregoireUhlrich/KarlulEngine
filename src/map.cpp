@@ -232,8 +232,8 @@ void mapi::setState(StateMap s)
     state = s;
     if (state == heros) 
     {
-        float xView = Heros->getX()-lx/2.;
-        float yView = Heros->getY()-ly/2.;
+        double xView = Heros->getX()-lx/2.;
+        double yView = Heros->getY()-ly/2.;
         if (xView < 0) xView = 0;
         if (xView > lxMap*xSprites-lx) xView = lxMap*xSprites-lx;    
         if (yView < 0) yView = 0;
@@ -1065,8 +1065,8 @@ void mapi::initMap()
     
     if (state == heros)
     {
-        float xView = Heros->getX()-lx/2.;
-        float yView = Heros->getY()-ly/2.;
+        double xView = Heros->getX()-lx/2.;
+        double yView = Heros->getY()-ly/2.;
         if (xView < 0) xView = 0;
         if (xView > lxMap*xSprites-lx) xView = lxMap*xSprites-lx;    
         if (yView < 0) yView = 0;
@@ -2540,8 +2540,8 @@ void mapi::draw()
     }*/
     if (state == heros)
     {
-        float xView = Heros->getX()-lx/2.;
-        float yView = Heros->getY()-ly/2.;
+        double xView = Heros->getX()-lx/2.;
+        double yView = Heros->getY()-ly/2.;
         if (xView < 0) xView = 0;
         if (xView > lxMap*xSprites-lx) xView = lxMap*xSprites-lx;    
         if (yView < 0) yView = 0;

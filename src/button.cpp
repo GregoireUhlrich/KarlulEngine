@@ -2004,8 +2004,8 @@ void wrapMenuEdit::update()
 {
     mLoad->update();
     mScenario->update();
-    selectShape.setSize(sf::Vector2f(max((double)lx, maxSizeChoice*4./3+30),heightChoice));
-    contourShape.setSize(sf::Vector2f(max((double)lx, maxSizeChoice*4./3+30),nChoice*heightChoice));
+    selectShape.setSize(sf::Vector2f(max((double)lx, (double)maxSizeChoice*4./3+30),heightChoice));
+    contourShape.setSize(sf::Vector2f(max((double)lx, (double)maxSizeChoice*4./3+30),nChoice*heightChoice));
     if (isMouseHere or mLoad->getIsMouseHere() or mScenario->getIsMouseHere())
     {
         rect.setFillColor(sf::Color(232,232,232));
@@ -2016,7 +2016,7 @@ void wrapMenuEdit::update()
         rect.setFillColor(sf::Color::Transparent);
         rect.setOutlineColor(sf::Color::Transparent);
     }
-    view.reset(sf::FloatRect(0,y+ly0-yMenu,max((double)lx, maxSizeChoice*4./3+30),min(lyMenu, sizeWrapInWindow)));
+    view.reset(sf::FloatRect(0,y+ly0-yMenu,max((double)lx, (double)maxSizeChoice*4./3+30),min(lyMenu, sizeWrapInWindow)));
     texture->setView(view);
     if (isMouseHere and isWrapped)
     {

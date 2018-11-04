@@ -388,26 +388,26 @@ void imagePNG::update()
             double xmin, ymin, xmax, ymax;
             if (!takeMidX)
             {
-                xmin = min(floor((foo.x)/xSprites)*xSprites,(float)lx-xSprites);
-                xmax = max(xmin+xSprites,round((foo.x+foo2.x)/xSprites)*xSprites);
+                xmin = min(floor((double)(foo.x)/xSprites)*xSprites,(double)lx-xSprites);
+                xmax = max(xmin+xSprites,round(((double)foo.x+(double)foo2.x)/xSprites)*xSprites);
                 xmax = min(xmax,(double)lx);
             }
             else
             {
-                xmin = min(floor((foo.x)*2./xSprites)*xSprites/2.,(float)lx-1.5*xSprites);
-                xmax = max(xmin+xSprites,round((foo.x+foo2.x-xSprites/2)/xSprites)*xSprites+xSprites/2);    
+                xmin = min(floor((foo.x)*2./xSprites)*xSprites/2.,(double)lx-1.5*xSprites);
+                xmax = max(xmin+xSprites,round(((double)foo.x+(double)foo2.x-xSprites/2)/xSprites)*xSprites+xSprites/2);    
                 xmax = min(xmax, (double)lx-xSprites/2.);
             }
             if (!takeMidY)
             {
-                ymin = min(floor((foo.y)/ySprites)*ySprites,(float)ly-ySprites);
-                ymax = max(ymin+ySprites,round((foo.y+foo2.y)/ySprites)*ySprites);
+                ymin = min(floor(((double)foo.y)/ySprites)*ySprites,(double)ly-ySprites);
+                ymax = max(ymin+ySprites,round(((double)foo.y+(double)foo2.y)/ySprites)*ySprites);
                 ymax = min(ymax,(double)ly);
             }
             else
             {
-                ymin = min(floor((foo.y)*2./ySprites)*ySprites/2.,(float)ly-1.5*ySprites);
-                ymax = max(ymin+ySprites,round((foo.y+foo2.y-ySprites/2)/ySprites)*ySprites+ySprites/2);    
+                ymin = min(floor(((double)foo.y)*2./ySprites)*ySprites/2.,(double)ly-1.5*ySprites);
+                ymax = max(ymin+ySprites,round(((double)foo.y+(double)foo2.y-ySprites/2)/ySprites)*ySprites+ySprites/2);    
                 ymax = min(ymax, (double)ly-ySprites/2.);        
             }
             selectRect.setPosition(xmin,ymin);
